@@ -156,7 +156,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
     </div>
    
 </div>
-{#if validKey}
+{#if validKey == true }
 <div class="p-4 font-serif overflow-x-auto">
     <table class="table table-compact w-full">
         <thead>
@@ -203,7 +203,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 
 
 </div>
-{:else}
+{:else if loading == false}
 
 <div class="flex justify-center flex-row">
     <div class="pt-10">
