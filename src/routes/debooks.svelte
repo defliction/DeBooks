@@ -22,6 +22,7 @@
     var startday = dayjs(start)
     let end = new Date(2022,6,7)
     var endday = dayjs(end)
+    let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
     
@@ -120,18 +121,20 @@
         try {
             if (web3.PublicKey.isOnCurve($keyInput) == true)
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
-                
+                validKey = true
                 fetchAll(new web3.PublicKey($keyInput))
                 
                 return true
 
         } catch(e) {
             console.log("failed key")
+            validKey = false
             return false
         }
         return false
     }
-$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : console.log("failed key") : console.log("no input")
+$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : loading = false
+
 </script>
 
 
@@ -139,9 +142,10 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : console.log("f
 
 <div class="flex justify-center flex-row">
     <div class="pt-4">
-        <h1 class="pb-2 font-bely text-5xl font-bold text-center">DeBooks</h1>
-        <input type="text" placeholder="Enter wallet address here"  bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs" />
-        <p class="text-lg font-serif font-bold text-center">Wallet Transaction Statement</p>
+        <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
+        <input type="text" placeholder="enter full wallet address e.g. DeDao..uw2r"  bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
+        <p class="pt-2 text-lg font-serif font-bold text-center">Wallet Transaction Statement</p>
+        
         <p class="text-sm font-serif text-center">For the period {startday.format('DD/MM/YYYY')} to {endday.format('DD/MM/YYYY')}</p>
        <p class="pt-2 text-center">
         {#if loading}
@@ -152,7 +156,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : console.log("f
     </div>
    
 </div>
-
+{#if validKey}
 <div class="p-4 font-serif overflow-x-auto">
     <table class="table table-compact w-full">
         <thead>
@@ -199,3 +203,18 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : console.log("f
 
 
 </div>
+{:else}
+
+<div class="flex justify-center flex-row">
+    <div class="pt-10">
+        <div class="alert alert-info shadow-lg">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>Enter a valid wallet address to display records.</span>
+            </div>
+          </div>
+    
+</div>
+</div>
+
+{/if}
