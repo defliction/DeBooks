@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, currentFetch, workingArray } from '../stores.js';
+    import { apiData, currentFetch, workingArray, keyInput } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -22,7 +22,9 @@
     var startday = dayjs(start)
     let end = new Date(2022,6,7)
     var endday = dayjs(end)
-    let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
+    //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
+  
+    
     /*
     const connection = new web3.Connection(
                 web3.clusterApiUrl('mainnet-beta'),
@@ -36,7 +38,7 @@
     const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     
     onMount(async () => {
-       await fetchAll()
+       //await fetchAll()
         
     });
 
@@ -44,10 +46,11 @@
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
 
-    async function fetchAll () {
+    async function fetchAll (keyIn) {
+        
        
         loading = true
-        let account = await connection.getConfirmedSignaturesForAddress2(deDaoKey, {limit:fetchLimit});
+        let account = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(account.length)
         let lastsig = account[account.length - 1].signature
         console.log("last ", account[account.length - 1].signature)
@@ -60,7 +63,7 @@
         
             z++
             try {
-                let blue = await connection.getConfirmedSignaturesForAddress2(deDaoKey, {limit:fetchLimit,before:lastsig});
+                let blue = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
                 if (blue.length == 0) {
                     await sleep(500) //wait 0.5 seconds
                     continue
@@ -80,7 +83,7 @@
                 console.log("error ", e)
                 await sleep(500) //wait 0.5 seconds
             }
-            
+                
         
         }
         $apiData = $apiData.flat()
@@ -113,6 +116,22 @@
         
     }
 
+    function checkKey () {
+        try {
+            if (web3.PublicKey.isOnCurve($keyInput) == true)
+                //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
+                
+                fetchAll(new web3.PublicKey($keyInput))
+                
+                return true
+
+        } catch(e) {
+            console.log("failed key")
+            return false
+        }
+        return false
+    }
+$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : console.log("failed key") : console.log("no input")
 </script>
 
 
@@ -121,6 +140,7 @@
 <div class="flex justify-center flex-row">
     <div class="pt-4">
         <h1 class="pb-2 font-bely text-5xl font-bold text-center">DeBooks</h1>
+        <input type="text" placeholder="Enter wallet address here"  bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs" />
         <p class="text-lg font-serif font-bold text-center">Wallet Transaction Statement</p>
         <p class="text-sm font-serif text-center">For the period {startday.format('DD/MM/YYYY')} to {endday.format('DD/MM/YYYY')}</p>
        <p class="pt-2 text-center">
