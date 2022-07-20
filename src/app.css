@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: 'BelyDisplayW00-Regular';
+        src: local('BelyDisplayW00-Regular'), url(./fonts/bely.woff2) format('woff2');
+    }
+}
