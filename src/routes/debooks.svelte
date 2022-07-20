@@ -133,7 +133,7 @@
         }
         return false
     }
-$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : loading = false
+$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : validKey = false, loading = false
 
 </script>
 
@@ -143,7 +143,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 <div class="flex justify-center flex-row">
     <div class="pt-4">
         <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
-        <input type="text" placeholder="enter full wallet address e.g. DeDao..uw2r"  bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
+        <input type="text" placeholder="enter full wallet address e.g. DeDao..uw2r" bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
         <p class="pt-2 text-lg font-serif font-bold text-center">Wallet Transaction Statement</p>
         
         <p class="text-sm font-serif text-center">For the period {startday.format('DD/MM/YYYY')} to {endday.format('DD/MM/YYYY')}</p>
@@ -207,7 +207,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 
 <div class="flex justify-center flex-row">
     <div class="pt-10">
-        <div class="alert alert-info shadow-lg">
+        <div class="alert shadow-lg">
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span>Enter a valid wallet address to display records.</span>
