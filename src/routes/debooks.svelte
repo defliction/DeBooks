@@ -20,7 +20,7 @@
 
     let start = new Date(2022,5,25)
     var startday = dayjs(start)
-    let end = new Date(2022,6,7)
+    let end = new Date(2022,6,5)
     var endday = dayjs(end)
     let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -53,65 +53,74 @@
         loading = true
         let account = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(account.length)
-        let lastsig = account[account.length - 1].signature
-        console.log("last ", account[account.length - 1].signature)
-        console.log(account)
-        let lastday = dayjs.unix(account[account.length - 1].blockTime)
-        console.log("last ", lastday, " start ", startday)
-        let z = 0;
-        $apiData.push(account)
-        while (lastday > startday) {
-        
-            z++
-            try {
-                let blue = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
-                if (blue.length == 0) {
+        if (account.length == 0)
+        {
+            validKey = false
+            console.log("account length 0")
+        }  
+        else
+        {
+            let lastsig = account[account.length - 1].signature
+            console.log("last ", account[account.length - 1].signature)
+            console.log(account)
+            let lastday = dayjs.unix(account[account.length - 1].blockTime)
+            console.log("last ", lastday, " start ", startday)
+            let z = 0;
+            $apiData.push(account)
+            while (lastday > startday) {
+            
+                z++
+                try {
+                    let blue = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
+                    if (blue.length == 0) {
+                        await sleep(500) //wait 0.5 seconds
+                        continue
+                    }
+                    console.log("blue con ", z)
+                    console.log(blue)
+                    lastday = await dayjs.unix(blue[blue.length - 1].blockTime)
+                    lastsig = await blue[blue.length - 1].signature
+                    $apiData.push(blue)
+                    
+                    if (z==10) {
+                        console.log("braek")
+                        break
+                    }
+                }
+                catch (e) {
+                    console.log("error ", e)
                     await sleep(500) //wait 0.5 seconds
-                    continue
                 }
-                console.log("blue con ", z)
-                console.log(blue)
-                lastday = await dayjs.unix(blue[blue.length - 1].blockTime)
-                lastsig = await blue[blue.length - 1].signature
-                $apiData.push(blue)
-                
-                if (z==10) {
-                    console.log("braek")
-                    break
-                }
+                    
+            
             }
-            catch (e) {
-                console.log("error ", e)
-                await sleep(500) //wait 0.5 seconds
-            }
-                
-        
-        }
-        $apiData = $apiData.flat()
-        //fetch all transactions
-        console.log("fetched account transactions ", $apiData.length)
-        //console.log($apiData)
-        var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
-        var reformattedArray = results.map((result) => result.signature);
+            $apiData = $apiData.flat()
+            //fetch all transactions
+            console.log("fetched account transactions ", $apiData.length)
+            //console.log($apiData)
+            var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+            var reformattedArray = results.map((result) => result.signature);
 
-        console.log("reformated array lenghth ", reformattedArray.length);
-        console.log(reformattedArray.slice(0,2))
-        //batch this if size is bgger than 120?
-        //sometimes these come back as null;
-        $workingArray = await connection.getParsedTransactions(reformattedArray)
-        
-        console.log("printing working array")
-        console.log($workingArray)
-        //console.log($workingArray[0].transaction.message.instructions[0].program)
-        var royaltyIncome = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn");
-        
-        //console.log(royaltyIncome)
-        console.log("royalty income ", roya)
-        //a2.filter(x => !a1.includes(x)) 
-        console.log($workingArray.filter(x => !royaltyIncome.includes(x)) )
-        //const agg = create(JSON.stringify(royaltyIncome))
-        //console.log(dayjs.unix(testTrans3.blockTime).format('lll'), testTrans3, );
-        //DeGod purchase from ME 3aSxqqw5natU1J8j4SAt9tyZNuG7U8JFeMGvGKvcYrFBLJNsECTnq2nJiErGbL5wzkZ1Go91C2XCMAajmSzCcefn       
+            console.log("reformated array lenghth ", reformattedArray.length);
+            console.log(reformattedArray.slice(0,2))
+            //batch this if size is bgger than 120?
+            //sometimes these come back as null;
+            $workingArray = await connection.getParsedTransactions(reformattedArray)
+            
+            console.log("printing working array")
+            console.log($workingArray)
+            //console.log($workingArray[0].transaction.message.instructions[0].program)
+            var royaltyIncome = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn");
+            
+            //console.log(royaltyIncome)
+            console.log("royalty income ", roya)
+            //a2.filter(x => !a1.includes(x)) 
+            console.log($workingArray.filter(x => !royaltyIncome.includes(x)) )
+            //const agg = create(JSON.stringify(royaltyIncome))
+            //console.log(dayjs.unix(testTrans3.blockTime).format('lll'), testTrans3, );
+            //DeGod purchase from ME 3aSxqqw5natU1J8j4SAt9tyZNuG7U8JFeMGvGKvcYrFBLJNsECTnq2nJiErGbL5wzkZ1Go91C2XCMAajmSzCcefn       
+            
+        }
         loading = false 
             
         
@@ -133,7 +142,7 @@
         }
         return false
     }
-$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : validKey = false, loading = false
+$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 
 </script>
 
@@ -203,7 +212,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 
 
 </div>
-{:else if loading == false}
+{:else}
 
 <div class="flex justify-center flex-row">
     <div class="pt-10">
