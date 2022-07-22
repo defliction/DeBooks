@@ -10,7 +10,10 @@
     
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
+    import { Datatable } from 'svelte-simple-datatables'
 
+    const settings = { columnFilter: true }
+    let rows
 
     let allData = []
     let loopNumber = 0;
@@ -18,9 +21,9 @@
     let fetchLimit = 250
     let loading = false;
 
-    let start = new Date(2022,5,25)
+    let start = new Date(2022,5,19)
     var startday = dayjs(start)
-    let end = new Date(2022,6,5)
+    let end = new Date(2022,5,16)
     var endday = dayjs(end)
     let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -33,8 +36,8 @@
             );*/
 
     $: roya = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
-    $: sol_out = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system"&& transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.source == "DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
-    $: sol_in = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.source != "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn" && transaction.transaction.message.instructions[0].parsed.info.destination == "DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
+    $: sol_out = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.source == $keyInput).reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
+    $: sol_in = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.destination == $keyInput).reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
 
     const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     
@@ -49,7 +52,8 @@
 
     async function fetchAll (keyIn) {
         
-       
+        //console.log("getTokenAccounts ", await connection.getAccountInfo(new web3.PublicKey("HDeC9hGSZzhY6VCdNaJ4nEk1GqH3RkHPLGHFd98eMcd2")))
+
         loading = true
         let account = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(account.length)
@@ -98,18 +102,21 @@
             //fetch all transactions
             console.log("fetched account transactions ", $apiData.length)
             //console.log($apiData)
-            var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+            //var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+            var results = $apiData
+            console.log("results ", results)
             var reformattedArray = results.map((result) => result.signature);
 
             console.log("reformated array lenghth ", reformattedArray.length);
             console.log(reformattedArray.slice(0,2))
-            //batch this if size is bgger than 120?
+            //batch this if size is bgger than 120? ---> Check sizes here and collect in loop!
             //sometimes these come back as null;
-            $workingArray = await connection.getParsedTransactions(reformattedArray)
+            $workingArray = await connection.getParsedTransactions(reformattedArray.slice(0,20))
             
             console.log("printing working array")
             console.log($workingArray)
             //console.log($workingArray[0].transaction.message.instructions[0].program)
+            
             var royaltyIncome = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn");
             
             //console.log(royaltyIncome)
@@ -145,8 +152,6 @@
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 
 </script>
-
-
 
 
 <div class="flex justify-center flex-row">
