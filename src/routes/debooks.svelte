@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, workingArray, keyInput } from '../stores.js';
+    import { apiData, cleanedArray,fetchedArray, workingArray, keyInput } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -21,14 +21,15 @@
     let fetchLimit = 250
     let loading = false;
 
-    let start = new Date(2022,5,19)
+    let start = new Date(2022,6,1)
     var startday = dayjs(start)
-    let end = new Date(2022,5,16)
+    let end = new Date(2022,6,6)
     var endday = dayjs(end)
     let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
-    const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
+    //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
+    const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     
     onMount(async () => {
        //await fetchAll()
@@ -49,10 +50,13 @@
         if (account.length == 0)
         {
             validKey = false
-            console.log("account length 0")
+            console.log("account length  0")
         }  
         else
         {
+           
+            $apiData =[]
+            $workingArray = []
             let lastsig = account[account.length - 1].signature
             console.log("last ", account[account.length - 1].signature)
             console.log(account)
@@ -76,7 +80,7 @@
                     $apiData.push(blue)
                     
                     if (z==10) {
-                        console.log("braek")
+                        console.log("br aek")
                         break
                     }
                 }
@@ -91,13 +95,16 @@
             //fetch all transactions
             console.log("fetched account transactions: ", $apiData.length)
             //console.log($apiData)
-            //var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
-            var results = $apiData
+            var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+
             console.log("results ", results)
             var reformattedArray = results.map((result) => result.signature);
-     
-            $workingArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
-                //console.log(item);
+            $fetchedArray = await connection.getParsedTransactions(reformattedArray)
+            $fetchedArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
+                
+                //new fee item
+                //interpret each line and add transactions to the array;
+
                 var new_line = 
                 {
                     "signature": item.transaction.signatures[0],
@@ -110,16 +117,16 @@
                     "post_balances": item.meta? item.meta.postBalances : null,
                     "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                     "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                    "description": item
+                    "description": "Generic Transaction"
                 }
-                $cleanedArray.push(new_line)
+                $workingArray.push(new_line)
                 
             });
-            console.log("printing cleaned array")
-            console.log($cleanedArray)
-            console.log("printing working array")
-            console.log($workingArray)
-            
+            //console.log("printing cleaned array")
+            //console.log($cleanedArray)
+            //console.log("printing working array")
+            //.log($workingArray)
+            $workingArray = $workingArray
             
         }
         loading = false 
@@ -144,7 +151,7 @@
         return false
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
-$: $cleanedArray
+
 
 </script>
 
@@ -180,10 +187,10 @@ $: $cleanedArray
           </thead>
           <tbody>
             <!-- row 1 -->
-            {#each $cleanedArray as transaction, i}
+            {#each $workingArray as transaction, i}
                 <tr>
-                <td class="basis-2">{transaction.timestamp}</td>
-                <td class="basis-20">{transaction}</td>
+                <td class="basis-2">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                <td class="basis-20">{transaction.description}</td>
                 <td class="basis-2">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
                 <td class="basis-2 text-right">{transaction.fee}</td>
                 </tr>
