@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, currentFetch, workingArray, keyInput } from '../stores.js';
+    import { apiData, cleanedArray, workingArray, keyInput } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -10,7 +10,10 @@
     
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
+    import { Datatable } from 'svelte-simple-datatables'
 
+    const settings = { columnFilter: true }
+    let rows
 
     let allData = []
     let loopNumber = 0;
@@ -25,17 +28,6 @@
     let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
-    
-    /*
-    const connection = new web3.Connection(
-                web3.clusterApiUrl('mainnet-beta'),
-                'confirmed',
-            );*/
-
-    $: roya = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
-    $: sol_out = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system"&& transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.source == "DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
-    $: sol_in = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.type == "transfer" && transaction.transaction.message.instructions[0].parsed.info.source != "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn" && transaction.transaction.message.instructions[0].parsed.info.destination == "DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r").reduce(( previousValue, currentValue ) => previousValue + currentValue.transaction.message.instructions[0].parsed.info.lamports, 0)*0.000000001;
-
     const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     
     onMount(async () => {
@@ -96,29 +88,37 @@
             }
             $apiData = $apiData.flat()
             //fetch all transactions
-            console.log("fetched account transactions ", $apiData.length)
+            console.log("fetched account transactions: ", $apiData.length)
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
             var reformattedArray = results.map((result) => result.signature);
-
-            console.log("reformated array lenghth ", reformattedArray.length);
-            console.log(reformattedArray.slice(0,2))
-            //batch this if size is bgger than 120?
-            //sometimes these come back as null;
             $workingArray = await connection.getParsedTransactions(reformattedArray)
             
+     
+            $workingArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
+                //console.log(item);
+                var new_line = 
+                {
+                    "signature": item.transaction.signatures[0],
+                    "timestamp": item.blockTime, 
+                    "slot": item.slot,
+                    "success": item.meta? item.meta.err? false : true : null,
+                    "fee": item.meta? item.meta.fee : null,
+                    "account_keys": item.transaction.message.accountKeys,
+                    "pre_balances": item.meta? item.meta.preBalances : null,
+                    "post_balances": item.meta? item.meta.postBalances : null,
+                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                    "description": item
+                }
+                $cleanedArray.push(new_line)
+                
+            });
+            console.log("printing cleaned array")
+            console.log($cleanedArray)
             console.log("printing working array")
             console.log($workingArray)
-            //console.log($workingArray[0].transaction.message.instructions[0].program)
-            var royaltyIncome = $workingArray.filter(transaction => transaction.transaction.message.instructions[0].program == "system" && transaction.transaction.message.instructions[0].parsed.info.source == "AxFuniPo7RaDgPH6Gizf4GZmLQFc4M5ipckeeZfkrPNn");
             
-            //console.log(royaltyIncome)
-            console.log("royalty income ", roya)
-            //a2.filter(x => !a1.includes(x)) 
-            console.log($workingArray.filter(x => !royaltyIncome.includes(x)) )
-            //const agg = create(JSON.stringify(royaltyIncome))
-            //console.log(dayjs.unix(testTrans3.blockTime).format('lll'), testTrans3, );
-            //DeGod purchase from ME 3aSxqqw5natU1J8j4SAt9tyZNuG7U8JFeMGvGKvcYrFBLJNsECTnq2nJiErGbL5wzkZ1Go91C2XCMAajmSzCcefn       
             
         }
         loading = false 
@@ -143,6 +143,7 @@
         return false
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+$: $cleanedArray
 
 </script>
 
@@ -167,50 +168,30 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 </div>
 {#if validKey == true }
 <div class="p-4 font-serif overflow-x-auto">
-    <table class="table table-compact w-full">
-        <thead>
+    <div class="overflow-x-auto">
+        <table class="table w-full">
+          <!-- head -->
+          <thead>
             <tr>
-                <th></th>
-                <th class="block text-right">Amount</th>
+              <th class="basis-2">Date</th>
+              <th class="basis-20">Description</th>
+              <th class="basis-2">Counterparty</th>
+              <th class="basis-2 text-right">Amount</th>
             </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="pl-2">Royalty Income</td>
-                {#if loading}
-                    <td class="text-right">
-                        <progress class=" progress w-16"></progress>
-                    </td>
-                {:else}
-                    <td class="pr-4 block text-right"><Number number={roya} locale="en"/></td>
-                {/if}
-            </tr>
-            <tr>
-                <td class="pl-2">SOL Transfer In</td>
-                {#if loading}
-                <td class="text-right">
-                    <progress class=" progress w-16"></progress>
-                </td>
-                {:else}
-                    <td class="pr-4 block text-right"><Number number={sol_in} locale="en"/></td>
-                {/if}
-            </tr>
-            <tr>
-                <td class="pl-2">SOL Transfer Out</td>
-                {#if loading}
-                <td class="text-right">
-                    <progress class=" progress w-16"></progress>
-                </td>
-                {:else}
-                    <td class="pr-4 block text-right"><Number number={sol_out} locale="en"/></td>
-                {/if}
-            </tr>
-        </tbody>
-
-
-    </table>
-
-
+          </thead>
+          <tbody>
+            <!-- row 1 -->
+            {#each $cleanedArray as transaction, i}
+                <tr>
+                <td class="basis-2">{transaction.timestamp}</td>
+                <td class="basis-20">{transaction}</td>
+                <td class="basis-2">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                <td class="basis-2 text-right">{transaction.fee}</td>
+                </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
 </div>
 {:else}
 
