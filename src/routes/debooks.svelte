@@ -173,31 +173,33 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
    
 </div>
 {#if validKey == true }
-<div class="p-4 font-serif overflow-x-auto">
+<div class="flex justify-center p-4 font-serif overflow-x-auto">
     <div class="overflow-x-auto">
-        <table class="table w-full">
+        <table class="table table-compact ">
+        
           <!-- head -->
           <thead>
-            <tr>
-              <th class="basis-2">Date</th>
-              <th class="basis-20">Description</th>
-              <th class="basis-2">Counterparty</th>
-              <th class="basis-2 text-right">Amount</th>
+            <tr class="">
+              <th class="min-w-[2rem]">Date</th>
+              <th class="min-w-[20rem]">Description</th>
+              <th class="min-w-[4rem]">Counterparty</th>
+              <th class="min-w-[2rem]">Amount</th>
             </tr>
           </thead>
           <tbody>
             <!-- row 1 -->
             {#each $workingArray as transaction, i}
-                <tr>
-                <td class="basis-2">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                <td class="basis-20">{transaction.description}</td>
-                <td class="basis-2">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                <td class="basis-2 text-right">{transaction.fee}</td>
+                <tr class="">
+                <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                <td class="min-w-[20rem]">{transaction.description}</td>
+                <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                <td class="min-w-[2rem] text-right">{transaction.fee}</td>
                 </tr>
             {/each}
           </tbody>
+        
         </table>
-      </div>
+    </div>
 </div>
 {:else}
 

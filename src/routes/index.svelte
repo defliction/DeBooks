@@ -1,3 +1,2 @@
 
-<button class="btn" ><a href="/debooks"
-sveltekit:prefetch>DeBooks</a></button>
+<button class="btn" ><a href="/debooks">DeBooks</a></button>
