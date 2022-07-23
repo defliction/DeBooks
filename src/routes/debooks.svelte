@@ -21,9 +21,9 @@
     let fetchLimit = 250
     let loading = false;
 
-    let start = new Date(2022,5,25)
+    let start = new Date(2022,5,19)
     var startday = dayjs(start)
-    let end = new Date(2022,6,5)
+    let end = new Date(2022,5,16)
     var endday = dayjs(end)
     let validKey = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -41,7 +41,8 @@
 
     async function fetchAll (keyIn) {
         
-       
+        //console.log("getTokenAccounts ", await connection.getAccountInfo(new web3.PublicKey("HDeC9hGSZzhY6VCdNaJ4nEk1GqH3RkHPLGHFd98eMcd2")))
+
         loading = true
         let account = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(account.length)
@@ -90,10 +91,10 @@
             //fetch all transactions
             console.log("fetched account transactions: ", $apiData.length)
             //console.log($apiData)
-            var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+            //var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
+            var results = $apiData
+            console.log("results ", results)
             var reformattedArray = results.map((result) => result.signature);
-            $workingArray = await connection.getParsedTransactions(reformattedArray)
-            
      
             $workingArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
                 //console.log(item);
@@ -146,8 +147,6 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 $: $cleanedArray
 
 </script>
-
-
 
 
 <div class="flex justify-center flex-row">
