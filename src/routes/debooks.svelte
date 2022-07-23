@@ -7,7 +7,9 @@
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
     import Number from "../utils/Number.svelte";
-    
+    import { DateInput } from 'date-picker-svelte'
+  
+
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
     import { Datatable } from 'svelte-simple-datatables'
@@ -22,10 +24,14 @@
     let loading = false;
 
     let start = new Date(2022,6,1)
-    var startday = dayjs(start)
+    $: startday = dayjs(start)
     let end = new Date(2022,6,6)
-    var endday = dayjs(end)
+    $: endday = dayjs(end)
     let validKey = false
+
+    let date = new Date()
+    
+    
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
@@ -33,7 +39,8 @@
     
     onMount(async () => {
        //await fetchAll()
-        
+        console.log("fetching sol pay 2")
+        console.log(await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv"))
     });
 
     const sleep = (milliseconds) => {
@@ -155,14 +162,15 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 
 </script>
 
-
 <div class="flex justify-center flex-row">
     <div class="pt-4">
         <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
-        <input type="text" placeholder="enter full wallet address e.g. DeDao..uw2r" bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
-        <p class="pt-2 text-lg font-serif font-bold text-center">Wallet Transaction Statement</p>
+        <input type="text" placeholder="enter full account address e.g. DeDao..uw2r" bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
+        <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
-        <p class="text-sm font-serif text-center">For the period {startday.format('DD/MM/YYYY')} to {endday.format('DD/MM/YYYY')}</p>
+
+        <p class="text-sm font-serif text-center">For the period <DateInput bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" /> to <DateInput bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" /></p>
+
        <p class="pt-2 text-center">
         {#if loading}
             <span class="font-serif font-medium badge badge-lg">loading...</span> 
@@ -172,6 +180,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
     </div>
    
 </div>
+
 {#if validKey == true }
 <div class="flex justify-center p-4 font-serif overflow-x-auto">
     <div class="overflow-x-auto">
@@ -184,6 +193,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
               <th class="min-w-[20rem]">Description</th>
               <th class="min-w-[4rem]">Counterparty</th>
               <th class="min-w-[2rem]">Amount</th>
+              <th class="min-w-[2rem]"></th>
             </tr>
           </thead>
           <tbody>
@@ -194,6 +204,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
                 <td class="min-w-[20rem]">{transaction.description}</td>
                 <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
                 <td class="min-w-[2rem] text-right">{transaction.fee}</td>
+                <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
                 </tr>
             {/each}
           </tbody>
@@ -216,3 +227,5 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 </div>
 
 {/if}
+
+

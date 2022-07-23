@@ -18,6 +18,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
 		"@typescript-eslint/parser": "^5.27.0",
 		"autoprefixer": "^10.4.7",
+		"date-picker-svelte": "^2.0.0",
 		"eslint": "^8.16.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^4.0.0",
@@ -39,6 +40,7 @@
 		"@tailwindcss/typography": "^0.5.4",
 		"daisyui": "^2.19.0",
 		"dayjs": "^1.11.4",
-		"json-aggregate": "^0.1.2"
+		"json-aggregate": "^0.1.2",
+		"svelty-picker": "^2.1.1"
 	}
 }
