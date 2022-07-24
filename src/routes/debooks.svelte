@@ -8,7 +8,10 @@
     import relativeTime from 'dayjs/plugin/relativeTime'
     import Number from "../utils/Number.svelte";
     import { DateInput } from 'date-picker-svelte'
-  
+
+
+   
+    let myDate = '2021-11-11';
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -162,14 +165,29 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 
 </script>
 
-<div class="flex justify-center flex-row">
-    <div class="pt-4">
+<div class="flex justify-center">
+    <div class="pt-4 text-center ">
         <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
-        <input type="text" placeholder="enter full account address e.g. DeDao..uw2r" bind:value={$keyInput} class="input input-sm input-bordered input-primary w-96 max-w-xs text-center" />
+        <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center input input-sm input-bordered input-primary w-96 max-w-xs " />
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
-
-        <p class="text-sm font-serif text-center">For the period <DateInput bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" /> to <DateInput bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" /></p>
+        <div class="flex flex-row text-sm font-serif ">
+            <div class="flex items-center pr-2">
+                For the period
+            </div>
+            
+            <div class="flex items-center align-middle justify-center">
+                <DateInput bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
+            </div> 
+            <span class="flex items-center px-2 ">
+                to
+            </span>
+             
+            <div class="inline-block text-center">
+                <DateInput bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
+            </div>
+        </div>
+        
 
        <p class="pt-2 text-center">
         {#if loading}
@@ -227,5 +245,11 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 </div>
 
 {/if}
+<style>
+    :root {
+    --date-picker-background: hsl(var(--b1));
+    --date-picker-foreground: hsl(var(--bc));
+    --date-input-width: 90px;
 
-
+}
+</style>
