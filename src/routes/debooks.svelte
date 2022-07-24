@@ -26,9 +26,11 @@
     let fetchLimit = 250
     let loading = false;
 
-    let start = new Date(2022,6,1)
+    //let start = new Date(2022,6,1)
+    let start = "2022-06-17"
     $: startday = dayjs(start)
-    let end = new Date(2022,6,6)
+    //let end = new Date(2022,6,6)
+    let end = "2022-06-18"
     $: endday = dayjs(end)
     let validKey = false
 
@@ -109,8 +111,11 @@
 
             console.log("results ", results)
             var reformattedArray = results.map((result) => result.signature);
-            $fetchedArray = await connection.getParsedTransactions(reformattedArray)
-            $fetchedArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
+           
+                console.log("truy1 ")
+                $fetchedArray = await connection.getParsedTransactions(reformattedArray)
+                console.log("truy2 ")
+                $fetchedArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
                 
                 //new fee item
                 //interpret each line and add transactions to the array;
@@ -137,8 +142,11 @@
             //console.log("printing working array")
             //.log($workingArray)
             $workingArray = $workingArray
+           
+            
             
         }
+    
         loading = false 
             
         
@@ -160,9 +168,11 @@
         }
         return false
     }
-$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+//$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 
-
+$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+//<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
+// /<DateInput on:close={fetchAll} bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
 </script>
 
 <div class="flex justify-center">
@@ -172,20 +182,16 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif ">
-            <div class="flex items-center pr-2">
+            <span class="flex items-center pr-2">
                 For the period
-            </div>
+            </span>
+            <input type="date" on:close={fetchAll} bind:value={start} max={end} class="text-center"/>
             
-            <div class="flex items-center align-middle justify-center">
-                <DateInput bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
-            </div> 
             <span class="flex items-center px-2 ">
                 to
             </span>
-             
-            <div class="inline-block text-center">
-                <DateInput bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
-            </div>
+            <input type="date" on:close={fetchAll} bind:value={end} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+            
         </div>
         
 
