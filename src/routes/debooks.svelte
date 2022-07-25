@@ -1,7 +1,8 @@
 <script lang='ts'>
+
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray,fetchedArray, workingArray, keyInput } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -35,6 +36,8 @@
     let validKey = false
 
     let date = new Date()
+    let hidefees = false
+    let hidefailed = false
     
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -45,59 +48,60 @@
     onMount(async () => {
        //await fetchAll()
         console.log("fetching sol pay 2")
-        console.log(await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv"))
+        //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
+        //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
+        var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
+        console.log(trans?.transaction.message.accountKeys[0])
+        let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
+        console.log(key)
+        
     });
 
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
 
-    async function fetchAll (keyIn) {
+    async function fetchForAddress (keyIn) {
         
-        //console.log("getTokenAccounts ", await connection.getAccountInfo(new web3.PublicKey("HDeC9hGSZzhY6VCdNaJ4nEk1GqH3RkHPLGHFd98eMcd2")))
-
         loading = true
-        let account = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
-        console.log(account.length)
-        if (account.length == 0)
+        let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
+        console.log(signatures.length)
+        if (signatures.length == 0)
         {
             validKey = false
-            console.log("account length  0")
+            console.log("initial signatures length 0")
         }  
         else
         {
-           
             $apiData =[]
             $workingArray = []
-            let lastsig = account[account.length - 1].signature
-            console.log("last ", account[account.length - 1].signature)
-            console.log(account)
-            let lastday = dayjs.unix(account[account.length - 1].blockTime)
-            console.log("last ", lastday, " start ", startday)
+            //set initial lastday and last sig
+            let lastsig = signatures[signatures.length - 1].signature
+            let lastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
             let z = 0;
-            $apiData.push(account)
+            $apiData.push(signatures)
             while (lastday > startday) {
             
                 z++
                 try {
-                    let blue = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
-                    if (blue.length == 0) {
+                    let loopsigs = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
+                    if (loopsigs.length == 0) {
                         await sleep(500) //wait 0.5 seconds
                         continue
                     }
-                    console.log("blue con ", z)
-                    console.log(blue)
-                    lastday = await dayjs.unix(blue[blue.length - 1].blockTime)
-                    lastsig = await blue[blue.length - 1].signature
-                    $apiData.push(blue)
+                    //updated lastday and last sig
+                    lastday = await dayjs.unix(loopsigs[loopsigs.length - 1].blockTime)
+                    lastsig = await loopsigs[loopsigs.length - 1].signature
+                    $apiData.push(loopsigs)
                     
+                
                     if (z==10) {
-                        console.log("br aek")
+                        console.log("debug mode break after 10 sig loops - remove for release")
                         break
                     }
                 }
                 catch (e) {
-                    console.log("error ", e)
+                    console.log("Error in loopsigs", e)
                     await sleep(500) //wait 0.5 seconds
                 }
                     
@@ -109,16 +113,33 @@
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
 
-            console.log("results ", results)
+            console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
-           
-                console.log("truy1 ")
-                $fetchedArray = await connection.getParsedTransactions(reformattedArray)
-                console.log("truy2 ")
-                $fetchedArray.forEach(function (item:web3.ParsedTransactionWithMeta) {
-                
-                //new fee item
-                //interpret each line and add transactions to the array;
+
+            $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
+            console.log("fetched ", $fetchedTransactions)
+            $fetchedTransactions.forEach(function (item:web3.ParsedTransactionWithMeta) {
+            
+            //new fee item
+                let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
+                if (feePayer == keyIn)
+                    var fee_expense = 
+                    {
+                        "signature": item.transaction.signatures[0],
+                        "timestamp": item.blockTime, 
+                        "slot": item.slot,
+                        "success": item.meta? item.meta.err? false : true : null,
+                        "fee": item.meta? item.meta.fee : null,
+                        "amount": item.meta? -item.meta.fee : null,
+                        "account_keys": item.transaction.message.accountKeys,
+                        "pre_balances": item.meta? item.meta.preBalances : null,
+                        "post_balances": item.meta? item.meta.postBalances : null,
+                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                        "description": "Transaction fees"
+                    }
+                    $workingArray.push(fee_expense)
+            //interpret each line and add transactions to the array;
 
                 var new_line = 
                 {
@@ -127,6 +148,7 @@
                     "slot": item.slot,
                     "success": item.meta? item.meta.err? false : true : null,
                     "fee": item.meta? item.meta.fee : null,
+                    "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
                     "account_keys": item.transaction.message.accountKeys,
                     "pre_balances": item.meta? item.meta.preBalances : null,
                     "post_balances": item.meta? item.meta.postBalances : null,
@@ -157,7 +179,7 @@
             if (web3.PublicKey.isOnCurve($keyInput) == true)
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
-                fetchAll(new web3.PublicKey($keyInput))
+                fetchForAddress(new web3.PublicKey($keyInput))
                 
                 return true
 
@@ -168,9 +190,9 @@
         }
         return false
     }
-//$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 
-$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+//$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
 // /<DateInput on:close={fetchAll} bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
 </script>
@@ -185,12 +207,21 @@ $: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : 
             <span class="flex items-center pr-2">
                 For the period
             </span>
-            <input type="date" on:close={fetchAll} bind:value={start} max={end} class="text-center"/>
+            {#if loading == false}
+                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center"/>
+            {:else}
+                <input type="date" disabled={true} bind:value={start} max={end} class="text-center"/>
+            {/if}
+            
             
             <span class="flex items-center px-2 ">
                 to
             </span>
-            <input type="date" on:close={fetchAll} bind:value={end} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+            {#if loading == false}
+                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+            {:else}
+                <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+            {/if}
             
         </div>
         
@@ -206,8 +237,28 @@ $: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : 
 </div>
 
 {#if validKey == true }
-<div class="flex justify-center p-4 font-serif overflow-x-auto">
+
+<div class="flex justify-center p-4 font-serif ">
+    
     <div class="overflow-x-auto">
+        <div class="flex-row form-control ">
+            <label class="label ">
+                <span class="label-text pr-2 ">Show:</span> 
+                
+            </label>
+            <div>
+                <label class="label cursor-pointer text-right ">
+                <span class="label-text pr-2 ">Transaction Fees</span> 
+                <input type="checkbox" checked="checked" class="checkbox" />
+                </label>
+            </div>
+            <div>
+                <label class="label cursor-pointer text-right">
+                <span class="label-text pr-2 ">Failed transactions</span> 
+                <input type="checkbox" checked="checked" class="checkbox" />
+                </label>
+            </div>
+        </div>
         <table class="table table-compact ">
         
           <!-- head -->
@@ -216,8 +267,8 @@ $: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : 
               <th class="min-w-[2rem]">Date</th>
               <th class="min-w-[20rem]">Description</th>
               <th class="min-w-[4rem]">Counterparty</th>
-              <th class="min-w-[2rem]">Amount</th>
-              <th class="min-w-[2rem]"></th>
+              <th class="min-w-[2rem] text-right">Amount (SOL)</th>
+              <th class="min-w-[2rem] "></th>
             </tr>
           </thead>
           <tbody>
@@ -227,7 +278,7 @@ $: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : 
                 <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                 <td class="min-w-[20rem]">{transaction.description}</td>
                 <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                <td class="min-w-[2rem] text-right">{transaction.fee}</td>
+                <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
                 <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
                 </tr>
             {/each}
