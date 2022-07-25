@@ -2,21 +2,21 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput, showfailed, showfees } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput, showfailed, showfees, currentPage } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
     import Number from "../utils/Number.svelte";
     import { DateInput } from 'date-picker-svelte'
-
+    import {PaginationNav, LightPaginationNav  } from 'svelte-paginate-ts'
 
    
     let myDate = '2021-11-11';
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
-    import { Datatable } from 'svelte-simple-datatables'
+  
 
     const settings = { columnFilter: true }
     let rows
@@ -34,9 +34,10 @@
     let end = "2022-06-18"
     $: endday = dayjs(end)
     let validKey = false
+    let pageIncrement = 20;
 
     let date = new Date()
-
+    let totalPages = 1
 
     
     
@@ -64,6 +65,7 @@
     async function fetchForAddress (keyIn) {
         
         loading = true
+        $currentPage = 1
         let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(signatures.length)
         if (signatures.length == 0)
@@ -128,7 +130,7 @@
                         "signature": item.transaction.signatures[0],
                         "timestamp": item.blockTime, 
                         "slot": item.slot,
-                        "success": item.meta?.err == null? true : false,
+                        "success": true,
                         "fee": item.meta? item.meta.fee : null,
                         "amount": item.meta? -item.meta.fee : null,
                         "account_keys": item.transaction.message.accountKeys,
@@ -166,8 +168,9 @@
             //console.log($cleanedArray)
             //console.log("printing working array")
             //.log($workingArray)
+            totalPages = Math.ceil($workingArray.length/pageIncrement), console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
             $workingArray = $workingArray
-           
+            
             
             
         }
@@ -196,6 +199,7 @@
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 $: $showfailed, console.log("show failed is ",  {$showfailed}) 
 $: $showfees, console.log("show fees is ",  {$showfees}) 
+
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
@@ -231,11 +235,7 @@ $: $showfees, console.log("show fees is ",  {$showfees})
         </div>
         
 
-       <p class="pt-2 text-center">
-        {#if loading}
-            <span class="font-serif font-medium badge badge-lg">loading...</span> 
-        {/if}
-       </p>
+       
         
     </div>
    
@@ -246,7 +246,19 @@ $: $showfees, console.log("show fees is ",  {$showfees})
 <div class="flex justify-center p-4 font-serif ">
     
     <div class="overflow-x-auto">
-        <div class="flex-row form-control ">
+        {#if loading}
+        <div class="flex flex-row justify-center ">
+            <p class="py-2 justify-center">
+                <span class="font-serif font-medium badge badge-lg ">
+                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>loading...</span> 
+            </p>
+        </div>
+        {/if}
+
+        <div class="flex flex-row justify-end form-control">
             <label class="label ">
                 <span class="label-text font-semibold pr-2 ">Show:</span> 
                 
@@ -264,8 +276,11 @@ $: $showfees, console.log("show fees is ",  {$showfees})
                 </label>
             </div>
         </div>
-        <table class="table table-compact ">
         
+        
+        
+        <table class="table table-compact ">
+            
           <!-- head -->
           <thead>
             <tr class="">
@@ -274,12 +289,15 @@ $: $showfees, console.log("show fees is ",  {$showfees})
                 <th class="min-w-[20rem]">Description</th>
                 <th class="min-w-[4rem]">Counterparty</th>
                 <th class="min-w-[2rem] text-right">Amount (SOL)</th>
-                <th class="min-w-[2rem] "></th>
+                <th class="min-w-[2rem]"></th>
             </tr>
           </thead>
+          
+            
+      
           <tbody>
             <!-- row 1 -->
-            {#each $workingArray as transaction, i}
+            {#each $workingArray.slice($currentPage,$currentPage+pageIncrement) as transaction, i}
                 {#if $showfailed && $showfees}
                     <!-- show everything -->
                     <tr class="">
@@ -335,14 +353,30 @@ $: $showfees, console.log("show fees is ",  {$showfees})
                         <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
                         <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
                         <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                    </tr>   
+                    </tr>
+             
                 {/if}
                     
             {/each}
           </tbody>
         
         </table>
+        {#if !loading && $workingArray.length > 0}
+        <div class="custom-pagination-nav">
+            <div>
+                <PaginationNav
+                    totalItems="{$workingArray.length}"
+                    pageSize="{pageIncrement}"
+                    currentPage="{$currentPage}"
+                    limit="{1}"
+                    showStepOptions="{true}"
+                    on:setPage="{(e) => $currentPage = e.detail.page}"
+                />
+            </div>
+        </div>
+        {/if}
     </div>
+    
 </div>
 {:else}
 
@@ -360,10 +394,31 @@ $: $showfees, console.log("show fees is ",  {$showfees})
 
 {/if}
 <style>
-    :root {
-    --date-picker-background: hsl(var(--b1));
-    --date-picker-foreground: hsl(var(--bc));
-    --date-input-width: 90px;
+.custom-pagination-nav :global(.pagination-nav) {
+  display: flex;
+  justify-content: end;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px hsl(var(--b1));
+}
+.custom-pagination-nav :global(.option) {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  transition: 0.2s all ease-out;
+  user-select: none;
+  color: hsl(var(--n));
+}
 
+.custom-pagination-navv :global(.option.number),
+.custom-pagination-nav :global(.option.ellipsis) {
+  padding: 10px 15px;
+}
+.custom-pagination-nav :global(.option:hover) {
+  background: hsl(var(--b2));
+  cursor: pointer;
+}
+.custom-pagination-nav :global(.option.active) {
+  color: hsl(var(--p));
 }
 </style>

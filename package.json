@@ -41,6 +41,7 @@
 		"daisyui": "^2.19.0",
 		"dayjs": "^1.11.4",
 		"json-aggregate": "^0.1.2",
+		"svelte-paginate-ts": "^0.0.1",
 		"svelty-picker": "^2.1.1"
 	}
 }
