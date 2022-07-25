@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput, showfailed, showfees } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -36,8 +36,8 @@
     let validKey = false
 
     let date = new Date()
-    let hidefees = false
-    let hidefailed = false
+
+
     
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -120,15 +120,15 @@
             console.log("fetched ", $fetchedTransactions)
             $fetchedTransactions.forEach(function (item:web3.ParsedTransactionWithMeta) {
             
-            //new fee item
+                //new fee item
                 let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
-                if (feePayer == keyIn)
+                if (feePayer == keyIn) {
                     var fee_expense = 
                     {
                         "signature": item.transaction.signatures[0],
                         "timestamp": item.blockTime, 
                         "slot": item.slot,
-                        "success": item.meta? item.meta.err? false : true : null,
+                        "success": item.meta?.err == null? true : false,
                         "fee": item.meta? item.meta.fee : null,
                         "amount": item.meta? -item.meta.fee : null,
                         "account_keys": item.transaction.message.accountKeys,
@@ -139,14 +139,16 @@
                         "description": "Transaction fees"
                     }
                     $workingArray.push(fee_expense)
-            //interpret each line and add transactions to the array;
+                    console.log("fee paid by user", fee_expense)
+                }
+                //interpret each line and add transactions to the array;
 
                 var new_line = 
                 {
                     "signature": item.transaction.signatures[0],
                     "timestamp": item.blockTime, 
                     "slot": item.slot,
-                    "success": item.meta? item.meta.err? false : true : null,
+                    "success": item.meta?.err == null? true : false,
                     "fee": item.meta? item.meta.fee : null,
                     "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
                     "account_keys": item.transaction.message.accountKeys,
@@ -157,6 +159,7 @@
                     "description": "Generic Transaction"
                 }
                 $workingArray.push(new_line)
+                console.log(new_line)
                 
             });
             //console.log("printing cleaned array")
@@ -191,6 +194,8 @@
         return false
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
+$: $showfailed, console.log("show failed is ",  {$showfailed}) 
+$: $showfees, console.log("show fees is ",  {$showfees}) 
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
@@ -243,19 +248,19 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
     <div class="overflow-x-auto">
         <div class="flex-row form-control ">
             <label class="label ">
-                <span class="label-text pr-2 ">Show:</span> 
+                <span class="label-text font-semibold pr-2 ">Show:</span> 
                 
             </label>
             <div>
                 <label class="label cursor-pointer text-right ">
                 <span class="label-text pr-2 ">Transaction Fees</span> 
-                <input type="checkbox" checked="checked" class="checkbox" />
+                <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
                 </label>
             </div>
             <div>
                 <label class="label cursor-pointer text-right">
                 <span class="label-text pr-2 ">Failed transactions</span> 
-                <input type="checkbox" checked="checked" class="checkbox" />
+                <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfailed} />
                 </label>
             </div>
         </div>
@@ -264,23 +269,75 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
           <!-- head -->
           <thead>
             <tr class="">
-              <th class="min-w-[2rem]">Date</th>
-              <th class="min-w-[20rem]">Description</th>
-              <th class="min-w-[4rem]">Counterparty</th>
-              <th class="min-w-[2rem] text-right">Amount (SOL)</th>
-              <th class="min-w-[2rem] "></th>
+                <th class="min-w-[2rem]"></th>
+                <th class="min-w-[2rem]">Date</th>
+                <th class="min-w-[20rem]">Description</th>
+                <th class="min-w-[4rem]">Counterparty</th>
+                <th class="min-w-[2rem] text-right">Amount (SOL)</th>
+                <th class="min-w-[2rem] "></th>
             </tr>
           </thead>
           <tbody>
             <!-- row 1 -->
             {#each $workingArray as transaction, i}
-                <tr class="">
-                <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                <td class="min-w-[20rem]">{transaction.description}</td>
-                <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                </tr>
+                {#if $showfailed && $showfees}
+                    <!-- show everything -->
+                    <tr class="">
+                        {#if transaction.success}
+                            <td class="min-w-[2rem]"/> 
+                        {:else}
+                            <td class="min-w-[2rem]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </td>
+                        {/if}
+                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        <td class="min-w-[20rem]">{transaction.description}</td>
+                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                    </tr>
+                {:else if $showfailed && !$showfees && transaction.description != "Transaction fees"}
+                    <!-- either fail or success; not transaction fee -->
+                    <tr class="">
+                        {#if transaction.success}
+                            <td class="min-w-[2rem]"/>                           
+                        {:else}
+                        <td class="min-w-[2rem]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </td>
+                        {/if}
+                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        <td class="min-w-[20rem]">{transaction.description}</td>
+                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                    </tr>   
+                {:else if !$showfailed && transaction.success && $showfees}
+                    <!-- success; show everything -->
+                    <tr class="">
+                        <td class="min-w-[2rem]"/>                           
+                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        <td class="min-w-[20rem]">{transaction.description}</td>
+                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                    </tr>   
+                {:else if !$showfailed && transaction.success && !$showfees && transaction.description != "Transaction fees"}
+                    <!-- success; not transaction fee -->
+                    <tr class="">
+                        <td class="min-w-[2rem]"/>                           
+                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        <td class="min-w-[20rem]">{transaction.description}</td>
+                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                    </tr>   
+                {/if}
+                    
             {/each}
           </tbody>
         
