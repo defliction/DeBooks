@@ -321,16 +321,18 @@ $: $displayArray
                         <td class="min-w-[2rem]"/> 
                     {:else}
                         <td class="min-w-[2rem]">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
                         </td>
                     {/if}
                     <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                     <td class="min-w-[20rem]">{transaction.description}</td>
                     <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                    <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                    <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg></a></td>
                 </tr>
             {/each}
           </tbody>
@@ -376,7 +378,7 @@ $: $displayArray
   box-shadow: 0 1px 2px hsl(var(--b1));
 }
 .custom-pagination-nav :global(.option) {
-  padding: 10px;
+  padding: 5px;
   display: flex;
   align-items: center;
   justify-content: end;
@@ -387,7 +389,7 @@ $: $displayArray
 
 .custom-pagination-navv :global(.option.number),
 .custom-pagination-nav :global(.option.ellipsis) {
-  padding: 10px 15px;
+  padding: 5px 7px;
 }
 .custom-pagination-nav :global(.option:hover) {
   background: hsl(var(--b2));
