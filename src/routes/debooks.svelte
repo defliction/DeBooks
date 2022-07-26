@@ -10,6 +10,8 @@
     import Number from "../utils/Number.svelte";
     import { DateInput } from 'date-picker-svelte'
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
+    import { Buffer } from 'buffer';
+    //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
 
    
     let myDate = '2021-11-11';
@@ -46,6 +48,7 @@
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     
+
     onMount(async () => {
        //await fetchAll()
         console.log("fetching sol pay 2")
@@ -55,9 +58,18 @@
         console.log(trans?.transaction.message.accountKeys[0])
         let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
         console.log(key)
+        let mintAddress = new web3.PublicKey("Gk8Zh3JbKTV8bXQB7pv8poJvcRaPokv55fJRG1NxHqzF")
+        let test2 = await connection.getParsedAccountInfo(mintAddress)
+        console.log(test2)
+        //console.log(Buffer.from((test.value?.data as Uint8Array)))
+        let TOKEN_PROGRAM_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
+        let test = await connection.getAccountInfoAndContext
+        console.log("test1")
+        
+
         
     });
-
+    
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
@@ -142,7 +154,7 @@
                         "description": "Transaction fees"
                     }
                     $workingArray.push(fee_expense)
-                    console.log("fee paid by user", fee_expense)
+                    //console.log("fee paid by user", fee_expense)
                 }
                 //interpret each line and add transactions to the array;
 
@@ -314,7 +326,7 @@ $: $displayArray
       
           <tbody>
             <!-- row 1 -->
-            {#each $displayArray.slice($currentPage, $currentPage + pageIncrement) as transaction, i}
+            {#each $displayArray.slice($currentPage - 1, $currentPage - 1 + pageIncrement) as transaction, i}
                 <!-- show everything -->
                 <tr class="">
                     {#if transaction.success}
@@ -373,7 +385,7 @@ $: $displayArray
 <style>
 .custom-pagination-nav :global(.pagination-nav) {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   border-radius: 3px;
   box-shadow: 0 1px 2px hsl(var(--b1));
 }
@@ -381,7 +393,7 @@ $: $displayArray
   padding: 5px;
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
   transition: 0.2s all ease-out;
   user-select: none;
   color: hsl(var(--n));
