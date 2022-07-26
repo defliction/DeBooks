@@ -42,6 +42,7 @@
 	"type": "module",
 	"dependencies": {
 		"@metaplex-foundation/js": "^0.13.2",
+		"@noble/ed25519": "^1.6.1",
 		"@solana/web3.js": "^1.48.0",
 		"@tailwindcss/typography": "^0.5.4",
 		"daisyui": "^2.19.0",

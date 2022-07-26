@@ -12,7 +12,7 @@
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
     //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
-
+    import { Metaplex } from "@metaplex-foundation/js";
    
     let myDate = '2021-11-11';
 
@@ -47,7 +47,7 @@
   
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
-    
+    const metaplex = new Metaplex(connection);
 
     onMount(async () => {
        //await fetchAll()
@@ -60,13 +60,11 @@
         console.log(key)
         let mintAddress = new web3.PublicKey("Gk8Zh3JbKTV8bXQB7pv8poJvcRaPokv55fJRG1NxHqzF")
         let test2 = await connection.getParsedAccountInfo(mintAddress)
-        console.log(test2)
+        //console.log(test2.owner.)
         //console.log(Buffer.from((test.value?.data as Uint8Array)))
-        let TOKEN_PROGRAM_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
-        let test = await connection.getAccountInfoAndContext
-        console.log("test1")
         
-
+        const nft = await metaplex.nfts().findByMint(mintAddress).run();
+        console.log(nft)
         
     });
     

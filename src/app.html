@@ -8,6 +8,10 @@
 		%sveltekit.head%
 	</head>
 	<body>
+		<script>
+			// Global node polyfill.
+			window.global = window;
+		</script>
 		<div>%sveltekit.body%</div>
 	</body>
 </html>
