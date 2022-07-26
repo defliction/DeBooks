@@ -2,14 +2,14 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, keyInput, showfailed, showfees, currentPage } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
     import Number from "../utils/Number.svelte";
     import { DateInput } from 'date-picker-svelte'
-    import {PaginationNav, LightPaginationNav  } from 'svelte-paginate-ts'
+    import {paginate, PaginationNav  } from 'svelte-paginate-ts'
 
    
     let myDate = '2021-11-11';
@@ -38,7 +38,7 @@
 
     let date = new Date()
     let totalPages = 1
-
+    
     
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -77,6 +77,7 @@
         {
             $apiData =[]
             $workingArray = []
+            $displayArray = []
             //set initial lastday and last sig
             let lastsig = signatures[signatures.length - 1].signature
             let lastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
@@ -170,7 +171,8 @@
             //.log($workingArray)
             totalPages = Math.ceil($workingArray.length/pageIncrement), console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
             $workingArray = $workingArray
-            
+            $displayArray = $workingArray
+            sliceDisplayArray()
             
             
         }
@@ -179,14 +181,32 @@
             
         
     }
-
+    function sliceDisplayArray () {
+        if ($showfees && $showfailed) {
+            $displayArray = $workingArray
+            console.log("showfees && showfailed")
+        }
+        else if ($showfees && !$showfailed) {
+            $displayArray = $workingArray.filter(transaction => transaction.success == true);
+            console.log("showfees && !showfailed")
+        }
+        else if (!$showfees && $showfailed) {
+            $displayArray = $workingArray.filter(transaction => transaction.description != "Transaction fees");
+            console.log("!showfees && showfailed")
+        }
+        else if (!$showfees && !$showfailed) {
+            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description != "Transaction fees");
+            console.log("!showfees && !showfailed")
+        }
+        $displayArray = $displayArray
+    }
     function checkKey () {
         try {
             if (web3.PublicKey.isOnCurve($keyInput) == true)
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
                 fetchForAddress(new web3.PublicKey($keyInput))
-                
+                sliceDisplayArray()
                 return true
 
         } catch(e) {
@@ -197,8 +217,9 @@
         return false
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
-$: $showfailed, console.log("show failed is ",  {$showfailed}) 
-$: $showfees, console.log("show fees is ",  {$showfees}) 
+$: $showfailed, sliceDisplayArray()
+$: $showfees, sliceDisplayArray()
+$: $displayArray
 
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -276,9 +297,7 @@ $: $showfees, console.log("show fees is ",  {$showfees})
                 </label>
             </div>
         </div>
-        
-        
-        
+                
         <table class="table table-compact ">
             
           <!-- head -->
@@ -291,81 +310,37 @@ $: $showfees, console.log("show fees is ",  {$showfees})
                 <th class="min-w-[2rem] text-right">Amount (SOL)</th>
                 <th class="min-w-[2rem]"></th>
             </tr>
-          </thead>
-          
-            
+          </thead>          
       
           <tbody>
             <!-- row 1 -->
-            {#each $workingArray.slice($currentPage,$currentPage+pageIncrement) as transaction, i}
-                {#if $showfailed && $showfees}
-                    <!-- show everything -->
-                    <tr class="">
-                        {#if transaction.success}
-                            <td class="min-w-[2rem]"/> 
-                        {:else}
-                            <td class="min-w-[2rem]">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </td>
-                        {/if}
-                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                        <td class="min-w-[20rem]">{transaction.description}</td>
-                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                    </tr>
-                {:else if $showfailed && !$showfees && transaction.description != "Transaction fees"}
-                    <!-- either fail or success; not transaction fee -->
-                    <tr class="">
-                        {#if transaction.success}
-                            <td class="min-w-[2rem]"/>                           
-                        {:else}
+            {#each $displayArray.slice($currentPage, $currentPage + pageIncrement) as transaction, i}
+                <!-- show everything -->
+                <tr class="">
+                    {#if transaction.success}
+                        <td class="min-w-[2rem]"/> 
+                    {:else}
                         <td class="min-w-[2rem]">
                             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </td>
-                        {/if}
-                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                        <td class="min-w-[20rem]">{transaction.description}</td>
-                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                    </tr>   
-                {:else if !$showfailed && transaction.success && $showfees}
-                    <!-- success; show everything -->
-                    <tr class="">
-                        <td class="min-w-[2rem]"/>                           
-                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                        <td class="min-w-[20rem]">{transaction.description}</td>
-                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                    </tr>   
-                {:else if !$showfailed && transaction.success && !$showfees && transaction.description != "Transaction fees"}
-                    <!-- success; not transaction fee -->
-                    <tr class="">
-                        <td class="min-w-[2rem]"/>                           
-                        <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                        <td class="min-w-[20rem]">{transaction.description}</td>
-                        <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
-                        <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                        <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
-                    </tr>
-             
-                {/if}
-                    
+                    {/if}
+                    <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                    <td class="min-w-[20rem]">{transaction.description}</td>
+                    <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                    <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}">ss</a></td>
+                </tr>
             {/each}
           </tbody>
         
         </table>
-        {#if !loading && $workingArray.length > 0}
+        {#if !loading && $displayArray.length > 0}
         <div class="custom-pagination-nav">
             <div>
                 <PaginationNav
-                    totalItems="{$workingArray.length}"
+                    totalItems="{$displayArray.length}"
                     pageSize="{pageIncrement}"
                     currentPage="{$currentPage}"
                     limit="{1}"
