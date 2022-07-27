@@ -56,7 +56,9 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("41oafXEMoEqQ5jUziy1JF8QAj7sjJmqmpA8wp7KXtDotT96WtmXtp4b9zgzPEyJgpocEwBMAGBZ88aWqF4YJKbhr")
+        var trans = await connection.getParsedTransaction("52CGYPNDs7kzoGGeSfQb71VxoBdjzERqiMYt24EYyLQBBoRkwxdefX2XZbcPTdHaHf3FqkNEHUA8grj9TUG6dWT7")
+        console.log(trans)
+        var trans = await connection.getParsedTransaction("5v9Ak3dPBUH36UkopDiXMQmKkc92qYAzcWDy4L4cFNjnBKgWUBL2jE4Z5XWrzUK4jxn3e9JNAH5end4r5V8waoaq")
         console.log(trans)
         console.log("logs ", trans.meta.logMessages[1].includes(" Deposit")?" SOLD ": "NOT")
         let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
@@ -203,7 +205,7 @@
                                 }
                             }) 
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name)
+                            descr = "Magic Eden: ??Offer Accepted?? " + nftnames.flatMap(s => s.name)
                             //correct net amount to wallet (net of royalties)
                             let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
@@ -211,7 +213,9 @@
 
                         }
                         else {
-                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name)
+                            // BUY OR SELL ACCEPTED?
+                            let offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
                             let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
@@ -270,9 +274,18 @@
                             let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
                             console.log("acc ", account_index)
                             let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run()
-                            amount = ""
+                            console.log(item.meta?.logMessages[4].slice(13))
+                            let offerAmount = ""
+                            if (item.meta?.innerInstructions.length > 0 ){
+                                offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
+                            }
+                            else {
+                                offerAmount = "" + JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+                            }
+                            
+                            
 
-                            descr = "Magic Eden: Make Offer " + nftnames.name + " for " + amount
+                            descr = "Magic Eden: Make Offer " + nftnames.name + " - " + offerAmount + " SOL"
                         }
                         else {
                             descr = "Magic Eden: Make Offer "
@@ -287,12 +300,12 @@
                         
                     }
                     else if (item.meta?.logMessages[1].includes(" Withdraw") ) {
-                        descr = "Magic Eden: Withdraw Escrow"
+                        descr = "Magic Eden: Escrow Withdrawal"
 
                         
                     }
                     else if (item.meta?.logMessages[1].includes(" Deposit") ) {
-                        descr = "Magic Eden: Deposit Escrow"
+                        descr = "Magic Eden: Escrow Desposit"
 
                         
                     }
