@@ -205,7 +205,7 @@
                                 }
                             }) 
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-                            descr = "Magic Eden: ??Offer Accepted?? " + nftnames.flatMap(s => s.name)
+                            descr = "Magic Eden: Sold via Offer " + nftnames.flatMap(s => s.name)
                             //correct net amount to wallet (net of royalties)
                             let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
@@ -213,9 +213,9 @@
 
                         }
                         else {
-                            // BUY OR SELL ACCEPTED?
+                            // improve buy vs sold to check who the signer of the transaction was
                             let offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
-                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+                            descr = "Magic Eden: Bought via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
                             let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
@@ -285,7 +285,7 @@
                             
                             
 
-                            descr = "Magic Eden: Make Offer " + nftnames.name + " - " + offerAmount + " SOL"
+                            descr = "Magic Eden: Make Offer " + nftnames.name //+ " - " + offerAmount + " SOL"
                         }
                         else {
                             descr = "Magic Eden: Make Offer "
