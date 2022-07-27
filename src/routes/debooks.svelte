@@ -167,6 +167,7 @@
                 }
                 //interpret each line and add transactions to the array;
                 if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
+                    let amount = item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null
                     console.log("trans ", item)
                     //get NFTs
                     let nftIDs: web3.PublicKey[] = []
@@ -215,9 +216,14 @@
                             }) 
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
                             descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
+                            //correct net amount to wallet (net of royalties)
+                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            
+                            amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+
                         }
                         else {
-                            descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
+                            descr = "Magic Eden: Bought " + nftnames.flatMap(s => s.name)
                         }
 
                         
@@ -230,7 +236,7 @@
                         "slot": item.slot,
                         "success": item.meta?.err == null? true : false,
                         "fee": item.meta? item.meta.fee : null,
-                        "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                        "amount": amount,
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
                         "post_balances": item.meta? item.meta.postBalances : null,
