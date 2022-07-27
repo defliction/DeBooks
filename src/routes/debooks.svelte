@@ -30,10 +30,10 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-06-17"
+    let start = "2022-07-26"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
-    let end = "2022-06-18"
+    let end = "2022-07-27"
     $: endday = dayjs(end)
     let validKey = false
     let pageIncrement = 20;
@@ -56,7 +56,7 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("21VvPGQPfCoNcxqFrSNKDsrGH51rLRSEd3XBzAqtGfcsFTZ8e79C25ezRp8xo9rMReanW5WY1XAhZpKgNr9AhExm")
+        var trans = await connection.getParsedTransaction("41oafXEMoEqQ5jUziy1JF8QAj7sjJmqmpA8wp7KXtDotT96WtmXtp4b9zgzPEyJgpocEwBMAGBZ88aWqF4YJKbhr")
         console.log(trans)
         console.log("logs ", trans.meta.logMessages[1].includes(" Deposit")?" SOLD ": "NOT")
         let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
@@ -166,6 +166,7 @@
                     $workingArray.push(fee_expense)
                     //console.log("fee paid by user", fee_expense)
                 }
+                
                 //interpret each line and add transactions to the array;
                 if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
                     let amount = item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null
@@ -176,20 +177,46 @@
                         if (token.owner == keyIn) {
                             nftIDs.push(new web3.PublicKey(token.mint))
                         }
-                    }) 
+                    })
                     item.meta.preTokenBalances.forEach(function (token) {
                         if (token.owner == keyIn) {
                             nftIDs.push(new web3.PublicKey(token.mint))
                         }
-                    }) 
+                    })
                     console.log("nftIDs " + nftIDs)
                     
                     let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
                     console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
                     //item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
                     let descr = "Magic Eden: Unknown"
+
                     if (item.meta?.logMessages[1].includes(" CancelSell")) {
                         descr = "Magic Eden: Delisted " + nftnames.flatMap(s => s.name)
+                    }
+                    else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") ) {
+                        //offer accepted
+                        let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
+                        if (nftIDs.length == 0) {
+                            item.meta.preTokenBalances.forEach(function (token) {
+                                if (token.owner == me_escrow) {
+                                    nftIDs.push(new web3.PublicKey(token.mint))
+                                }
+                            }) 
+                            let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
+                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name)
+                            //correct net amount to wallet (net of royalties)
+                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            
+                            amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+
+                        }
+                        else {
+                            descr = "Magic Eden: Offer Accepted " + nftnames.flatMap(s => s.name)
+                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            
+                            amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+                        }
+                       
                     }
                     else if (item.meta?.logMessages[1].includes(" Sell") ) {
                         if (nftIDs.length == 0) {
@@ -207,7 +234,7 @@
                         }
                         
                     }
-                    else if (item.meta?.logMessages[14].includes(" ExecuteSale") ) {
+                    else if (item.meta.logMessages[12]?.includes(" ExecuteSale") || item.meta.logMessages[14]?.includes(" ExecuteSale") ) {
                         let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
                         if (nftIDs.length == 0) {
                             item.meta.preTokenBalances.forEach(function (token) {
@@ -229,6 +256,46 @@
 
                         
                     }
+                    
+                    else if (item.meta?.logMessages[1].includes(" Buy") ) {
+                        if (nftIDs.length == 0) {
+                            item.meta.preTokenBalances.forEach(function (token) {
+                                if (token.owner == me_escrow) {
+                                    nftIDs.push(new web3.PublicKey(token.mint))
+                                }
+                            }) 
+                           
+                            //correct net amount to wallet (net of royalties)
+                            console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
+                            let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
+                            console.log("acc ", account_index)
+                            let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run()
+                            amount = ""
+
+                            descr = "Magic Eden: Make Offer " + nftnames.name + " for " + amount
+                        }
+                        else {
+                            descr = "Magic Eden: Make Offer "
+                        }
+                        
+
+                        
+                    }
+                    else if (item.meta?.logMessages[1].includes(" CancelBuy") ) {
+                        descr = "Magic Eden: Cancel Offer"
+
+                        
+                    }
+                    else if (item.meta?.logMessages[1].includes(" Withdraw") ) {
+                        descr = "Magic Eden: Withdraw Escrow"
+
+                        
+                    }
+                    else if (item.meta?.logMessages[1].includes(" Deposit") ) {
+                        descr = "Magic Eden: Deposit Escrow"
+
+                        
+                    }
                     //var decsr = "Magic Eden: " + item.meta?.logMessages[1].includes(" CancelSell")? " DeListed ": item.meta?.logMessages[1].includes(" Sell")?" Listed ": " " : " " : " " + nftnames.flatMap(s => s.name)
                     var new_line = 
                     {
@@ -247,7 +314,8 @@
                     }
                     $workingArray.push(new_line)
                     console.log(new_line)
-                }  
+                }
+
                 else {
                     //generic line
                     var new_line = 
@@ -292,22 +360,22 @@
     function sliceDisplayArray () {
         if ($showfees && $showfailed) {
             
-            $displayArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()))
+            $displayArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()))
             
             
             console.log("showfees && showfailed")
         }
         else if ($showfees && !$showfailed) {
             //default
-            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("showfees && !showfailed")
         }
         else if (!$showfees && $showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $workingArray.filter(transaction => transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.description != "Transaction fees" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("!showfees && showfailed")
         }
         else if (!$showfees && !$showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description != "Transaction fees" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray
@@ -400,6 +468,7 @@ $: $textFilter, sliceDisplayArray()
         
         <div class="flex flex-row justify-end form-control">
                 <div class = "align-left py-2 pr-2 ">
+                    
                     <input type="text" placeholder="Filter: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs w-full max-w-xs  align-bottom" />
                 </div>
                 
