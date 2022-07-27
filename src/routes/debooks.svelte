@@ -51,11 +51,13 @@
 
     onMount(async () => {
        //await fetchAll()
-        console.log("fetching sol pay 2")
+        
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
-        var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        console.log(trans?.transaction.message.accountKeys[0])
+        //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
+        var trans = await connection.getParsedTransaction("21VvPGQPfCoNcxqFrSNKDsrGH51rLRSEd3XBzAqtGfcsFTZ8e79C25ezRp8xo9rMReanW5WY1XAhZpKgNr9AhExm")
+        console.log(trans)
+        console.log("logs ", trans.meta.logMessages[1].includes(" Deposit")?" SOLD ": "NOT")
         let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
         console.log(key)
         let mintAddress = new web3.PublicKey("Gk8Zh3JbKTV8bXQB7pv8poJvcRaPokv55fJRG1NxHqzF")
@@ -134,7 +136,7 @@
             
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
-            console.log("fetched ", $fetchedTransactions)
+            //console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
                 let programIDs: string = []
                 item.transaction.message.instructions.forEach(function (program) {
@@ -164,18 +166,63 @@
                     //console.log("fee paid by user", fee_expense)
                 }
                 //interpret each line and add transactions to the array;
-                if (programIDs.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
+                if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
+                    console.log("trans ", item)
                     //get NFTs
                     let nftIDs: web3.PublicKey[] = []
-                    item.meta? item.meta.postTokenBalances?.forEach(function (token) {
+                    item.meta.postTokenBalances.forEach(function (token) {
                         if (token.owner == keyIn) {
                             nftIDs.push(new web3.PublicKey(token.mint))
                         }
-                    }) : null
-                    console.log(nftIDs)
+                    }) 
+                    item.meta.preTokenBalances.forEach(function (token) {
+                        if (token.owner == keyIn) {
+                            nftIDs.push(new web3.PublicKey(token.mint))
+                        }
+                    }) 
+                    console.log("nftIDs " + nftIDs)
                     
                     let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-                    console.log("nft nameas ", nftnames.flatMap(s => s.name))
+                    console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
+                    //item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
+                    let descr = "Magic Eden: Unknown"
+                    if (item.meta?.logMessages[1].includes(" CancelSell")) {
+                        descr = "Magic Eden: Delisted " + nftnames.flatMap(s => s.name)
+                    }
+                    else if (item.meta?.logMessages[1].includes(" Sell") ) {
+                        if (nftIDs.length == 0) {
+                            let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
+                            item.meta.postTokenBalances.forEach(function (token) {
+                                if (token.owner == me_escrow) {
+                                    nftIDs.push(new web3.PublicKey(token.mint))
+                                }
+                            }) 
+                            let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
+                            descr = "Magic Eden: Price change " + nftnames.flatMap(s => s.name)
+                        }
+                        else {
+                            descr = "Magic Eden: Listed " + nftnames.flatMap(s => s.name)
+                        }
+                        
+                    }
+                    else if (item.meta?.logMessages[14].includes(" ExecuteSale") ) {
+                        let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
+                        if (nftIDs.length == 0) {
+                            item.meta.preTokenBalances.forEach(function (token) {
+                                if (token.owner == me_escrow) {
+                                    nftIDs.push(new web3.PublicKey(token.mint))
+                                }
+                            }) 
+                            let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
+                            descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
+                        }
+                        else {
+                            descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
+                        }
+
+                        
+                    }
+                    //var decsr = "Magic Eden: " + item.meta?.logMessages[1].includes(" CancelSell")? " DeListed ": item.meta?.logMessages[1].includes(" Sell")?" Listed ": " " : " " : " " + nftnames.flatMap(s => s.name)
                     var new_line = 
                     {
                         "signature": item.transaction.signatures[0],
@@ -189,7 +236,7 @@
                         "post_balances": item.meta? item.meta.postBalances : null,
                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Magic Eden: " +  nftnames.flatMap(s => s.name)
+                        "description": descr
                     }
                     $workingArray.push(new_line)
                     console.log(new_line)
@@ -365,7 +412,7 @@ $: $displayArray
                 <th class="min-w-[2rem]"></th>
                 <th class="min-w-[2rem]">Date</th>
                 <th class="min-w-[20rem]">Description</th>
-                <th class="min-w-[4rem]">Counterparty</th>
+                <th class="min-w-[4rem]">Signature</th>
                 <th class="min-w-[2rem] text-right">Amount (SOL)</th>
                 <th class="min-w-[2rem]"></th>
             </tr>
@@ -387,7 +434,7 @@ $: $displayArray
                     {/if}
                     <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                     <td class="min-w-[20rem]">{transaction.description}</td>
-                    <td class="min-w-[4rem]">{new web3.PublicKey(transaction.account_keys[0].pubkey).toString()}</td>
+                    <td class="min-w-[4rem]">{transaction.signature.substring(0,4)}...</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
                     <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
