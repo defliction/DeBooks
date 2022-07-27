@@ -175,7 +175,7 @@
                     console.log(nftIDs)
                     
                     let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-                    
+                    console.log("nft nameas ", nftnames.flatMap(s => s.name))
                     var new_line = 
                     {
                         "signature": item.transaction.signatures[0],
@@ -189,7 +189,7 @@
                         "post_balances": item.meta? item.meta.postBalances : null,
                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Magic Eden Transaction: "  +  nftnames[0].name
+                        "description": "Magic Eden: " +  nftnames.flatMap(s => s.name)
                     }
                     $workingArray.push(new_line)
                     console.log(new_line)
