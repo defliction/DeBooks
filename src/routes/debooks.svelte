@@ -64,6 +64,7 @@
         //console.log(Buffer.from((test.value?.data as Uint8Array)))
         
         const nft = await metaplex.nfts().findByMint(mintAddress).run();
+        
         console.log(nft)
         
     });
@@ -128,11 +129,19 @@
 
             console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
+            
+            
+            
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
             console.log("fetched ", $fetchedTransactions)
-            $fetchedTransactions.forEach(function (item:web3.ParsedTransactionWithMeta) {
-            
+            for await (const item of $fetchedTransactions) {
+                let programIDs: string = []
+                item.transaction.message.instructions.forEach(function (program) {
+                    programIDs.push(program.programId.toBase58())
+                })
+                console.log("programIDs ", programIDs)
+
                 //new fee item
                 let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
                 if (feePayer == keyIn) {
@@ -155,26 +164,61 @@
                     //console.log("fee paid by user", fee_expense)
                 }
                 //interpret each line and add transactions to the array;
-
-                var new_line = 
-                {
-                    "signature": item.transaction.signatures[0],
-                    "timestamp": item.blockTime, 
-                    "slot": item.slot,
-                    "success": item.meta?.err == null? true : false,
-                    "fee": item.meta? item.meta.fee : null,
-                    "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
-                    "account_keys": item.transaction.message.accountKeys,
-                    "pre_balances": item.meta? item.meta.preBalances : null,
-                    "post_balances": item.meta? item.meta.postBalances : null,
-                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                    "description": "Generic Transaction"
+                if (programIDs.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
+                    //get NFTs
+                    let nftIDs: web3.PublicKey[] = []
+                    item.meta? item.meta.postTokenBalances?.forEach(function (token) {
+                        if (token.owner == keyIn) {
+                            nftIDs.push(new web3.PublicKey(token.mint))
+                        }
+                    }) : null
+                    console.log(nftIDs)
+                    
+                    let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
+                    
+                    var new_line = 
+                    {
+                        "signature": item.transaction.signatures[0],
+                        "timestamp": item.blockTime, 
+                        "slot": item.slot,
+                        "success": item.meta?.err == null? true : false,
+                        "fee": item.meta? item.meta.fee : null,
+                        "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                        "account_keys": item.transaction.message.accountKeys,
+                        "pre_balances": item.meta? item.meta.preBalances : null,
+                        "post_balances": item.meta? item.meta.postBalances : null,
+                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                        "description": "Magic Eden Transaction: "  +  nftnames[0].name
+                    }
+                    $workingArray.push(new_line)
+                    console.log(new_line)
+                }  
+                else {
+                    //generic line
+                    var new_line = 
+                        {
+                            "signature": item.transaction.signatures[0],
+                            "timestamp": item.blockTime, 
+                            "slot": item.slot,
+                            "success": item.meta?.err == null? true : false,
+                            "fee": item.meta? item.meta.fee : null,
+                            "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                            "account_keys": item.transaction.message.accountKeys,
+                            "pre_balances": item.meta? item.meta.preBalances : null,
+                            "post_balances": item.meta? item.meta.postBalances : null,
+                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                            "description": "Generic Transaction"
+                        }
+                        $workingArray.push(new_line)
+                        console.log(new_line)
                 }
-                $workingArray.push(new_line)
-                console.log(new_line)
-                
-            });
+            
+            }
+
+
+            
             //console.log("printing cleaned array")
             //console.log($cleanedArray)
             //console.log("printing working array")
