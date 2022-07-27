@@ -40,8 +40,8 @@
 
     let date = new Date()
     let totalPages = 1
-   
-    
+    let currentTransaction = 0;
+    let currentPercentage = "";
     
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -79,7 +79,12 @@
     }
 
     async function fetchForAddress (keyIn) {
-        
+        $apiData =[]
+        $workingArray = []
+        $displayArray = []
+        $fetchedTransactions = []
+        currentTransaction = 0
+        currentPercentage = ""
         loading = true
         $currentPage = 1
         let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
@@ -91,9 +96,7 @@
         }  
         else
         {
-            $apiData =[]
-            $workingArray = []
-            $displayArray = []
+            
             //set initial lastday and last sig
             let lastsig = signatures[signatures.length - 1].signature
             let lastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
@@ -139,8 +142,10 @@
             
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
+           
             //console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
+                currentTransaction++
                 let programIDs: string = []
                 item.transaction.message.instructions.forEach(function (program) {
                     programIDs.push(program.programId.toBase58())
@@ -416,7 +421,7 @@ $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray()
 $: $displayArray
 $: $textFilter, sliceDisplayArray()
-
+$: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
@@ -425,7 +430,11 @@ $: $textFilter, sliceDisplayArray()
 
 <div class="flex justify-center">
     <div class="pt-4 text-center ">
-        <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
+ 
+            
+        <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-bely font-light align-top text-base ">(alpha)</a></h1>
+        
+        
         {#if loading == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center input input-sm input-bordered input-primary w-96  " />
         {:else}
@@ -474,7 +483,7 @@ $: $textFilter, sliceDisplayArray()
                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>loading...</span> 
+                      </svg>loading... {currentPercentage}</span> 
             </p>
         </div>
         {/if}
