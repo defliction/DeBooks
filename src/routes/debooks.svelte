@@ -209,6 +209,7 @@
             console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray
+        console.log("display array length: ", $displayArray.length)
     }
     function checkKey () {
         try {
@@ -240,7 +241,11 @@ $: $displayArray
 <div class="flex justify-center">
     <div class="pt-4 text-center ">
         <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks</h1>
-        <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center input input-sm input-bordered input-primary w-96 max-w-xs " />
+        {#if loading == false}
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center input input-sm input-bordered input-primary w-96  " />
+        {:else}
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center input input-sm input-bordered input-primary w-96  " />
+        {/if}
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif ">
@@ -250,7 +255,7 @@ $: $displayArray
             {#if loading == false}
                 <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center"/>
             {:else}
-                <input type="date" disabled={true} bind:value={start} max={end} class="text-center"/>
+                <input type="date" disabled bind:value={start} max={end} class="text-center"/>
             {/if}
             
             
@@ -324,7 +329,7 @@ $: $displayArray
       
           <tbody>
             <!-- row 1 -->
-            {#each $displayArray.slice($currentPage - 1, $currentPage - 1 + pageIncrement) as transaction, i}
+            {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
                 <!-- show everything -->
                 <tr class="">
                     {#if transaction.success}
