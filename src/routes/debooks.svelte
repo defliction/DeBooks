@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -40,6 +40,7 @@
 
     let date = new Date()
     let totalPages = 1
+   
     
     
     
@@ -199,7 +200,7 @@
                                 }
                             }) 
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-                            descr = "Magic Eden: Price change " + nftnames.flatMap(s => s.name)
+                            descr = "Magic Eden: Price Change " + nftnames.flatMap(s => s.name)
                         }
                         else {
                             descr = "Magic Eden: Listed " + nftnames.flatMap(s => s.name)
@@ -290,24 +291,29 @@
     }
     function sliceDisplayArray () {
         if ($showfees && $showfailed) {
-            $displayArray = $workingArray
+            
+            $displayArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()))
+            
+            
             console.log("showfees && showfailed")
         }
         else if ($showfees && !$showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.success == true);
+            //default
+            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("showfees && !showfailed")
         }
         else if (!$showfees && $showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.description != "Transaction fees");
+            $displayArray = $workingArray.filter(transaction => transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("!showfees && showfailed")
         }
         else if (!$showfees && !$showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description != "Transaction fees");
+            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description != "Transaction fees" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray
         console.log("display array length: ", $displayArray.length)
     }
+
     function checkKey () {
         try {
             if (web3.PublicKey.isOnCurve($keyInput) == true)
@@ -328,6 +334,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray()
 $: $displayArray
+$: $textFilter, sliceDisplayArray()
 
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -390,24 +397,33 @@ $: $displayArray
             </p>
         </div>
         {/if}
-
+        
         <div class="flex flex-row justify-end form-control">
-            <label class="label ">
-                <span class="label-text font-semibold pr-2 ">Show:</span> 
+                <div class = "align-left py-2 pr-2 ">
+                    <input type="text" placeholder="Filter: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs w-full max-w-xs  align-bottom" />
+                </div>
                 
-            </label>
-            <div>
-                <label class="label cursor-pointer text-right ">
-                <span class="label-text pr-2 ">Transaction Fees</span> 
-                <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
-                </label>
-            </div>
-            <div>
-                <label class="label cursor-pointer text-right">
-                <span class="label-text pr-2 ">Failed transactions</span> 
-                <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfailed} />
-                </label>
-            </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold pr-2 ">Show:</span> 
+                        
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="label cursor-pointer text-right ">
+                    <span class="label-text pr-2 ">Transaction Fees</span> 
+                    <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
+                    </label>
+                </div>
+                <div>
+                    <label class="label cursor-pointer text-right">
+                    <span class="label-text pr-2 ">Failed transactions</span> 
+                    <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfailed} />
+                    </label>
+                </div>
+            
+            
         </div>
                 
         <table class="table table-compact ">

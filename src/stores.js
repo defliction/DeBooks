@@ -9,3 +9,4 @@ export let keyInput = writable("");
 export let showfees = writable(true);
 export let showfailed = writable(false);
 export let currentPage = writable(1)
+export let textFilter = writable("")
