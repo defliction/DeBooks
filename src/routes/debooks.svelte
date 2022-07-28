@@ -56,9 +56,9 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("52CGYPNDs7kzoGGeSfQb71VxoBdjzERqiMYt24EYyLQBBoRkwxdefX2XZbcPTdHaHf3FqkNEHUA8grj9TUG6dWT7")
+        var trans = await connection.getParsedTransaction("F6pFroE6nQeBSoMaQ3dk6UX2V4CWygb45o7f7cSjvDbZg7F3JUtmZq22fY7fCYokjFsULGhuX7UMXXCvn9jmjuM")
         console.log(trans)
-        var trans = await connection.getParsedTransaction("5v9Ak3dPBUH36UkopDiXMQmKkc92qYAzcWDy4L4cFNjnBKgWUBL2jE4Z5XWrzUK4jxn3e9JNAH5end4r5V8waoaq")
+        var trans = await connection.getParsedTransaction("4qoie4pJQ2EktYnUuLuEzWtvSMnwFCzn9qXj6pQ4zmPX5AUT5BfNUvGRKJRC3PwERqsUMfW9W58ZxczvVShrsxd7")
         console.log(trans)
         console.log("logs ", trans.meta.logMessages[1].includes(" Deposit")?" SOLD ": "NOT")
         let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
@@ -200,7 +200,7 @@
                     if (item.meta?.logMessages[1].includes(" CancelSell")) {
                         descr = "Magic Eden: Delisted " + nftnames.flatMap(s => s.name)
                     }
-                    else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") ) {
+                    else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
                         //offer accepted
                         let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
                         if (nftIDs.length == 0) {
@@ -219,11 +219,26 @@
                         }
                         else {
                             // improve buy vs sold to check who the signer of the transaction was
-                            let offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
-                            descr = "Magic Eden: Bought via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+                            // can check full log for 'price' and find row from there
+                            console.log()
+                            let offerAmount = 0
+                            if (item.meta?.logMessages[6]?.includes(" ExecuteSale")) {
+                                offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+                            }
+                            else {
+                                offerAmount = JSON.parse(item.meta?.logMessages[8].slice(13)).price/web3.LAMPORTS_PER_SOL
+                            }
+                            
                             let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+                            if (account_index == 0) {
+                                descr = "Magic Eden: Sold via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+                            }
+                            else {
+                                descr = "Magic Eden: Bought via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+                            }
+                            
                         }
                        
                     }
@@ -432,7 +447,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
     <div class="pt-4 text-center ">
  
             
-        <h1 class="pb-4 font-bely text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-bely font-light align-top text-base ">(alpha)</a></h1>
+        <h1 class="pb-4 font-dmserif text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-dmserif font-light align-top text-base ">(alpha)</a></h1>
         
         
         {#if loading == false}

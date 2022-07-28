@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'bely': ['BelyDisplayW00-Regular', 'sans-serif'] 
+        'bely': ['BelyDisplayW00-Regular', 'sans-serif'], 
+        'dmserif': ['DMSerifDisplay-Regular', 'sans-serif'] 
       },
     },
   },

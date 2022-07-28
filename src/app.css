@@ -6,5 +6,11 @@
     @font-face {
         font-family: 'BelyDisplayW00-Regular';
         src: local('BelyDisplayW00-Regular'), url(./fonts/bely.woff2) format('woff2');
+        
+    }
+    @font-face {
+        font-family: 'DMSerifDisplay-Regular';
+        src: local('DMSerifDisplay-Regular'), url(./fonts/DMSerifDisplay.woff2) format('woff2');
+        
     }
 }
