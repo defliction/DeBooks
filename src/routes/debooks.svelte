@@ -59,7 +59,8 @@
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         var trans = await connection.getParsedTransaction("yVbjYDvxMq5NPPMFDuaKkXXzuYtpmyaLNzmNtEm97d1FmB8d2XVcVWh22297TpDUPE2oq6hXenyLa6of8mmLyrK")
         console.log(trans)
-
+        var trans = await connection.getParsedTransaction("2faeGogEx832oyXEnVt9HnUdGGWjh9wQjnUQJCS5FfBS6N5j4CvahknTkARyQWy84a98sTowTdKHSPHX1cq3bTUN")
+        console.log(trans)  
         console.log("END - starting logs")
     });
     
@@ -132,7 +133,7 @@
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
            
-            //console.log("fetched ", $fetchedTransactions)
+            console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             for await (const item of $fetchedTransactions) {
                 currentTransaction++
                 let programIDs: string = []
@@ -150,8 +151,8 @@
                         "timestamp": item.blockTime, 
                         "slot": item.slot,
                         "success": true,
-                        "fee": item.meta? item.meta.fee : null,
-                        "amount": item.meta? -item.meta.fee : null,
+                        "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
+                        "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
                         "post_balances": item.meta? item.meta.postBalances : null,
@@ -326,7 +327,7 @@
                         "slot": item.slot,
                         "success": item.meta?.err == null? true : false,
                         "fee": item.meta? item.meta.fee : null,
-                        "amount": amount,
+                        "amount": amount/web3.LAMPORTS_PER_SOL,
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
                         "post_balances": item.meta? item.meta.postBalances : null,
@@ -348,6 +349,7 @@
                         amount += item.meta.fee 
                     }
                     else {
+
                         direction = "In"
                     }
                     
@@ -358,36 +360,49 @@
                             "slot": item.slot,
                             "success": item.meta?.err == null? true : false,
                             "fee": item.meta? item.meta.fee : null,
-                            "amount": amount,
+                            "amount": amount/web3.LAMPORTS_PER_SOL,
                             "account_keys": item.transaction.message.accountKeys,
                             "pre_balances": item.meta? item.meta.preBalances : null,
                             "post_balances": item.meta? item.meta.postBalances : null,
                             "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                             "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                            "description": "Solana Transfer " + direction
+                            "description": "SOL Transfer " + direction
                         }
                         $workingArray.push(new_line)
                         console.log(new_line)
                 }
                 // SPL TOKEN PROGRAM
                 else if (programIDs?.includes("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")) {
-                    var new_line = 
+                    //get account index
+                    let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                                       
+
+                    //filter by owner = keyin;  add new line per mint; add amount per line
+                    let mints = item.meta.preTokenBalances.filter(line => line.owner == keyIn)
+                    console.log("Mints ", mints)
+                    for await (const mint of mints) {
+                        console.log("amounts ", item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0].uiTokenAmount.uiAmount, )
+                        var new_line = 
                         {
                             "signature": item.transaction.signatures[0],
                             "timestamp": item.blockTime, 
                             "slot": item.slot,
                             "success": item.meta?.err == null? true : false,
                             "fee": item.meta? item.meta.fee : null,
-                            "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                            "amount": item.meta? Math.round(item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0].uiTokenAmount.uiAmount - mint.uiTokenAmount.uiAmount, mint.uiTokenAmount.decimals) : null,
                             "account_keys": item.transaction.message.accountKeys,
                             "pre_balances": item.meta? item.meta.preBalances : null,
                             "post_balances": item.meta? item.meta.postBalances : null,
                             "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                             "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                            "description": "SPL Transaction"
+                            "description": "SPL Transaction " + mint.mint.substring(0,4)
                         }
                         $workingArray.push(new_line)
                         console.log(new_line)
+                    
+                    }
+                    //above works for outbounds but not inbounds!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! is it the way phantom does it?
+                    // could also be NFTs
                 }
                 else {
                     //generic line
@@ -398,7 +413,7 @@
                             "slot": item.slot,
                             "success": item.meta?.err == null? true : false,
                             "fee": item.meta? item.meta.fee : null,
-                            "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                            "amount": item.meta? (item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee )/web3.LAMPORTS_PER_SOL : null,
                             "account_keys": item.transaction.message.accountKeys,
                             "pre_balances": item.meta? item.meta.preBalances : null,
                             "post_balances": item.meta? item.meta.postBalances : null,
@@ -612,8 +627,8 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                     <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                     <td class="min-w-[20rem]">{transaction.description}</td>
                     <td class="min-w-[4rem]">{transaction.signature.substring(0,4)}...</td>
-                    <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
-                    <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount}</td>
                     <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg></a></td>
