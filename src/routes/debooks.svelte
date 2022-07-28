@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -42,6 +42,7 @@
     let totalPages = 1
     let currentTransaction = 0;
     let currentPercentage = "";
+    let reportingSelection = ['SOL', 'USDC']
     
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -506,9 +507,17 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
         <div class="flex flex-row justify-end form-control">
                 <div class = "align-left py-2 pr-2 ">
                     
-                    <input type="text" placeholder="Filter: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs w-full max-w-xs  align-bottom" />
+                    <input type="text" placeholder="Filter: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs min-w-[2rem] max-w-[20rem]  align-bottom" />
                 </div>
-                
+                <div class = "align-bottom pt-1.5 pr-2 ">
+                    <select bind:value={$reportingCurrency} class="select select-xs select-ghost min-w-[2rem] max-w-[6rem]  pt-0.5">
+                        <option disabled>Reporting Currency</option>
+                        {#each reportingSelection as currency, i}
+                            <option >{currency}</option>
+                        {/each}
+                        
+                      </select>
+                </div>
                 <div>
                     <label class="label">
                         <span class="label-text font-semibold pr-2 ">Show:</span> 
@@ -518,13 +527,13 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                 
                 <div>
                     <label class="label cursor-pointer text-right ">
-                    <span class="label-text pr-2 ">Transaction Fees</span> 
+                    <span class="label-text pr-2 ">Txn Fees</span> 
                     <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
                     </label>
                 </div>
                 <div>
                     <label class="label cursor-pointer text-right">
-                    <span class="label-text pr-2 ">Failed transactions</span> 
+                    <span class="label-text pr-2 ">Failed txns</span> 
                     <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfailed} />
                     </label>
                 </div>
@@ -540,8 +549,9 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                 <th class="min-w-[2rem]"></th>
                 <th class="min-w-[2rem]">Date</th>
                 <th class="min-w-[20rem]">Description</th>
-                <th class="min-w-[4rem]">Signature</th>
-                <th class="min-w-[2rem] text-right">Amount (SOL)</th>
+                <th class="min-w-[4rem]">Txn</th>
+                <th class="min-w-[2rem] text-right">Amount (Base)</th>
+                <th class="min-w-[2rem] text-right">Amount ({$reportingCurrency})</th>
                 <th class="min-w-[2rem]"></th>
             </tr>
           </thead>          
@@ -563,6 +573,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                     <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                     <td class="min-w-[20rem]">{transaction.description}</td>
                     <td class="min-w-[4rem]">{transaction.signature.substring(0,4)}...</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount/web3.LAMPORTS_PER_SOL}</td>
                     <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
