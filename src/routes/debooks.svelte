@@ -406,6 +406,15 @@
                 }
                 else {
                     //generic line
+                    //find balances of key in? 
+                    let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                    let amount = 0
+                    if (feePayer == keyIn) {
+                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+                    }
+                    else {
+                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+                    }
                     var new_line = 
                         {
                             "signature": item.transaction.signatures[0],
@@ -413,7 +422,7 @@
                             "slot": item.slot,
                             "success": item.meta?.err == null? true : false,
                             "fee": item.meta? item.meta.fee : null,
-                            "amount": item.meta? (item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee )/web3.LAMPORTS_PER_SOL : null,
+                            "amount": amount,
                             "account_keys": item.transaction.message.accountKeys,
                             "pre_balances": item.meta? item.meta.preBalances : null,
                             "post_balances": item.meta? item.meta.postBalances : null,
