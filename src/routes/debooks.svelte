@@ -33,7 +33,7 @@
     let start = "2022-07-26"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
-    let end = "2022-07-27"
+    let end = "2022-07-29"
     $: endday = dayjs(end)
     let validKey = false
     let pageIncrement = 20;
@@ -337,7 +337,58 @@
                     $workingArray.push(new_line)
                     console.log(new_line)
                 }
-
+                // SOLANA TOKEN PROGRAM
+                else if (programIDs?.includes("11111111111111111111111111111111")) {
+                    let direction = ""
+                    let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                    let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+                    
+                    if (feePayer == keyIn) {
+                        direction = "Out"
+                        amount += item.meta.fee 
+                    }
+                    else {
+                        direction = "In"
+                    }
+                    
+                    var new_line = 
+                        {
+                            "signature": item.transaction.signatures[0],
+                            "timestamp": item.blockTime, 
+                            "slot": item.slot,
+                            "success": item.meta?.err == null? true : false,
+                            "fee": item.meta? item.meta.fee : null,
+                            "amount": amount,
+                            "account_keys": item.transaction.message.accountKeys,
+                            "pre_balances": item.meta? item.meta.preBalances : null,
+                            "post_balances": item.meta? item.meta.postBalances : null,
+                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                            "description": "Solana Transfer " + direction
+                        }
+                        $workingArray.push(new_line)
+                        console.log(new_line)
+                }
+                // SPL TOKEN PROGRAM
+                else if (programIDs?.includes("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")) {
+                    var new_line = 
+                        {
+                            "signature": item.transaction.signatures[0],
+                            "timestamp": item.blockTime, 
+                            "slot": item.slot,
+                            "success": item.meta?.err == null? true : false,
+                            "fee": item.meta? item.meta.fee : null,
+                            "amount": item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null,
+                            "account_keys": item.transaction.message.accountKeys,
+                            "pre_balances": item.meta? item.meta.preBalances : null,
+                            "post_balances": item.meta? item.meta.postBalances : null,
+                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                            "description": "SPL Transaction"
+                        }
+                        $workingArray.push(new_line)
+                        console.log(new_line)
+                }
                 else {
                     //generic line
                     var new_line = 
