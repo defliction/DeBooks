@@ -53,26 +53,14 @@
 
     onMount(async () => {
        //await fetchAll()
-        
+        console.log("START - starting logs")
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("F6pFroE6nQeBSoMaQ3dk6UX2V4CWygb45o7f7cSjvDbZg7F3JUtmZq22fY7fCYokjFsULGhuX7UMXXCvn9jmjuM")
+        var trans = await connection.getParsedTransaction("yVbjYDvxMq5NPPMFDuaKkXXzuYtpmyaLNzmNtEm97d1FmB8d2XVcVWh22297TpDUPE2oq6hXenyLa6of8mmLyrK")
         console.log(trans)
-        var trans = await connection.getParsedTransaction("4qoie4pJQ2EktYnUuLuEzWtvSMnwFCzn9qXj6pQ4zmPX5AUT5BfNUvGRKJRC3PwERqsUMfW9W58ZxczvVShrsxd7")
-        console.log(trans)
-        console.log("logs ", trans.meta.logMessages[1].includes(" Deposit")?" SOLD ": "NOT")
-        let key: web3.PublicKey = trans?.transaction.message.accountKeys[0].pubkey.toBase58()
-        console.log(key)
-        let mintAddress = new web3.PublicKey("Gk8Zh3JbKTV8bXQB7pv8poJvcRaPokv55fJRG1NxHqzF")
-        let test2 = await connection.getParsedAccountInfo(mintAddress)
-        //console.log(test2.owner.)
-        //console.log(Buffer.from((test.value?.data as Uint8Array)))
-        
-        const nft = await metaplex.nfts().findByMint(mintAddress).run();
-        
-        console.log(nft)
-        
+
+        console.log("END - starting logs")
     });
     
     const sleep = (milliseconds) => {
@@ -175,7 +163,7 @@
                     //console.log("fee paid by user", fee_expense)
                 }
                 
-                //interpret each line and add transactions to the array;
+                //MAGIC EDEN TRANSACTIONS >>
                 if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
                     let amount = item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null
                     console.log("trans ", item)
