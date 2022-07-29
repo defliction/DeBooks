@@ -353,72 +353,27 @@
 
                         //we need to check if any instructions are not parsed up here; and that that transaction involes our account keys; default generic; else parse per known instruction parsing
                         if (item.transaction.message.instructions.filter(instr => !instr.parsed).length > 0) {
-
-                        }
-                        else {
-                            
-                        }
-                        for await (const instruction of item.transaction.message.instructions) {
-                            //each instruction check
-                            // is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction data.
-                            // specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
-                            // however does inner instruction data solve this ?
-                            
-                            
-                            if (!instruction.parsed) {
-                                // does it involve my wallet?
+                                // does it involve my wallet? to add
                                 // check all instruction accounts flatmapped
-
-                                if(instruction.accounts.flatMap(s => s.toBase58()).includes(keyIn.toBase58())) {
-                                    console.log("found my key ", instruction)
+                                
+                                let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+                                let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+                                const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
+                                const uniqueTokens =  [...new Set(combined)]
+                                console.log("Unique tokens ", combined,  uniqueTokens)
+                                //token balance loop
+                                for await (const uniqueToken of uniqueTokens) {
                                     
-                                    let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
-                                    let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
-                                    const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
-                                    const uniqueTokens =  [...new Set(combined)]
-                                    console.log("Unique tokens ", combined,  uniqueTokens)
-                                    //token balance loop
-                                    for await (const uniqueToken of uniqueTokens) {
-                                        
-                                        let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0].uiTokenAmount.decimals
-                                        let preFil= item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-                                        let preBal =  preFil? preFil : 0
-                                        
-                                        let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-                                        let postBal = postFil? postFil : 0
-                                        let tokenChange = postBal - preBal
-                                       
-                                        if (tokenChange != 0) {
-                                            
-                                            var new_line = 
-                                            {
-                                                "signature": item.transaction.signatures[0],
-                                                "timestamp": item.blockTime, 
-                                                "slot": item.slot,
-                                                "success": item.meta?.err == null? true : false,
-                                                "fee": item.meta? item.meta.fee : null,
-                                                "amount": tokenChange,
-                                                "account_keys": item.transaction.message.accountKeys,
-                                                "pre_balances": item.meta? item.meta.preBalances : null,
-                                                "post_balances": item.meta? item.meta.postBalances : null,
-                                                "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                                                "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                                "description": "Generic Transaction: " + uniqueToken.substring(0,4)
-                                            }
-                                            $workingArray.push(new_line)
-                                            console.log(new_line)
-                                        }
-                                    }
-                                    //SOL balance sort
+                                    let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0].uiTokenAmount.decimals
+                                    let preFil= item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+                                    let preBal =  preFil? preFil : 0
                                     
-                                    let amount = 0
-                                    if (feePayer == keyIn) {
-                                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-                                    }
-                                    else {
-                                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
-                                    }
-                                    if (amount != 0) {
+                                    let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+                                    let postBal = postFil? postFil : 0
+                                    let tokenChange = postBal - preBal
+                                    
+                                    if (tokenChange != 0) {
+                                        
                                         var new_line = 
                                         {
                                             "signature": item.transaction.signatures[0],
@@ -426,92 +381,28 @@
                                             "slot": item.slot,
                                             "success": item.meta?.err == null? true : false,
                                             "fee": item.meta? item.meta.fee : null,
-                                            "amount": amount,
+                                            "amount": tokenChange,
                                             "account_keys": item.transaction.message.accountKeys,
                                             "pre_balances": item.meta? item.meta.preBalances : null,
                                             "post_balances": item.meta? item.meta.postBalances : null,
                                             "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                                             "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                            "description": "Generic Transaction: SOL"
+                                            "description": "Generic Transaction: " + uniqueToken.substring(0,4)
                                         }
                                         $workingArray.push(new_line)
                                         console.log(new_line)
                                     }
-                                    
-                                    break
+                                }
+                                //SOL balance sort
+                                
+                                let amount = 0
+                                if (feePayer == keyIn) {
+                                    amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
                                 }
                                 else {
-                                    
+                                    amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
                                 }
-                                
-                            }
-                            else {
-                                console.log("PARSED INSTRUCTION ", instruction, item.transaction.signatures[0], item)
-                                //have a parsed instruction
-                                if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.destination == keyIn) {
-                                    console.log("SOL TRANSFER IN")
-                                    //SOL TRANSFER
-                        
-                                    let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
-                                    if (feePayer == keyIn) {
-                                        amount += item.meta.fee 
-                                    }
-
-                                    var new_line = 
-                                        {
-                                            "signature": item.transaction.signatures[0],
-                                            "timestamp": item.blockTime, 
-                                            "slot": item.slot,
-                                            "success": item.meta?.err == null? true : false,
-                                            "fee": item.meta? item.meta.fee : null,
-                                            "amount": amount/web3.LAMPORTS_PER_SOL,
-                                            "account_keys": item.transaction.message.accountKeys,
-                                            "pre_balances": item.meta? item.meta.preBalances : null,
-                                            "post_balances": item.meta? item.meta.postBalances : null,
-                                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                            "description": "SOL Transfer In "
-                                        }
-                                        $workingArray.push(new_line)
-                                        console.log(new_line)
-
-                                }
-                                else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
-                                    console.log("SOL TRANSFER OUT")
-                                    let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
-                                    if (feePayer == keyIn) {
-                                        amount += item.meta.fee 
-                                    }
-
-                                    var new_line = 
-                                        {
-                                            "signature": item.transaction.signatures[0],
-                                            "timestamp": item.blockTime, 
-                                            "slot": item.slot,
-                                            "success": item.meta?.err == null? true : false,
-                                            "fee": item.meta? item.meta.fee : null,
-                                            "amount": amount/web3.LAMPORTS_PER_SOL,
-                                            "account_keys": item.transaction.message.accountKeys,
-                                            "pre_balances": item.meta? item.meta.preBalances : null,
-                                            "post_balances": item.meta? item.meta.postBalances : null,
-                                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                            "description": "SOL Transfer Out "
-                                        }
-                                        $workingArray.push(new_line)
-                                        console.log(new_line)
-                                }
-                                else if (instruction.program == "spl-token" && instruction.parsed.type == "transferChecked") {
-                                    let mint = instruction.parsed.info.mint
-                                    //console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
-                                    let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
-                                    let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
-                                    let preBal =  preFiltered? preFiltered : 0
-                                    
-                                    let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
-                                    let postBal = postFiltered? postFiltered : 0
-
-                                    console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
+                                if (amount != 0) {
                                     var new_line = 
                                     {
                                         "signature": item.transaction.signatures[0],
@@ -519,106 +410,203 @@
                                         "slot": item.slot,
                                         "success": item.meta?.err == null? true : false,
                                         "fee": item.meta? item.meta.fee : null,
-                                        "amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+                                        "amount": amount,
                                         "account_keys": item.transaction.message.accountKeys,
                                         "pre_balances": item.meta? item.meta.preBalances : null,
                                         "post_balances": item.meta? item.meta.postBalances : null,
                                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                        "description": "SPL Transfer " + mint.substring(0,4)
+                                        "description": "Generic Transaction: SOL"
                                     }
                                     $workingArray.push(new_line)
                                     console.log(new_line)
-                                    
-                                    
-                                    
                                 }
-                                else if (instruction.program == "spl-token" && instruction.parsed.type == "burn" && instruction.parsed.info.authority == keyIn)  {
-                                    //to catch burns
-                                    let mint = instruction.parsed.info.mint
-                                    let decimals = item.meta.preTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
-                                    let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
-                                    let preBal =  preFiltered? preFiltered : 0
-                                    
-                                    let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
-                                    let postBal = postFiltered? postFiltered : 0
+                                
+                                
+                                
+                                
+                            }
+                        else {
+                            for await (const instruction of item.transaction.message.instructions) {
+                            //each instruction check
+                            // is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction data.
+                            // specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
+                            // however does inner instruction data solve this ?
+                            console.log("PARSED INSTRUCTION ", instruction, item.transaction.signatures[0], item)
+                            //have a parsed instruction
+                            if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.destination == keyIn) {
+                                console.log("SOL TRANSFER IN")
+                                //SOL TRANSFER
+                    
+                                let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+                                if (feePayer == keyIn) {
+                                    amount += item.meta.fee 
+                                }
 
-                                    
-                                    var new_line = 
+                                var new_line = 
                                     {
                                         "signature": item.transaction.signatures[0],
                                         "timestamp": item.blockTime, 
                                         "slot": item.slot,
                                         "success": item.meta?.err == null? true : false,
                                         "fee": item.meta? item.meta.fee : null,
-                                        "amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+                                        "amount": amount/web3.LAMPORTS_PER_SOL,
                                         "account_keys": item.transaction.message.accountKeys,
                                         "pre_balances": item.meta? item.meta.preBalances : null,
                                         "post_balances": item.meta? item.meta.postBalances : null,
                                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                        "description": "Burn SPL Token " + mint.substring(0,4)
+                                        "description": "SOL Transfer In "
                                     }
                                     $workingArray.push(new_line)
+                                    console.log(new_line)
 
+                            }
+                            else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
+                                console.log("SOL TRANSFER OUT")
+                                let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
+                                if (feePayer == keyIn) {
+                                    amount += item.meta.fee 
                                 }
-                                else if (instruction.program == "spl-token" && instruction.parsed.type == "closeAccount" && instruction.parsed.info.destination == keyIn)  {
-                                    //close account refund incoming
-                                    //instruction.parsed.info.account change in SOL
-                                    let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
-                                    console.log("closed account index ", closed_index)
-                                    let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
-                                    
-                                    var new_line = 
-                                        {
-                                            "signature": item.transaction.signatures[0],
-                                            "timestamp": item.blockTime, 
-                                            "slot": item.slot,
-                                            "success": item.meta?.err == null? true : false,
-                                            "fee": item.meta? item.meta.fee : null,
-                                            "amount": -amount,
-                                            "account_keys": item.transaction.message.accountKeys,
-                                            "pre_balances": item.meta? item.meta.preBalances : null,
-                                            "post_balances": item.meta? item.meta.postBalances : null,
-                                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                            "description": "Closed account " + instruction.parsed.info.account.substring(0,4)
-                                        }
-                                        $workingArray.push(new_line)
-                                        console.log(new_line)
-                                }
-                                else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
-                                    //console.log("create SPL account", instruction)
-                                    let amount = 0
-                                    if (feePayer == keyIn) {
-                                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-                                    }
-                                    else {
-                                        amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
-                                    }
-                                    
-                                    var new_line = 
+
+                                var new_line = 
                                     {
                                         "signature": item.transaction.signatures[0],
                                         "timestamp": item.blockTime, 
                                         "slot": item.slot,
                                         "success": item.meta?.err == null? true : false,
                                         "fee": item.meta? item.meta.fee : null,
-                                        "amount": amount, //amount of SPL movement
+                                        "amount": amount/web3.LAMPORTS_PER_SOL,
                                         "account_keys": item.transaction.message.accountKeys,
                                         "pre_balances": item.meta? item.meta.preBalances : null,
                                         "post_balances": item.meta? item.meta.postBalances : null,
                                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                        "description": "Create SPL Token account for " + instruction.parsed.info.mint.substring(0,4)
+                                        "description": "SOL Transfer Out "
                                     }
                                     $workingArray.push(new_line)
+                                    console.log(new_line)
+                            }
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "transferChecked") {
+                                let mint = instruction.parsed.info.mint
+                                //console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
+                                let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
+                                let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let preBal =  preFiltered? preFiltered : 0
+                                
+                                let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let postBal = postFiltered? postFiltered : 0
+
+                                console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
+                                var new_line = 
+                                {
+                                    "signature": item.transaction.signatures[0],
+                                    "timestamp": item.blockTime, 
+                                    "slot": item.slot,
+                                    "success": item.meta?.err == null? true : false,
+                                    "fee": item.meta? item.meta.fee : null,
+                                    "amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+                                    "account_keys": item.transaction.message.accountKeys,
+                                    "pre_balances": item.meta? item.meta.preBalances : null,
+                                    "post_balances": item.meta? item.meta.postBalances : null,
+                                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                    "description": "SPL Transfer " + mint.substring(0,4)
+                                }
+                                $workingArray.push(new_line)
+                                console.log(new_line)
+                                
+                                
+                                
+                            }
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "burn" && instruction.parsed.info.authority == keyIn)  {
+                                //to catch burns
+                                let mint = instruction.parsed.info.mint
+                                let decimals = item.meta.preTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
+                                let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let preBal =  preFiltered? preFiltered : 0
+                                
+                                let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let postBal = postFiltered? postFiltered : 0
+
+                                
+                                var new_line = 
+                                {
+                                    "signature": item.transaction.signatures[0],
+                                    "timestamp": item.blockTime, 
+                                    "slot": item.slot,
+                                    "success": item.meta?.err == null? true : false,
+                                    "fee": item.meta? item.meta.fee : null,
+                                    "amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+                                    "account_keys": item.transaction.message.accountKeys,
+                                    "pre_balances": item.meta? item.meta.preBalances : null,
+                                    "post_balances": item.meta? item.meta.postBalances : null,
+                                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                    "description": "Burn SPL Token " + mint.substring(0,4)
+                                }
+                                $workingArray.push(new_line)
+
+                            }
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "closeAccount" && instruction.parsed.info.destination == keyIn)  {
+                                //close account refund incoming
+                                //instruction.parsed.info.account change in SOL
+                                let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
+                                console.log("closed account index ", closed_index)
+                                let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
+                                
+                                var new_line = 
+                                    {
+                                        "signature": item.transaction.signatures[0],
+                                        "timestamp": item.blockTime, 
+                                        "slot": item.slot,
+                                        "success": item.meta?.err == null? true : false,
+                                        "fee": item.meta? item.meta.fee : null,
+                                        "amount": -amount,
+                                        "account_keys": item.transaction.message.accountKeys,
+                                        "pre_balances": item.meta? item.meta.preBalances : null,
+                                        "post_balances": item.meta? item.meta.postBalances : null,
+                                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                        "description": "Closed account " + instruction.parsed.info.account.substring(0,4)
+                                    }
+                                    $workingArray.push(new_line)
+                                    console.log(new_line)
+                            }
+                            else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
+                                //console.log("create SPL account", instruction)
+                                let amount = 0
+                                if (feePayer == keyIn) {
+                                    amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
                                 }
                                 else {
-                                    //generic parsed instruction!
+                                    amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
                                 }
+                                
+                                var new_line = 
+                                {
+                                    "signature": item.transaction.signatures[0],
+                                    "timestamp": item.blockTime, 
+                                    "slot": item.slot,
+                                    "success": item.meta?.err == null? true : false,
+                                    "fee": item.meta? item.meta.fee : null,
+                                    "amount": amount, //amount of SPL movement
+                                    "account_keys": item.transaction.message.accountKeys,
+                                    "pre_balances": item.meta? item.meta.preBalances : null,
+                                    "post_balances": item.meta? item.meta.postBalances : null,
+                                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                    "description": "Create SPL Token account for " + instruction.parsed.info.mint.substring(0,4)
+                                }
+                                $workingArray.push(new_line)
                             }
+                            else {
+                                //generic parsed instruction! if that exists
+                            }
+                            
+                        } 
                         }
+                        
                         
 
 
