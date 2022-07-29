@@ -133,11 +133,14 @@
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
            
-            console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
+            //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
+            console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
                 currentTransaction++
+                let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                 let programIDs: string = []
                 item.transaction.message.instructions.forEach(function (program) {
+                    
                     programIDs.push(program.programId.toBase58())
                 })
                 console.log("programIDs ", programIDs)
@@ -202,7 +205,7 @@
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
                             descr = "Magic Eden: Sold via Offer " + nftnames.flatMap(s => s.name)
                             //correct net amount to wallet (net of royalties)
-                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            //let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 
@@ -219,7 +222,7 @@
                                 offerAmount = JSON.parse(item.meta?.logMessages[8].slice(13)).price/web3.LAMPORTS_PER_SOL
                             }
                             
-                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            //let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
                             if (account_index == 0) {
@@ -259,7 +262,7 @@
                             let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
                             descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
                             //correct net amount to wallet (net of royalties)
-                            let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                            //let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                             
                             amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 
@@ -339,9 +342,9 @@
                     console.log(new_line)
                 }
                 // SOLANA TOKEN PROGRAM
-                else if (programIDs?.includes("11111111111111111111111111111111")) {
+                else if (programIDs[0] == "11111111111111111111111111111111") {
                     let direction = ""
-                    let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                    
                     let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
                     
                     if (feePayer == keyIn) {
@@ -349,7 +352,6 @@
                         amount += item.meta.fee 
                     }
                     else {
-
                         direction = "In"
                     }
                     
@@ -374,14 +376,14 @@
                 // SPL TOKEN PROGRAM
                 else if (programIDs?.includes("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")) {
                     //get account index
-                    let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                    //let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                                        
 
                     //filter by owner = keyin;  add new line per mint; add amount per line
                     let mints = item.meta.preTokenBalances.filter(line => line.owner == keyIn)
                     console.log("Mints ", mints)
                     for await (const mint of mints) {
-                        console.log("amounts ", item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0].uiTokenAmount.uiAmount, )
+                        console.log("amounts ", item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0]?.uiTokenAmount.uiAmount, )
                         var new_line = 
                         {
                             "signature": item.transaction.signatures[0],
@@ -389,7 +391,7 @@
                             "slot": item.slot,
                             "success": item.meta?.err == null? true : false,
                             "fee": item.meta? item.meta.fee : null,
-                            "amount": item.meta? Math.round(item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0].uiTokenAmount.uiAmount - mint.uiTokenAmount.uiAmount, mint.uiTokenAmount.decimals) : null,
+                            "amount": item.meta? Math.round(item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0]?.uiTokenAmount.uiAmount - mint.uiTokenAmount.uiAmount, mint.uiTokenAmount.decimals) : null,
                             "account_keys": item.transaction.message.accountKeys,
                             "pre_balances": item.meta? item.meta.preBalances : null,
                             "post_balances": item.meta? item.meta.postBalances : null,
@@ -404,6 +406,7 @@
                     //above works for outbounds but not inbounds!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! is it the way phantom does it?
                     // could also be NFTs
                 }
+                
                 else {
                     //generic line
                     //find balances of key in? 
