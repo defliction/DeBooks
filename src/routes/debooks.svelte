@@ -59,7 +59,11 @@
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         var trans = await connection.getParsedTransaction("3Tx2Hv1gmw6cXcx3v1P5CCtPvZ4eTKC4G6ZH2fQUegAg4Zr2NmNZ82YEcExFqrqgGeVQ4TreCu8J9GgWkCpbLFs5")
         console.log(trans)
-         
+        console.log(trans.transaction.message.instructions.filter(instr => !instr.parsed).length)
+        var trans = await connection.getParsedTransaction("3EgJqUKJDhZUK912obnWErRUZjKxRNXgw2uEHrpV8HykfHJ6uoRtafJDYuF3vNaLMF7TxHA5pyH6wgMBL6Yx74K1")
+        console.log(trans)
+        console.log(trans.transaction.message.instructions.filter(instr => !instr.parsed).length)
+
         console.log("END - starting logs")
     });
 
@@ -346,19 +350,28 @@
                     }
                     else {
                         //generic instruction work
+
+                        //we need to check if any instructions are not parsed up here; and that that transaction involes our account keys; default generic; else parse per known instruction parsing
+                        if (item.transaction.message.instructions.filter(instr => !instr.parsed).length > 0) {
+
+                        }
+                        else {
+                            
+                        }
                         for await (const instruction of item.transaction.message.instructions) {
                             //each instruction check
-                            //is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction.
-                            //specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
+                            // is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction data.
+                            // specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
                             // however does inner instruction data solve this ?
-
+                            
+                            
                             if (!instruction.parsed) {
-                                //does it involve my wallet?
+                                // does it involve my wallet?
+                                // check all instruction accounts flatmapped
+
                                 if(instruction.accounts.flatMap(s => s.toBase58()).includes(keyIn.toBase58())) {
                                     console.log("found my key ", instruction)
-                                    //generic non-parsed instruction involving keyIn
-                                    //not correct amounts here!
-                                    //--> for each mint in pretoken
+                                    
                                     let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
                                     let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
                                     const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
@@ -397,7 +410,7 @@
                                         }
                                     }
                                     //SOL balance sort
-                                    console.log("Unique entry4 ")
+                                    
                                     let amount = 0
                                     if (feePayer == keyIn) {
                                         amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
