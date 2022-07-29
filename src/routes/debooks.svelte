@@ -30,10 +30,10 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-06-17"
+    let start = "2022-07-17"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
-    let end = "2022-06-18"
+    let end = "2022-07-30"
     $: endday = dayjs(end)
     let validKey = false
     let pageIncrement = 20;
@@ -57,12 +57,9 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("3Tx2Hv1gmw6cXcx3v1P5CCtPvZ4eTKC4G6ZH2fQUegAg4Zr2NmNZ82YEcExFqrqgGeVQ4TreCu8J9GgWkCpbLFs5")
+        var trans = await connection.getParsedTransaction("4pdRR7gRnr72vcMGf4LvQPNrifZxZxv8ZNp9kC89yrbz1VVn48WynTja8DJfsCsqS2BV6cSU1cYFeynbQBQpyirM")
         console.log(trans)
-        console.log(trans.transaction.message.instructions.filter(instr => !instr.parsed).length)
-        var trans = await connection.getParsedTransaction("3EgJqUKJDhZUK912obnWErRUZjKxRNXgw2uEHrpV8HykfHJ6uoRtafJDYuF3vNaLMF7TxHA5pyH6wgMBL6Yx74K1")
-        console.log(trans)
-        console.log(trans.transaction.message.instructions.filter(instr => !instr.parsed).length)
+   
 
         console.log("END - starting logs")
     });
@@ -519,6 +516,52 @@
                                 
                                 
                             }
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "transfer") {
+                                //old legacy transfer could break if other spl instructions pre loaded? or mulitple instructions chained in 1 transaction?
+
+                                let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+                                let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+                                const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
+                                const uniqueTokens =  [...new Set(combined)]
+                                console.log("Unique tokens ", combined,  uniqueTokens)
+                                //token balance loop
+                                for await (const uniqueToken of uniqueTokens) {
+                                    
+                                    let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0].uiTokenAmount.decimals
+                                    let preFil= item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+                                    let preBal =  preFil? preFil : 0
+                                    
+                                    let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+                                    let postBal = postFil? postFil : 0
+                                    let tokenChange = postBal - preBal
+                                    
+                                    if (tokenChange != 0) {
+                                        
+                                        var new_line = 
+                                        {
+                                            "signature": item.transaction.signatures[0],
+                                            "timestamp": item.blockTime, 
+                                            "slot": item.slot,
+                                            "success": item.meta?.err == null? true : false,
+                                            "fee": item.meta? item.meta.fee : null,
+                                            "amount": tokenChange,
+                                            "account_keys": item.transaction.message.accountKeys,
+                                            "pre_balances": item.meta? item.meta.preBalances : null,
+                                            "post_balances": item.meta? item.meta.postBalances : null,
+                                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                            "description": "Generic Transaction: " + uniqueToken.substring(0,4)
+                                        }
+                                        $workingArray.push(new_line)
+                                        console.log(new_line)
+                                    }
+                                }
+                                //is ignoring SOL here dangerous?
+                                break
+                                
+                                
+                                
+                            }
                             else if (instruction.program == "spl-token" && instruction.parsed.type == "burn" && instruction.parsed.info.authority == keyIn)  {
                                 //to catch burns
                                 let mint = instruction.parsed.info.mint
@@ -794,7 +837,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                 <th class="min-w-[2rem]"></th>
                 <th class="min-w-[2rem]">Date</th>
                 <th class="min-w-[20rem]">Description</th>
-                <th class="min-w-[4rem]">Txn</th>
+                <th class="min-w-[4rem]">Sig</th>
                 <th class="min-w-[2rem] text-right">Amount (Base)</th>
                 <th class="min-w-[2rem] text-right">Amount ({$reportingCurrency})</th>
                 <th class="min-w-[2rem]"></th>
