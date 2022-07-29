@@ -367,7 +367,7 @@
                                     
                                     let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
                                     let postBal = postFil? postFil : 0
-                                    let tokenChange = postBal - preBal
+                                    let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
                                     
                                     if (tokenChange != 0) {
                                         
@@ -387,7 +387,7 @@
                                             "description": "Generic Transaction: " + uniqueToken.substring(0,4)
                                         }
                                         $workingArray.push(new_line)
-                                        console.log(new_line)
+                                        console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
                                     }
                                 }
                                 //SOL balance sort
@@ -533,7 +533,7 @@
                                     
                                     let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
                                     let postBal = postFil? postFil : 0
-                                    let tokenChange = postBal - preBal
+                                    let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
                                     
                                     if (tokenChange != 0) {
                                         
