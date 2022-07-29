@@ -57,10 +57,9 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("yVbjYDvxMq5NPPMFDuaKkXXzuYtpmyaLNzmNtEm97d1FmB8d2XVcVWh22297TpDUPE2oq6hXenyLa6of8mmLyrK")
+        var trans = await connection.getParsedTransaction("i2RkLcPWWRtzQYDZQNZyJmBysTXx8XkAL9MQbuYqSQAYPs6TgFZAgyyAQib3ZgUU1SstXmsPYQFpxSN4kaKD7Uw")
         console.log(trans)
-        var trans = await connection.getParsedTransaction("2faeGogEx832oyXEnVt9HnUdGGWjh9wQjnUQJCS5FfBS6N5j4CvahknTkARyQWy84a98sTowTdKHSPHX1cq3bTUN")
-        console.log(trans)  
+         
         console.log("END - starting logs")
     });
 
@@ -341,73 +340,8 @@
                     $workingArray.push(new_line)
                     console.log(new_line)
                 }
-                // SOLANA TOKEN PROGRAM
-                else if (programIDs[0] == "11111111111111111111111111111111_") {
-                    let direction = ""
-                    
-                    let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
-                    
-                    if (feePayer == keyIn) {
-                        direction = "Out"
-                        amount += item.meta.fee 
-                    }
-                    else {
-                        direction = "In"
-                    }
-                    
-                    var new_line = 
-                        {
-                            "signature": item.transaction.signatures[0],
-                            "timestamp": item.blockTime, 
-                            "slot": item.slot,
-                            "success": item.meta?.err == null? true : false,
-                            "fee": item.meta? item.meta.fee : null,
-                            "amount": amount/web3.LAMPORTS_PER_SOL,
-                            "account_keys": item.transaction.message.accountKeys,
-                            "pre_balances": item.meta? item.meta.preBalances : null,
-                            "post_balances": item.meta? item.meta.postBalances : null,
-                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                            "description": "SOL Transfer " + direction
-                        }
-                        $workingArray.push(new_line)
-                        console.log(new_line)
-                }
-                // SPL TOKEN PROGRAM
-                else if (programIDs?.includes("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA_")) {
-                    //get account index
-                    //let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
-                                       
-
-                    //filter by owner = keyin;  add new line per mint; add amount per line
-                    let mints = item.meta.preTokenBalances.filter(line => line.owner == keyIn)
-                    console.log("Mints ", mints)
-                    for await (const mint of mints) {
-                        console.log("amounts ", item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0]?.uiTokenAmount.uiAmount, )
-                        var new_line = 
-                        {
-                            "signature": item.transaction.signatures[0],
-                            "timestamp": item.blockTime, 
-                            "slot": item.slot,
-                            "success": item.meta?.err == null? true : false,
-                            "fee": item.meta? item.meta.fee : null,
-                            "amount": item.meta? Math.round(item.meta.postTokenBalances.filter(token => token.mint == mint.mint && token.owner == keyIn)[0]?.uiTokenAmount.uiAmount - mint.uiTokenAmount.uiAmount, mint.uiTokenAmount.decimals) : null,
-                            "account_keys": item.transaction.message.accountKeys,
-                            "pre_balances": item.meta? item.meta.preBalances : null,
-                            "post_balances": item.meta? item.meta.postBalances : null,
-                            "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                            "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                            "description": "SPL Transaction " + mint.mint.substring(0,4)
-                        }
-                        $workingArray.push(new_line)
-                        console.log(new_line)
-                    
-                    }
-                    //above works for outbounds but not inbounds!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! is it the way phantom does it?
-                    // could also be NFTs
-                }
                 else {
-                    //generic line
+                    //generic instruction work
                     for await (const instruction of item.transaction.message.instructions) {
                         //each instruction check
                         if (instruction.parsed) {
@@ -470,8 +404,6 @@
                                 let mint = instruction.parsed.info.mint
                                 //console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
                                 let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
-                                
-                            
                                 let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
                                 let preBal =  preFiltered? preFiltered : 0
                                 
@@ -500,8 +432,59 @@
                                 
                                 
                             }
-                            else if (instruction.program == "spl-token" && instruction.parsed.type == "burn")  {
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "burn" && instruction.parsed.info.authority == keyIn)  {
                                 //to catch burns
+                                let mint = instruction.parsed.info.mint
+                                let decimals = item.meta.preTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
+                                let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let preBal =  preFiltered? preFiltered : 0
+                                
+                                let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+                                let postBal = postFiltered? postFiltered : 0
+
+                                
+                                var new_line = 
+                                {
+                                    "signature": item.transaction.signatures[0],
+                                    "timestamp": item.blockTime, 
+                                    "slot": item.slot,
+                                    "success": item.meta?.err == null? true : false,
+                                    "fee": item.meta? item.meta.fee : null,
+                                    "amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+                                    "account_keys": item.transaction.message.accountKeys,
+                                    "pre_balances": item.meta? item.meta.preBalances : null,
+                                    "post_balances": item.meta? item.meta.postBalances : null,
+                                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                    "description": "Burn SPL Token " + mint.substring(0,4)
+                                }
+                                $workingArray.push(new_line)
+
+                            }
+                            else if (instruction.program == "spl-token" && instruction.parsed.type == "closeAccount" && instruction.parsed.info.destination == keyIn)  {
+                                //close account refund incoming
+                                //instruction.parsed.info.account change in SOL
+                                let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
+                                console.log("closed account index ", closed_index)
+                                let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
+                                
+                                var new_line = 
+                                    {
+                                        "signature": item.transaction.signatures[0],
+                                        "timestamp": item.blockTime, 
+                                        "slot": item.slot,
+                                        "success": item.meta?.err == null? true : false,
+                                        "fee": item.meta? item.meta.fee : null,
+                                        "amount": -amount,
+                                        "account_keys": item.transaction.message.accountKeys,
+                                        "pre_balances": item.meta? item.meta.preBalances : null,
+                                        "post_balances": item.meta? item.meta.postBalances : null,
+                                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                                        "description": "Closed account " + instruction.parsed.info.account.substring(0,4)
+                                    }
+                                    $workingArray.push(new_line)
+                                    console.log(new_line)
                             }
                             else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
                                 //console.log("create SPL account", instruction)
@@ -530,10 +513,14 @@
                                 }
                                 $workingArray.push(new_line)
                             }
+                            else {
+                                //generic parsed instruction!
+                                
+                            }
                         }
                         else {
                             if(instruction.accounts.flatMap(s => s.toBase58()).includes(keyIn)) {
-                                //generic instruction involving keyIn
+                                //generic non-parsed instruction involving keyIn
                                 //not correct amounts here!
                                 let amount = 0
                                 if (feePayer == keyIn) {
@@ -555,7 +542,7 @@
                                         "post_balances": item.meta? item.meta.postBalances : null,
                                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                                        "description": "Generic Transaction"
+                                        "description": "Generic Non-parsed Instruction"
                                     }
                                     $workingArray.push(new_line)
                                     console.log(new_line)
@@ -564,7 +551,7 @@
                                 continue
                             }
                             
-                    }
+                        }
 
                     }
                     
