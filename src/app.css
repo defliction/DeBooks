@@ -13,4 +13,21 @@
         src: local('DMSerifDisplay-Regular'), url(./fonts/DMSerifDisplay.woff2) format('woff2');
         
     }
+    @font-face {
+        font-family: 'Roslindale-DisplayNarrowRegular-Testing';
+        src: local('Roslindale-DisplayNarrowRegular-Testing'), url(./fonts/Roslindale-DisplayNarrowRegular-Testing.woff2) format('woff2');
+        
+    }
+    @font-face {
+        font-family: 'Roslindale-DisplayNarrowLight-Testing';
+        src: local('Roslindale-DisplayNarrowLight-Testing'), url(./fonts/Roslindale-DisplayNarrowLight-Testing.woff2) format('woff2');
+        
+    }
+    @font-face {
+        font-family: 'Roslindale-DisplayLight-Testing';
+        src: local('Roslindale-DisplayLight-Testing'), url(./fonts/Roslindale-DisplayLight-Testing.woff2) format('woff2');
+        
+    }
+
+
 }

@@ -736,13 +736,13 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
     <div class="pt-4 text-center ">
  
             
-        <h1 class="pb-4 font-dmserif text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-dmserif font-light align-top text-base ">(alpha)</a></h1>
+        <h1 class="pb-4 font-ros1 text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-ros3 align-top text-base ">(alpha)</a></h1>
         
         
         {#if loading == false}
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center input input-sm input-bordered input-primary w-96  " />
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
         {:else}
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center input input-sm input-bordered input-primary w-96  " />
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
         {/if}
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
@@ -892,7 +892,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
 
 <div class="flex justify-center flex-row">
     <div class="pt-10">
-        <div class="alert shadow-lg">
+        <div class="alert shadow-lg font-serif">
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span>Enter a valid wallet address to display records.</span>
