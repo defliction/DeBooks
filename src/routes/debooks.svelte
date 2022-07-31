@@ -296,7 +296,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
     <div class="pt-4 text-center ">
  
             
-        <h1 class="pb-2 font-rosc3 text-5xl font-bold text-center">DeBooks</h1>
+        <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         
         
         {#if loading == false}

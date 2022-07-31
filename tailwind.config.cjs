@@ -11,6 +11,10 @@ module.exports = {
         'ros4': ['Roslindale-DisplayLight-Testing', 'sans-serif'] ,
         'rosc2': ['Roslindale-DisplayCondensedLight-Testing', 'sans-serif'] ,
         'rosc3': ['Roslindale-DisplayCondensedMedium-Testing', 'sans-serif'] ,
+        'rost1': ['Roslindale-TextRegular-Testing', 'sans-serif'] ,
+        'rosv2': ['RoslindaleVariable-VF-Testing', 'sans-serif'] ,
+        'rosu1': ['Roslindale-DisplayCondensedBold-Testing', 'sans-serif'] ,
+
 
 
        

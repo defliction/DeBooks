@@ -37,6 +37,21 @@
         src: local('Roslindale-DisplayCondensedMedium-Testing'), url(./fonts/Roslindale-DisplayCondensedMedium-Testing.woff2) format('woff2');
         
     }
+    @font-face {
+        font-family: 'Roslindale-TextRegular-Testing';
+        src: local('Roslindale-TextRegular-Testing'), url(./fonts/Roslindale-TextRegular-Testing.woff2) format('woff2');
+        
+    }
+    @font-face {
+        font-family: 'RoslindaleVariable-VF-Testing';
+        src: local('RoslindaleVariable-VF-Testing'), url(./fonts/RoslindaleVariable-VF-Testing.woff2) format('woff2');
+        
+    }
+    @font-face {
+        font-family: 'Roslindale-DisplayCondensedBold-Testing';
+        src: local('Roslindale-DisplayCondensedBold-Testing'), url(./fonts/Roslindale-DisplayCondensedBold-Testing.woff2) format('woff2');
+        
+    }
 
 
 
