@@ -186,7 +186,13 @@
 			if (item.transaction.message.instructions.filter(instr => !instr.parsed).length > 0 && programIDs[0] != "DeJBGdMFa1uynnnKiwrVioatTuHmNLpyFKnmB5kaFdzQ") {
 					// does it involve my wallet? to add
 					// check all instruction accounts flatmapped
+					let customDescripton = "Generic"
 					
+					if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
+						customDescripton = "Jup.ag"
+					}
+
+
 					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
 					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
@@ -218,7 +224,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": "Generic Transaction: " + uniqueToken.substring(0,4)
+								"description": customDescripton+  " Transaction: " + uniqueToken.substring(0,4)
 							}
 							$workingArray.push(new_line)
 							console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -247,7 +253,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Generic Transaction: SOL"
+							"description": customDescripton + " Transaction: SOL"
 						}
 						$workingArray.push(new_line)
 						console.log(new_line)
@@ -261,9 +267,10 @@
 				let customDescripton = ""
 				for await (const instruction of item.transaction.message.instructions) {
 					if (instruction.programId.toBase58() == "DeJBGdMFa1uynnnKiwrVioatTuHmNLpyFKnmB5kaFdzQ") {
-						customDescripton = "Phantom: "
+						customDescripton = "Phantom "
 						continue
 					}
+					
 					//each instruction check
 					// is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction data.
 					// specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
@@ -389,7 +396,7 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + "Generic Transaction: " + uniqueToken.substring(0,4)
+									"description": customDescripton + " SPL Transfer " + uniqueToken.substring(0,4)
 								}
 								$workingArray.push(new_line)
 								console.log(new_line)
@@ -450,7 +457,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": "Closed account " + instruction.parsed.info.account.substring(0,4)
+								"description": customDescripton+ "Closed account " + instruction.parsed.info.account.substring(0,4)
 							}
 							$workingArray.push(new_line)
 							console.log(new_line)
@@ -478,7 +485,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Create SPL Token account for " + instruction.parsed.info.mint.substring(0,4)
+							"description": customDescripton+ "Create SPL Token account for " + instruction.parsed.info.mint.substring(0,4)
 						}
 						$workingArray.push(new_line)
 					}
