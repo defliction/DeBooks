@@ -212,12 +212,12 @@
 						
 						if (tokenChange != 0) {
 							console.log("--> unique token ", uniqueToken)
-							let testName = " pre NULL TEST"
+							let testName = " Unknown Token X"
 							let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
 							if (tokenName == null || tokenName == undefined) {
 								let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(uniqueToken)).run();
-								testName = " post NUll TEST " + nftnames.name
-								console.log ("NULL - ",nftnames )
+								testName = "" + nftnames.name
+								
 							}
 							else {
 								testName = tokenName.symbol
@@ -353,6 +353,18 @@
 						let postBal = postFiltered? postFiltered : 0
 
 						console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
+						let testName = " Unknown Token Z"
+						let tokenName:Token = await utl.fetchMint(new web3.PublicKey(mint))
+						if (tokenName == null || tokenName == undefined) {
+							console.log("meta test ", mint, instruction)
+							
+							//let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mint)).run();
+							testName = "Unknown Token Z " + mint.substring(0,4)
+							//console.log ("NULL - ",nftnames )
+						}
+						else {
+							testName = tokenName.symbol
+						}
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -366,7 +378,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + mint.substring(0,4)
+							"description": customDescripton + "SPL Transfer " + testName
 						}
 						$workingArray.push(new_line)
 						console.log(new_line)
@@ -394,7 +406,16 @@
 							let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 							
 							if (tokenChange != 0) {
-								let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken));
+								let testName = "Unknown Token Y "
+								let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
+								if (tokenName == null || tokenName == undefined) {
+									let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(uniqueToken)).run();
+									testName = " " + nftnames.name
+									console.log ("NULL - ",nftnames )
+								}
+								else {
+									testName = tokenName.symbol
+								}
 								var new_line = 
 								{
 									"signature": item.transaction.signatures[0],
@@ -408,7 +429,7 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + tokenName
+									"description": customDescripton + " SPL Transfer " + testName
 								}
 								$workingArray.push(new_line)
 								console.log(new_line)

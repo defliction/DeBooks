@@ -224,6 +224,7 @@
             
         
     }
+    
     function sliceDisplayArray () {
         if ($showfees && $showfailed) {
             
@@ -245,6 +246,11 @@
             $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             console.log("!showfees && !showfailed")
         }
+        $displayArray = $displayArray.sort(function sortDates(a, b) { // non-anonymous as you ordered...
+            return b.timestamp > a.timestamp ?  1 // if b should come earlier, push a to end
+                : b.timestamp < a.timestamp ? -1 // if b should come later, push a to begin
+                : 0;                   // a and b are equal
+            });
         $displayArray = $displayArray
         console.log("display array length: ", $displayArray.length)
     }
