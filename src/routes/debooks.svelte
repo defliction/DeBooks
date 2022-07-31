@@ -173,7 +173,10 @@
                     console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
-                    classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer)
+                    if (item != null) {
+                        classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer)
+                    }
+                    
                 }
             }
 
@@ -252,7 +255,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
     <div class="pt-4 text-center ">
  
             
-        <h1 class="pb-4 font-ros1 text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-ros3 align-top text-base ">(alpha)</a></h1>
+        <h1 class="pb-2 font-ros1 text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-ros3 align-top text-base ">(alpha)</a></h1>
         
         
         {#if loading == false}
