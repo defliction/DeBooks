@@ -1,8 +1,9 @@
 <script lang='ts'>
 	import * as web3 from '@solana/web3.js';
 	import { workingArray,} from '../stores.js';
+	import type { Token } from '@solflare-wallet/utl-sdk';
 
-	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer) {
+	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
@@ -197,7 +198,7 @@
 					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
 					const uniqueTokens =  [...new Set(combined)]
-					console.log("Unique tokens ", combined,  uniqueTokens)
+					//console.log("Unique tokens ", combined,  uniqueTokens)
 					//token balance loop
 					for await (const uniqueToken of uniqueTokens) {
 						
@@ -210,7 +211,9 @@
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 						
 						if (tokenChange != 0) {
-							
+							console.log("--> unique token ", uniqueToken)
+							let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
+							//console.log("--> unique token ", tokenName.symbol? )
 							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -224,7 +227,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton+  " Transaction: " + uniqueToken.substring(0,4)
+								"description": customDescripton +  " Transaction: " + uniqueToken.substring(0,4) + " " +tokenName.symbol 
 							}
 							$workingArray.push(new_line)
 							console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -382,7 +385,7 @@
 							let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 							
 							if (tokenChange != 0) {
-								
+								let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken));
 								var new_line = 
 								{
 									"signature": item.transaction.signatures[0],
@@ -396,7 +399,7 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + uniqueToken.substring(0,4)
+									"description": customDescripton + " SPL Transfer " + tokenName
 								}
 								$workingArray.push(new_line)
 								console.log(new_line)
