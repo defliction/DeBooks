@@ -212,7 +212,14 @@
 						
 						if (tokenChange != 0) {
 							console.log("--> unique token ", uniqueToken)
+							let testName = " pre NULL TEST"
 							let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
+							if (tokenName == null || tokenName == undefined) {
+								testName = " post NUll TEST"
+							}
+							else {
+								testName = tokenName.symbol
+							}
 							//console.log("--> unique token ", tokenName.symbol? )
 							var new_line = 
 							{
@@ -227,7 +234,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction: " + uniqueToken.substring(0,4) + " " +tokenName.symbol 
+								"description": customDescripton +  " Transaction: " + uniqueToken.substring(0,4) + " " + testName
 							}
 							$workingArray.push(new_line)
 							console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
