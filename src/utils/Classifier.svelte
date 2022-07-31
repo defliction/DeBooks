@@ -2,7 +2,7 @@
 	import * as web3 from '@solana/web3.js';
 	import { workingArray,} from '../stores.js';
 
-	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn) {
+	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 						let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"

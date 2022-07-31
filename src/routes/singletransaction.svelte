@@ -127,7 +127,7 @@
                    console.log("programIDs ", programIDs, item)
                    //only classify successful transactions!
                    //MAGIC EDEN TRANSACTIONS >>
-                   classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn)
+                   classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer)
 
                }
            
@@ -141,14 +141,15 @@
            totalPages = Math.ceil($workingArray.length/pageIncrement), console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
            $workingArray = $workingArray
            $displayArray = $workingArray
-           sliceDisplayArray()
+           
            
            
        
    
-        loading = false 
+        loading = false
+        
         }
-            
+        sliceDisplayArray() 
             
         
     }
@@ -210,7 +211,7 @@ $: signature, fetchForAddress()
     <div class="pt-4 text-center ">
  
             
-        <h1 class="pb-4 font-ros1 text-5xl font-bold text-center">DeBooks<a class="px-1 pb-4 font-ros3 align-top text-base ">(alpha)</a></h1>
+        <h1 class="pb-4 font-ros1 text-5xl font-bold text-center">Single Txn</h1>
         
         
    
@@ -219,27 +220,7 @@ $: signature, fetchForAddress()
         <input type="text" placeholder="enter txid" bind:value={signature} class="text-center font-serif input input-sm input-bordered input-secondary w-96  " />
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
-        <div class="flex flex-row text-sm font-serif ">
-            <span class="flex items-center pr-2">
-                For the period
-            </span>
-            {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center"/>
-            {:else}
-                <input type="date" disabled bind:value={start} max={end} class="text-center"/>
-            {/if}
-            
-            
-            <span class="flex items-center px-2 ">
-                to
-            </span>
-            {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
-            {:else}
-                <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
-            {/if}
-            
-        </div>
+       
         
 
        
