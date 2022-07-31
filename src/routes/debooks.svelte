@@ -243,7 +243,7 @@ $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = fals
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray()
 $: $displayArray
-$: $textFilter, sliceDisplayArray()
+$: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -338,12 +338,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                     <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
                     </label>
                 </div>
-                <div>
-                    <label class="label cursor-pointer text-right">
-                    <span class="label-text pr-2 ">Failed txns</span> 
-                    <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfailed} />
-                    </label>
-                </div>
+                
             
             
         </div>
