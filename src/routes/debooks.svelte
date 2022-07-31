@@ -152,7 +152,7 @@
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
 
-            console.log("date filtered results ", results.length)
+            //console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
             
             
@@ -196,11 +196,11 @@
                     //console.log("fee paid by user", fee_expense)
                 }
                 if (item.meta.err == null) {
-                    console.log("programIDs ", programIDs, item)
+                    //console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null) {
-                        classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl)
+                        await classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl)
                     }
                     
                 }
@@ -212,19 +212,28 @@
             //console.log($cleanedArray)
             //console.log("printing working array")
             //.log($workingArray)
-            totalPages = Math.ceil($workingArray.length/pageIncrement), console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
+            totalPages = Math.ceil($workingArray.length/pageIncrement)
+            //console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
             $workingArray = $workingArray
+            sortArray($workingArray)
             $displayArray = $workingArray
             sliceDisplayArray()
             
             
         }
-    
+        
         loading = false 
             
         
     }
-    
+    function sortArray(arrayIn) {
+        arrayIn = arrayIn.sort(function sortDates(a, b) { // non-anonymous as you ordered...
+            return b.timestamp > a.timestamp ?  1 // if b should come earlier, push a to end
+                : b.timestamp < a.timestamp ? -1 // if b should come later, push a to begin
+                : 0;                   // a and b are equal
+            });
+        arrayIn = arrayIn
+    }
     function sliceDisplayArray () {
         if ($showfees && $showfailed) {
             
@@ -274,7 +283,7 @@
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray()
-$: $displayArray
+$: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 

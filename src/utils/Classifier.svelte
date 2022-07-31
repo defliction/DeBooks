@@ -8,7 +8,7 @@
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
 			let amount = item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null
-			console.log("trans ", item)
+			//console.log("trans ", item)
 			//get NFTs
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
@@ -21,10 +21,10 @@
 					nftIDs.push(new web3.PublicKey(token.mint))
 				}
 			})
-			console.log("nftIDs " + nftIDs)
+			//console.log("nftIDs " + nftIDs)
 			
 			let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-			console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
+			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
 
@@ -51,7 +51,7 @@
 				else {
 					// improve buy vs sold to check who the signer of the transaction was
 					// can check full log for 'price' and find row from there
-					console.log()
+					
 					let offerAmount = 0
 					if (item.meta?.logMessages[6]?.includes(" ExecuteSale")) {
 						offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
@@ -121,11 +121,11 @@
 					}) 
 				
 					//correct net amount to wallet (net of royalties)
-					console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
+					//console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
-					console.log("acc ", account_index)
+					//console.log("acc ", account_index)
 					let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run()
-					console.log(item.meta?.logMessages[4].slice(13))
+					//console.log(item.meta?.logMessages[4].slice(13))
 					let offerAmount = ""
 					if (item.meta?.innerInstructions.length > 0 ){
 						offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
@@ -177,7 +177,7 @@
 				"description": descr
 			}
 			$workingArray.push(new_line)
-			console.log(new_line)
+			//console.log(new_line)
 		}
 
 		else {
@@ -211,7 +211,7 @@
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 						
 						if (tokenChange != 0) {
-							console.log("--> unique token ", uniqueToken)
+							//console.log("--> unique token ", uniqueToken)
 							let testName = " Unknown Token X"
 							let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
 							if (tokenName == null || tokenName == undefined) {
@@ -236,10 +236,10 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction: " + uniqueToken.substring(0,4) + " " + testName
+								"description": customDescripton +  " Transaction: " + testName
 							}
 							$workingArray.push(new_line)
-							console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
+							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
 						}
 					}
 					//SOL balance sort
@@ -268,7 +268,7 @@
 							"description": customDescripton + " Transaction: SOL"
 						}
 						$workingArray.push(new_line)
-						console.log(new_line)
+						//console.log(new_line)
 					}
 					
 					
@@ -287,10 +287,10 @@
 					// is there > 0 instructions not parsed? then just break and build a generic transction for each SOL and Token pre/post; else they're all parsed and proceed with classification per instruction data.
 					// specific classifications e.g. Jup2 will have to be done above per program ID; this is a catch all;
 					// however does inner instruction data solve this ?
-					console.log("PARSED INSTRUCTION ", instruction, item.transaction.signatures[0], item)
+					//console.log("PARSED INSTRUCTION ", instruction, item.transaction.signatures[0], item)
 					//have a parsed instruction
 					if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.destination == keyIn) {
-						console.log("SOL TRANSFER IN")
+						//console.log("SOL TRANSFER IN")
 						//SOL TRANSFER
 						
 						let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
@@ -314,11 +314,11 @@
 								"description": customDescripton + "SOL Transfer In "
 							}
 							$workingArray.push(new_line)
-							console.log(new_line)
+							//console.log(new_line)
 
 					}
 					else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
-						console.log("SOL TRANSFER OUT")
+						//console.log("SOL TRANSFER OUT")
 						let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 						if (feePayer == keyIn) {
 							amount += item.meta.fee 
@@ -340,7 +340,7 @@
 								"description": customDescripton+ "SOL Transfer Out "
 							}
 							$workingArray.push(new_line)
-							console.log(new_line)
+							//console.log(new_line)
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "transferChecked") {
 						let mint = instruction.parsed.info.mint
@@ -352,11 +352,11 @@
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						let postBal = postFiltered? postFiltered : 0
 
-						console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
+						//console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
 						let testName = " Unknown Token Z"
 						let tokenName:Token = await utl.fetchMint(new web3.PublicKey(mint))
 						if (tokenName == null || tokenName == undefined) {
-							console.log("meta test ", mint, instruction)
+							//console.log("meta test ", mint, instruction)
 							
 							//let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mint)).run();
 							testName = "Unknown Token Z " + mint.substring(0,4)
@@ -381,7 +381,7 @@
 							"description": customDescripton + "SPL Transfer " + testName
 						}
 						$workingArray.push(new_line)
-						console.log(new_line)
+						//console.log(new_line)
 						
 						
 						
@@ -393,7 +393,7 @@
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 						const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
 						const uniqueTokens =  [...new Set(combined)]
-						console.log("Unique tokens ", combined,  uniqueTokens)
+						//console.log("Unique tokens ", combined,  uniqueTokens)
 						//token balance loop
 						for await (const uniqueToken of uniqueTokens) {
 							
@@ -409,9 +409,9 @@
 								let testName = "Unknown Token Y "
 								let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
 								if (tokenName == null || tokenName == undefined) {
-									let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(uniqueToken)).run();
-									testName = " " + nftnames.name
-									console.log ("NULL - ",nftnames )
+									//let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(uniqueToken)).run();
+									testName = "Unknown Token Y " + uniqueToken.substring(0,4)
+									//console.log ("NULL - ",nftnames )
 								}
 								else {
 									testName = tokenName.symbol
@@ -432,7 +432,7 @@
 									"description": customDescripton + " SPL Transfer " + testName
 								}
 								$workingArray.push(new_line)
-								console.log(new_line)
+								//console.log(new_line)
 							}
 						}
 						//is ignoring SOL here dangerous?
@@ -474,7 +474,7 @@
 						//close account refund incoming
 						//instruction.parsed.info.account change in SOL
 						let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
-						console.log("closed account index ", closed_index)
+						//console.log("closed account index ", closed_index)
 						let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
 						
 						var new_line = 
@@ -493,7 +493,7 @@
 								"description": customDescripton+ "Closed account " + instruction.parsed.info.account.substring(0,4)
 							}
 							$workingArray.push(new_line)
-							console.log(new_line)
+							//console.log(new_line)
 					}
 					else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
 						//console.log("create SPL account", instruction)
