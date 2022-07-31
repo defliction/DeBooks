@@ -9,6 +9,10 @@ module.exports = {
         'ros1': ['Roslindale-DisplayNarrowRegular-Testing', 'sans-serif'] ,
         'ros3': ['Roslindale-DisplayNarrowLight-Testing', 'sans-serif'] ,
         'ros4': ['Roslindale-DisplayLight-Testing', 'sans-serif'] ,
+        'rosc2': ['Roslindale-DisplayCondensedLight-Testing', 'sans-serif'] ,
+        'rosc3': ['Roslindale-DisplayCondensedMedium-Testing', 'sans-serif'] ,
+
+
        
       },
     },

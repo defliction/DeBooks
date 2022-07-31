@@ -26,8 +26,18 @@
     @font-face {
         font-family: 'Roslindale-DisplayLight-Testing';
         src: local('Roslindale-DisplayLight-Testing'), url(./fonts/Roslindale-DisplayLight-Testing.woff2) format('woff2');
+    }
+    @font-face {
+        font-family: 'Roslindale-DisplayCondensedLight-Testing';
+        src: local('Roslindale-DisplayCondensedLight-Testing'), url(./fonts/Roslindale-DisplayCondensedLight-Testing.woff2) format('woff2');
         
     }
+    @font-face {
+        font-family: 'Roslindale-DisplayCondensedMedium-Testing';
+        src: local('Roslindale-DisplayCondensedMedium-Testing'), url(./fonts/Roslindale-DisplayCondensedMedium-Testing.woff2) format('woff2');
+        
+    }
+
 
 
 }
