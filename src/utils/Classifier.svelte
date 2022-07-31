@@ -215,7 +215,9 @@
 							let testName = " pre NULL TEST"
 							let tokenName:Token = await utl.fetchMint(new web3.PublicKey(uniqueToken))
 							if (tokenName == null || tokenName == undefined) {
-								testName = " post NUll TEST"
+								let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(uniqueToken)).run();
+								testName = " post NUll TEST " + nftnames.name
+								console.log ("NULL - ",nftnames )
 							}
 							else {
 								testName = tokenName.symbol
