@@ -83,11 +83,10 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getParsedTransaction("2HuQzaSJNapUa4mpTTEVH3vVvRE5L2Q5zB6DEusxbqSvtiZ6cTRLpgkCf1B79s1zPTzN28898jwAF44Xo24yVNEU")
+        var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
         console.log(trans)
    
-        const token: Token = await utl.fetchMint(new web3.PublicKey("J8h7E3WTDx4aA1hXfC2Ap2j8YwearULBwhjgtKwG9BMw"));
-        console.log(token!? token.symbol : "TEST" )
+        
         console.log("END - starting logs")
     });
 
@@ -275,6 +274,8 @@
                 sliceDisplayArray()
                 return true
             } else {
+                console.log("Key not on curve: ", $keyInput, )
+                
                 /*
                 const domainName = $keyInput; // With or without the .sol at the end
 
@@ -455,7 +456,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
         <div class="alert shadow-lg font-serif">
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span>Enter a valid wallet address to display records.</span>
+              <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
             </div>
         </div>
     

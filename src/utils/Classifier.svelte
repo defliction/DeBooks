@@ -513,14 +513,14 @@
 	}
 
 	async function fetchTokenData(mintIn, utl, metaplex) {
-		console.log("mint in ",mintIn )
+		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
 		
 		let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 		if (utlToken == null || utlToken == undefined) {
 			try {
 				let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mintIn)).run();
-				console.log("Found mint: ", nftnames)
+				
 				if (nftnames.name != "")
 				{
 					namedToken = "" + nftnames.name
