@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
