@@ -45,8 +45,7 @@
     let totalPages = 1
     let currentTransaction = 0;
     let currentPercentage = "";
-    let reportingSelection = ['SOL', 'USDC']
-    
+       
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -105,7 +104,7 @@
         loading = true
         $currentPage = 1
         let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
-        console.log(signatures.length)
+        console.log(signatures)
         if (signatures.length == 0)
         {
             validKey = false
@@ -282,7 +281,7 @@
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 $: $showfailed, sliceDisplayArray()
-$: $showfees, sliceDisplayArray()
+$: $showfees, sliceDisplayArray(), !$showfees? $currentPage = 1 : ""
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
@@ -298,12 +297,15 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
             
         <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         
-        
+        <div class="indicator">
+            <span class="indicator-item indicator-top badge badge-primary font-ros1">alpha</span>
         {#if loading == false}
+        
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
         {:else}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
         {/if}
+        </div>
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif ">
@@ -337,7 +339,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
 
 {#if validKey == true }
 
-<div class="flex justify-center p-4 font-serif ">
+<div class="flex justify-center font-serif ">
     
     <div class="overflow-x-auto">
         {#if loading}
@@ -352,49 +354,33 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
         </div>
         {/if}
         
-        <div class="flex flex-row justify-end form-control">
-                <div class = "align-left py-2 pr-2 ">
+        <div class="grid grid-flow-col place-items-center pt-1 ">
+                    <div class="col-start-auto">
+                        
+                        <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs min-w-[24rem] max-w-[42rem]" />
+                    </div>
+               
+                    <div class="col-end-auto">
+                        <label class="label">
+                            <span class="label-text font-semibold pr-2 ">Show:</span> 
+                            <span class="label-text pr-2 ">Txn Fees</span> 
+                            <input type="checkbox" class="checkbox checkbox-sm" bind:checked={$showfees} />
+                        </label>
+                    </div>
                     
-                    <input type="text" placeholder="Filter: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs min-w-[2rem] max-w-[20rem]  align-bottom" />
-                </div>
-                <div class = "align-bottom pt-1.5 pr-2 ">
-                    <select bind:value={$reportingCurrency} class="select select-xs select-ghost min-w-[2rem] max-w-[6rem]  pt-0.5">
-                        <option disabled>Reporting Currency</option>
-                        {#each reportingSelection as currency, i}
-                            <option >{currency}</option>
-                        {/each}
-                        
-                      </select>
-                </div>
-                <div>
-                    <label class="label">
-                        <span class="label-text font-semibold pr-2 ">Show:</span> 
-                        
-                    </label>
-                </div>
-                
-                <div>
-                    <label class="label cursor-pointer text-right ">
-                    <span class="label-text pr-2 ">Txn Fees</span> 
-                    <input type="checkbox" class="checkbox  checkbox-sm" bind:checked={$showfees} />
-                    </label>
-                </div>
-                
-            
-            
         </div>
                 
-        <table class="table table-compact ">
+        <table class="table table-compact normal-case ">
             
           <!-- head -->
           <thead>
-            <tr class="">
+            <tr class=" ">
                 <th class="min-w-[2rem]"></th>
-                <th class="min-w-[2rem]">Date</th>
-                <th class="min-w-[20rem]">Description</th>
-                <th class="min-w-[4rem]">Sig</th>
-                <th class="min-w-[2rem] text-right">Amount (Base)</th>
-                <th class="min-w-[2rem] text-right">Amount ({$reportingCurrency})</th>
+                <th class="min-w-[2rem] text-left normal-case">Date</th>
+                <th class="min-w-[20rem] text-left normal-case">Description</th>
+                <th class="min-w-[4rem] text-left normal-case">Sig</th>
+                <th class="min-w-[2rem] text-right normal-case">Amount (Base)</th>
+                <th class="min-w-[2rem] text-right normal-case">Amount ({$reportingCurrency})</th>
                 <th class="min-w-[2rem]"></th>
             </tr>
           </thead>          
@@ -413,9 +399,9 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                               </svg>
                         </td>
                     {/if}
-                    <td class="min-w-[2rem]">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                    <td class="min-w-[20rem]">{transaction.description}</td>
-                    <td class="min-w-[4rem]">{transaction.signature.substring(0,4)}...</td>
+                    <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                    <td class="min-w-[20rem] text-left">{transaction.description}</td>
+                    <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
                     <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -441,7 +427,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
         </div>
         {/if}
     </div>
-    
+
 </div>
 {:else}
 
@@ -452,9 +438,10 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span>Enter a valid wallet address to display records.</span>
             </div>
-          </div>
+        </div>
     
-</div>
+    </div>
+
 </div>
 
 {/if}
