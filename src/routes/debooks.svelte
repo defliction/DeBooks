@@ -211,11 +211,11 @@
             //console.log($cleanedArray)
             //console.log("printing working array")
             //.log($workingArray)
-            totalPages = Math.ceil($workingArray.length/pageIncrement)
-            //console.log("total pages ", Math.ceil($workingArray.length/pageIncrement))
+            
             $workingArray = $workingArray
             sortArray($workingArray)
             $displayArray = $workingArray
+            totalPages = Math.ceil($displayArray.length/pageIncrement)
             sliceDisplayArray()
             
             
@@ -260,6 +260,7 @@
                 : 0;                   // a and b are equal
             });
         $displayArray = $displayArray
+        totalPages = Math.ceil($displayArray.length/pageIncrement)
         console.log("display array length: ", $displayArray.length)
     }
 
@@ -281,7 +282,7 @@
     }
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 $: $showfailed, sliceDisplayArray()
-$: $showfees, sliceDisplayArray(), !$showfees? $currentPage = 1 : ""
+$: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : "" : ""
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
