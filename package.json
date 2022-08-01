@@ -41,6 +41,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@bonfida/spl-name-service": "^0.1.44",
 		"@metaplex-foundation/js": "^0.13.2",
 		"@noble/ed25519": "^1.6.1",
 		"@solana/web3.js": "^1.48.0",

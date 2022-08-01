@@ -17,6 +17,7 @@
     import type { Token } from '@solflare-wallet/utl-sdk';
     import Classifier from "../utils/Classifier.svelte";
     let classif;
+    import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     let myDate = '2021-11-11';
 
     dayjs.extend(localizedFormat)
@@ -266,12 +267,28 @@
 
     function checkKey () {
         try {
-            if (web3.PublicKey.isOnCurve($keyInput) == true)
+            
+            if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
                 fetchForAddress(new web3.PublicKey($keyInput))
                 sliceDisplayArray()
                 return true
+            } else {
+                /*
+                const domainName = $keyInput; // With or without the .sol at the end
+
+                // Step 1
+                const { pubkey } = await getDomainKey(domainName);
+
+                // Step 2
+                // The registry object contains all the info about the domain name
+                // The NFT owner is of type PublicKey | undefined
+                const { registry, nftOwner } = await NameRegistryState.retrieve(
+                connection,
+                domainKey
+                );*/
+            }
 
         } catch(e) {
             console.log("failed key")
@@ -286,6 +303,7 @@ $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $curre
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
+//$: (async() => $keyInput = await checkKey ())();
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   

@@ -212,7 +212,7 @@
 						
 						if (tokenChange != 0) {
 							//console.log("--> unique token ", uniqueToken)
-			
+							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
 							var new_line = 
 							{
@@ -227,7 +227,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction: " + await fetchTokenData(uniqueToken, utl, metaplex)
+								"description": customDescripton +  " Transaction " + direction + await fetchTokenData(uniqueToken, utl, metaplex)
 							}
 							$workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -243,6 +243,7 @@
 						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
 					}
 					if (amount != 0) {
+						let direction = amount < 0? "Out: " : "In: "
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -256,7 +257,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + " Transaction: SOL"
+							"description": customDescripton + " Transaction " + direction + " SOL"
 						}
 						$workingArray.push(new_line)
 						//console.log(new_line)
@@ -344,7 +345,8 @@
 						let postBal = postFiltered? postFiltered : 0
 
 						//console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
-						
+						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
+						let direction = tokenChange < 0? "Out: " : "In: "
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -352,13 +354,13 @@
 							"slot": item.slot,
 							"success": item.meta?.err == null? true : false,
 							"fee": item.meta? item.meta.fee : null,
-							"amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
+							"amount": item.meta? tokenChange : null,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + await fetchTokenData(mint, utl, metaplex)
+							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData(mint, utl, metaplex)
 						}
 						$workingArray.push(new_line)
 						//console.log(new_line)
@@ -386,7 +388,7 @@
 							let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 							
 							if (tokenChange != 0) {
-								
+								let direction = tokenChange < 0? "Out: " : "In: "
 								var new_line = 
 								{
 									"signature": item.transaction.signatures[0],
@@ -400,7 +402,7 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + await fetchTokenData(uniqueToken, utl, metaplex)
+									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData(uniqueToken, utl, metaplex)
 								}
 								$workingArray.push(new_line)
 								//console.log(new_line)
@@ -461,7 +463,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton+ "Closed account " + await fetchTokenData(instruction.parsed.info.account, utl, metaplex)
+								"description": customDescripton+ "Closed account " + instruction.parsed.info.account.substring(0,4)
 							}
 							$workingArray.push(new_line)
 							//console.log(new_line)
@@ -511,7 +513,8 @@
 	}
 
 	async function fetchTokenData(mintIn, utl, metaplex) {
-		let namedToken = "Unknown " + mintIn.substring(0,4)
+		console.log("mint in ",mintIn )
+		let namedToken = "Unknown Token " + mintIn.substring(0,4)
 		
 		let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 		if (utlToken == null || utlToken == undefined) {
