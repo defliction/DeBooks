@@ -18,6 +18,7 @@
     import Classifier from "../utils/Classifier.svelte";
     let classif;
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
+    import { csvGenerator } from "../utils/csvGenerator";
     let myDate = '2021-11-11';
 
     dayjs.extend(localizedFormat)
@@ -49,6 +50,7 @@
     let innerWidth = 0
 	let innerHeight = 0
     $showMetadata = true
+    let tableHeader = ["success", "signature", "timestamp",  "description", "amount", "amount"]
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -95,6 +97,11 @@
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
+
+    function downloadHandler() {
+        let tableKeys = Object.keys($displayArray[0]); //extract key names from first Object
+        csvGenerator($displayArray, tableKeys, tableHeader, "svelte_csv_demo.csv");
+        }
 
     async function fetchForAddress (keyIn) {
         $apiData =[]
@@ -315,6 +322,7 @@ $: condition = innerWidth < 640
 </script>
 <Classifier bind:this={classif} />
 <svelte:window bind:innerWidth bind:innerHeight />
+
 <div class="flex justify-center">
     <div class="pt-4 text-center ">
  
@@ -391,6 +399,15 @@ $: condition = innerWidth < 640
                             <input type="checkbox" class="checkbox checkbox-sm" bind:checked={$showfees} />
                         </label>
                     </div>
+                    {#if loading} 
+                    <div class="col-end-auto place-items-right">
+                        <span class="cursor-pointer"><svg on:click={downloadHandler} xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg></span>
+                    </div>
+                    {/if}
+                    
+                    
                     
         </div>
                 
