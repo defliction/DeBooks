@@ -34,7 +34,7 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-07-17"
+    let start = "2022-07-21"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
     let end = "2022-08-01"
@@ -46,6 +46,8 @@
     let totalPages = 1
     let currentTransaction = 0;
     let currentPercentage = "";
+    let innerWidth = 0
+	let innerHeight = 0
        
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -304,6 +306,7 @@ $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $curre
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
+$: condition = innerWidth < 640
 //$: (async() => $keyInput = await checkKey ())();
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -311,6 +314,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
 // /<DateInput on:close={fetchAll} bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
 </script>
 <Classifier bind:this={classif} />
+<svelte:window bind:innerWidth bind:innerHeight />
 <div class="flex justify-center">
     <div class="pt-4 text-center ">
  
@@ -377,7 +381,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
         <div class="grid grid-flow-col place-items-center pt-1 ">
                     <div class="col-start-auto">
                         
-                        <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs min-w-[24rem] max-w-[42rem]" />
+                        <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs sm:min-w-[28rem] sm:max-w-[28rem] " />
                     </div>
                
                     <div class="col-end-auto">
@@ -390,17 +394,20 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                     
         </div>
                 
-        <table class="table table-compact normal-case ">
+        <table class="table table-compact normal-case min-w-[50%] max-w-[50%] ">
             
           <!-- head -->
           <thead>
             <tr class=" ">
                 <th class="min-w-[2rem]"></th>
                 <th class="min-w-[2rem] text-left normal-case">Date</th>
-                <th class="min-w-[20rem] text-left normal-case">Description</th>
-                <th class="min-w-[4rem] text-left normal-case">Sig</th>
-                <th class="min-w-[2rem] text-right normal-case">Amount (Base)</th>
-                <th class="min-w-[2rem] text-right normal-case">Amount ({$reportingCurrency})</th>
+                <th class="sm:min-w-[28rem] sm:max-w-[28rem] min-w-[12rem] max-w-[12rem] text-left normal-case">Description</th>
+                {#if !condition}
+                    <th class="min-w-[4rem] text-left normal-case">Sig</th>
+                {/if}
+                
+                <th class="min-w-[4rem] max-w-[4rem] text-right normal-case">Base</th>
+                <th class="min-w-[4rem] max-w-[4rem] text-right normal-case">{$reportingCurrency}</th>
                 <th class="min-w-[2rem]"></th>
             </tr>
           </thead>          
@@ -420,11 +427,13 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
                         </td>
                     {/if}
                     <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                    <td class="min-w-[20rem] text-left">{transaction.description}</td>
-                    <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
+                    <td class="whitespace-normal sm:min-w-[28rem] sm:max-w-[28rem] min-w-[12rem] max-w-[12rem] text-left">{transaction.description}</td>
+                    {#if !condition}
+                        <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
+                    {/if}
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
-                    <td class="min-w-[2rem] text-right"><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg></a></td>
                 </tr>
