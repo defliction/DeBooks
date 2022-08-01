@@ -48,7 +48,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-       
+    $showMetadata = true
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -200,7 +200,7 @@
                     //console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
-                    if (item != null) {
+                    if (item != null || item != undefined) {
                         await classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl)
                     }
                     

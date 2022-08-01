@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import * as web3 from '@solana/web3.js';
-	import { workingArray,} from '../stores.js';
+	import { workingArray, showMetadata} from '../stores.js';
 	import type { Token } from '@solflare-wallet/utl-sdk';
 
 	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl) {
@@ -23,13 +23,13 @@
 			})
 			//console.log("nftIDs " + nftIDs)
 			
-			let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
+			let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
 
 			if (item.meta?.logMessages[1].includes(" CancelSell")) {
-				descr = "Magic Eden: Delisted " + nftnames.flatMap(s => s.name)
+				descr = $showMetadata? "Magic Eden: Delisted " + nftnames.flatMap(s => s.name) : "Magic Eden: Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
 				//offer accepted
@@ -40,8 +40,8 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-					descr = "Magic Eden: Sold via Offer " + nftnames.flatMap(s => s.name)
+					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
+					descr = $showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) : "Magic Eden: Sold via Offer "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -64,10 +64,10 @@
 					
 					amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 					if (account_index == 0) {
-						descr = "Magic Eden: Sold via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+						descr = $showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
 					}
 					else {
-						descr = "Magic Eden: Bought via Offer " + nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL"
+						descr =  $showMetadata? "Magic Eden: Bought via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
 					}
 					
 				}
@@ -81,11 +81,11 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-					descr = "Magic Eden: Price Change " + nftnames.flatMap(s => s.name)
+					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
+					descr = $showMetadata? "Magic Eden: Price Change " + nftnames.flatMap(s => s.name) : "Magic Eden: Price Change "
 				}
 				else {
-					descr = "Magic Eden: Listed " + nftnames.flatMap(s => s.name)
+					descr = $showMetadata? "Magic Eden: Listed " + nftnames.flatMap(s => s.name) : "Magic Eden: Listed "
 				}
 				
 			}
@@ -97,8 +97,8 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = await metaplex.nfts().findAllByMintList(nftIDs).run();
-					descr = "Magic Eden: Sold " + nftnames.flatMap(s => s.name)
+					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
+					descr =  $showMetadata? "Magic Eden: Sold " + nftnames.flatMap(s => s.name) : "Magic Eden: Sold "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -106,7 +106,7 @@
 
 				}
 				else {
-					descr = "Magic Eden: Bought " + nftnames.flatMap(s => s.name)
+					descr = $showMetadata? "Magic Eden: Bought " + nftnames.flatMap(s => s.name) : "Magic Eden: Bought "
 				}
 
 				
@@ -124,7 +124,7 @@
 					//console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
 					//console.log("acc ", account_index)
-					let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run()
+					let nftnames = $showMetadata? await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run() : []
 					//console.log(item.meta?.logMessages[4].slice(13))
 					let offerAmount = ""
 					if (item.meta?.innerInstructions.length > 0 ){
@@ -136,7 +136,7 @@
 					
 					
 
-					descr = "Magic Eden: Make Offer " + nftnames.name //+ " - " + offerAmount + " SOL"
+					descr = $showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 				}
 				else {
 					descr = "Magic Eden: Make Offer "
@@ -179,7 +179,6 @@
 			$workingArray.push(new_line)
 			//console.log(new_line)
 		}
-
 		else {
 			//generic instruction work
 
@@ -192,7 +191,6 @@
 					if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 						customDescripton = "Jup.ag"
 					}
-
 
 					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
 					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
@@ -515,28 +513,30 @@
 	async function fetchTokenData(mintIn, utl, metaplex) {
 		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
+		if ($showMetadata) {
+			let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
+			if (utlToken == null || utlToken == undefined) {
+				try {
+					let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mintIn)).run();
+					
+					if (nftnames.name != "")
+					{
+						namedToken = "" + nftnames.name
+					}
+					else {
+						namedToken = "" + nftnames.json.name
+					}
+					
+				}
+				catch {
+					console.log("ERROR - Could not find token name for: ", mintIn)
+				}
+			}
+			else {
+				namedToken = utlToken.symbol
+			}
+		}
 		
-		let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
-		if (utlToken == null || utlToken == undefined) {
-			try {
-				let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mintIn)).run();
-				
-				if (nftnames.name != "")
-				{
-					namedToken = "" + nftnames.name
-				}
-				else {
-					namedToken = "" + nftnames.json.name
-				}
-				
-			}
-			catch {
-				console.log("ERROR - Could not find token name for: ", mintIn)
-			}
-		}
-		else {
-			namedToken = utlToken.symbol
-		}
 
 		return namedToken
 
