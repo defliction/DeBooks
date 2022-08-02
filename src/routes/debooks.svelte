@@ -423,7 +423,9 @@ $: end, $currentPage = 1
 <Classifier bind:this={classif} />
 <svelte:window bind:innerWidth bind:innerHeight />
 
+
 <div class="flex justify-center">
+    
     <div class="pt-4 text-center ">
  
             
@@ -588,9 +590,11 @@ $: end, $currentPage = 1
                 </tr>
             {/each}
           </tbody>
-        
+          
         </table>
+        
         {/if}
+        
         {#if !loading && $displayArray.length > 0}
         <div class="custom-pagination-nav">
             <div>
@@ -605,6 +609,15 @@ $: end, $currentPage = 1
             </div>
         </div>
         {/if}
+
+        {#if showConversion}
+        <div class="flex flex-row justify-end ">
+            <p class="text-[0.7rem] pt-2 pr-4 italic text-base-content">powered by CoinGecko</p>
+            
+        </div>
+       
+          
+          {/if}
     </div>
 
 </div>
@@ -638,6 +651,7 @@ $: end, $currentPage = 1
 
     </div>
 {/if}
+
 <style>
 .custom-pagination-nav :global(.pagination-nav) {
   display: flex;
