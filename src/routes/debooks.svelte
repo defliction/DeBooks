@@ -226,10 +226,6 @@
                     $apiData.push(loopsigs)
                     
                 
-                    if (z==10) {
-                        console.log("debug mode break after 10 sig loops - remove for release")
-                        break
-                    }
                 }
                 catch (e) {
                     console.log("Error in loopsigs", e)
@@ -250,11 +246,14 @@
             let y = 0
             let yIncrement = 250
             while (y < reformattedArray.length) {
-                
+
+                loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
                 let array = await connection.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
                 $fetchedTransactions.push(array)
                 console.log("incrementally fetching parsed ", y, reformattedArray.length)
                 y += yIncrement
+                
+
             }
             $fetchedTransactions = $fetchedTransactions.flat()
             //$fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
@@ -263,7 +262,9 @@
             
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             //console.log("fetched ", $fetchedTransactions)
+            loadingText = "analyzing..."
             for await (const item of $fetchedTransactions) {
+              
                 currentTransaction++
                 let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                 let programIDs: string = []
@@ -375,6 +376,7 @@
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
                 $currentPage = 1
+                loadingText = "initializing..."
                 fetchForAddress(new web3.PublicKey($keyInput))
                 sliceDisplayArray()
                 return true
@@ -474,18 +476,18 @@ $: end, $currentPage = 1
     <div class="overflow-x-auto">
         {#if loading}
         <div class="flex flex-row justify-center ">
-            <p class="py-2 justify-center">
+            <p class="pt-4 justify-center">
                 <span class="font-serif font-medium badge badge-lg ">
                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>loading... {currentPercentage}</span> 
+                      </svg>{loadingText} {currentPercentage}</span> 
             </p>
         </div>
         {/if}
-        
+        {#if $fetchedTransactions.length > 0 && !loading}
         <div class="grid grid-flow-col place-items-center pt-1 ">
-            {#if !loading} 
+            {#if !loading } 
                     <div class="col-start-auto">
                         
                         <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs sm:min-w-[28rem] sm:max-w-[28rem] " />
@@ -588,6 +590,7 @@ $: end, $currentPage = 1
           </tbody>
         
         </table>
+        {/if}
         {#if !loading && $displayArray.length > 0}
         <div class="custom-pagination-nav">
             <div>
