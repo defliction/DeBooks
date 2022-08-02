@@ -51,7 +51,20 @@
 				else {
 					// improve buy vs sold to check who the signer of the transaction was
 					// can check full log for 'price' and find row from there
-					
+					let offerAmount = ""
+					item.meta?.logMessages.forEach(function (value) {
+						let priceIndex = value.indexOf('{"price"')
+						if (priceIndex > 0) {
+							try {
+								offerAmount = "" + JSON.parse(value.slice(priceIndex)).price/web3.LAMPORTS_PER_SOL
+							}
+							catch (e) {
+								console.log("### WARNING DID NOT PARSE PRICE [b]", item)
+								offerAmount = ""
+							}
+						}
+						});
+					/*
 					let offerAmount = 0
 					if (item.meta?.logMessages[6]?.includes(" ExecuteSale")) {
 							try {
@@ -71,7 +84,7 @@
 								offerAmount = "Unknown"
 							}
 						
-					}
+					}*/
 					
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -139,7 +152,20 @@
 					//console.log("acc ", account_index)
 					let nftnames = $showMetadata? await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run() : []
 					//console.log(item.meta?.logMessages[4].slice(13))
-					let offerAmount = ""
+					/*let offerAmount = ""
+					item.meta?.logMessages.forEach(function (value) {
+						let priceIndex = value.indexOf('{"price"')
+						if (priceIndex > 0) {
+							try {
+								offerAmount = "" + JSON.parse(value.slice(priceIndex)).price/web3.LAMPORTS_PER_SOL
+							}
+							catch (e) {
+								console.log("### WARNING DID NOT PARSE PRICE []", item)
+								offerAmount = ""
+							}
+						}
+						});*/
+					/*
 					if (item.meta?.innerInstructions.length > 0 ){
 						try {
 							offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
@@ -159,7 +185,7 @@
 							offerAmount = "Unknown"
 						}
 					}
-					
+					*/
 					
 
 					descr = $showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
@@ -228,7 +254,7 @@
 					//token balance loop
 					for await (const uniqueToken of uniqueTokens) {
 						
-						let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0].uiTokenAmount.decimals
+						let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
 						let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 						let preBal =  preFil? preFil : 0
 						
