@@ -81,7 +81,8 @@
             cdnUrl: "https://cdn.jsdelivr.net/gh/solflare-wallet/token-list/solana-tokenlist.json"
         });
     const utl = new Client(config);
-    
+
+
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
@@ -102,19 +103,59 @@
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
-    function conversionHandler() {
+    async function conversionHandler() {
 
         showConversion = showConversion? false : true
-        convertingToReporting = convertingToReporting? false : true
+        convertingToReporting = true
+        await convertWorkingArray ()
+        convertingToReporting = false
+        //dayjs(item.timestamp).format("DD-MM-YYYY")
     }
+
+    async function convertWorkingArray () {
+        let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+        let utl_api = await response.json()
+
+        for await (const item of $workingArray) {
+            let utlToken = utl_api.content.filter(ut => ut.address == item.mint)[0]
+            
+            if (utlToken && utlToken.extensions) {
+                //https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=30-01-2022
+                let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
+                let response = await fetch(req);
+                let data = await response.json()                
+                
+                item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(2))
+               
+            }
+            else {
+                item.usd_amount = 0
+            }
+            
+        }
+        $workingArray = $workingArray
+        $displayArray = $workingArray
+        sliceDisplayArray()
+
+
+    }
+
     function downloadHandler() {
 
-        let result = $displayArray.map(o => Object.fromEntries(tableHeader.map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
-
-
-        let tableKeys = Object.keys(result[0]); //extract key names from first Object
         let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
-        csvGenerator(result, tableKeys, tableHeader, filename);
+        if (showConversion) {
+           console.log("with USD")
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let tableKeys = Object.keys(result[0]); //extract key names from first Object
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "amount", "usd_amount"], filename);
+        }
+        else {
+            console.log("withOUT USD")
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let tableKeys = Object.keys(result[0]); //extract key names from first Object
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "amount"], filename);
+        }
+        
     }
 
     async function fetchForAddress (keyIn) {
@@ -176,14 +217,11 @@
 
             //console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
-            
-            
-            
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
             let response = await fetch("https://token-list-api.solana.cloud/v1/list");
             let utl_api = await response.json()
-            console.log(utl_api.content)
+            
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
