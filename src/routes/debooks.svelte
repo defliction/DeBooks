@@ -19,7 +19,7 @@
     let classif;
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";
-    let myDate = '2021-11-11';
+
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -364,9 +364,9 @@ $: condition = innerWidth < 640
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center"/>
+                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-200 rounded-md"/>
             {:else}
-                <input type="date" disabled bind:value={start} max={end} class="text-center"/>
+                <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
             
             
@@ -374,9 +374,9 @@ $: condition = innerWidth < 640
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-200 rounded-md"/>
             {:else}
-                <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center"/>
+                <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
             
         </div>
@@ -494,7 +494,12 @@ $: condition = innerWidth < 640
                     {/if}
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
                     {#if showConversion}
-                    <td class="min-w-[2rem] text-right">{transaction.amount}</td>
+                        {#if convertingToReporting}
+                            <td class="min-w-[2rem] text-right"><progress class="progress w-[2rem]"></progress></td>
+                        {:else}
+                            <td class="min-w-[2rem] text-right">{transaction.usd_amount}</td>
+                        {/if}
+                        
                     {/if}
                     <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
