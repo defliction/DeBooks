@@ -364,7 +364,7 @@ $: condition = innerWidth < 640
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-200 rounded-md"/>
+                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-200 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
@@ -374,7 +374,7 @@ $: condition = innerWidth < 640
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-200 rounded-md"/>
+                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-200 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
