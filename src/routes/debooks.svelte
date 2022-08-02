@@ -209,6 +209,8 @@
                         "success": true,
                         "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
                         "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
+                        "usd_amount": null,
+                        "mint": "So11111111111111111111111111111111111111112",
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
                         "post_balances": item.meta? item.meta.postBalances : null,
