@@ -90,18 +90,18 @@
         //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
         //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
-        console.log(trans)
+        //var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
+        //console.log(trans)
         
         //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         //let utl_api = await response.json()
         //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
         //console.log(utlToken)
-        let req = "https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022"
-        let response = await fetch(req);
-        let data = await response.json()                
-        console.log("Output1 ", data)
-        console.log("Output2 ", data.market_data.current_price.usd)
+        //let req = "https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022"
+        //let response = await fetch(req);
+        //let data = await response.json()                
+        //console.log("Output1 ", data)
+        //console.log("Output2 ", data.market_data.current_price.usd)
 
         console.log("END - starting logs")
     });
@@ -148,7 +148,7 @@
                     item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
                 }
                 else {
-                    console.log("same day value is available ", filteredData[0])
+                    //console.log("same day value is available ", filteredData[0])
                     item.usd_amount = parseFloat((item.amount * filteredData[0].usd).toFixed(4))
                 }
                     
@@ -197,7 +197,7 @@
         loading = true
         
         let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
-        console.log(signatures)
+        //console.log(signatures)
         if (signatures.length == 0)
         {
             validKey = false
@@ -262,7 +262,7 @@
             let utl_api = await response.json()
             
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
-            console.log("fetched ", $fetchedTransactions)
+            //console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
                 currentTransaction++
                 let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
@@ -343,20 +343,20 @@
             $displayArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()))
             
             
-            console.log("showfees && showfailed")
+            //console.log("showfees && showfailed")
         }
         else if ($showfees && !$showfailed) {
             //default
             $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            console.log("showfees && !showfailed")
+            //console.log("showfees && !showfailed")
         }
         else if (!$showfees && $showfailed) {
             $displayArray = $workingArray.filter(transaction => transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            console.log("!showfees && showfailed")
+            //console.log("!showfees && showfailed")
         }
         else if (!$showfees && !$showfailed) {
             $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            console.log("!showfees && !showfailed")
+            //console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray.sort(function sortDates(a, b) { // non-anonymous as you ordered...
             return b.timestamp > a.timestamp ?  1 // if b should come earlier, push a to end
@@ -365,7 +365,7 @@
             });
         $displayArray = $displayArray
         totalPages = Math.ceil($displayArray.length/pageIncrement)
-        console.log("display array length: ", $displayArray.length)
+        //console.log("display array length: ", $displayArray.length)
     }
 
     function checkKey () {
@@ -443,7 +443,7 @@ $: end, $currentPage = 1
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-200 border border-primary rounded-md"/>
+                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
@@ -453,7 +453,7 @@ $: end, $currentPage = 1
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-200 border border-primary rounded-md"/>
+                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
