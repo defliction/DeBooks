@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, exportTable } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -24,7 +24,6 @@
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
   
-
     const settings = { columnFilter: true }
     let rows
 
@@ -50,7 +49,7 @@
     let innerWidth = 0
 	let innerHeight = 0
     $showMetadata = true
-    let tableHeader = ["success", "signature", "timestamp",  "description", "amount", "amount"]
+    let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -89,7 +88,11 @@
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
         console.log(trans)
-   
+        
+        //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+        //let utl_api = await response.json()
+        //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+        //console.log(utlToken)
         
         console.log("END - starting logs")
     });
@@ -99,8 +102,13 @@
     }
 
     function downloadHandler() {
-        let tableKeys = Object.keys($displayArray[0]); //extract key names from first Object
-        csvGenerator($displayArray, tableKeys, tableHeader, "svelte_csv_demo.csv");
+
+        let result = $displayArray.map(o => Object.fromEntries(tableHeader.map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+
+
+        let tableKeys = Object.keys(result[0]); //extract key names from first Object
+        let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
+        csvGenerator(result, tableKeys, tableHeader, filename);
         }
 
     async function fetchForAddress (keyIn) {
@@ -167,7 +175,9 @@
             
 
             $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
-           
+            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+            let utl_api = await response.json()
+            console.log(utl_api.content)
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             console.log("fetched ", $fetchedTransactions)
             for await (const item of $fetchedTransactions) {
@@ -208,7 +218,7 @@
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
-                        await classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl)
+                        await classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl_api.content)
                     }
                     
                 }
@@ -279,6 +289,7 @@
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
+               
                 fetchForAddress(new web3.PublicKey($keyInput))
                 sliceDisplayArray()
                 return true
@@ -395,8 +406,9 @@ $: condition = innerWidth < 640
                     <div class="col-end-auto">
                         <label class="label">
                             <span class="label-text font-semibold pr-2 ">Show:</span> 
-                            <span class="label-text pr-2 ">Txn Fees</span> 
+                            <span class="label-text pr-1 ">Txn Fees</span> 
                             <input type="checkbox" class="checkbox checkbox-sm" bind:checked={$showfees} />
+                            
                         </label>
                     </div>
                     {#if !loading} 

@@ -4,6 +4,7 @@ export let apiData = writable([]);
 export let cleanedArray = writable([]);
 export let workingArray = writable([]);
 export let displayArray = writable([]);
+export let exportTable = writable([]);
 export let fetchedTransactions = writable([]);
 export let keyInput = writable("");
 export let showfees = writable(false);

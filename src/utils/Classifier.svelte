@@ -514,7 +514,9 @@
 		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
 		if ($showMetadata) {
-			let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
+			
+			//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
+			let utlToken = utl.filter(item => item.address == mintIn)[0]
 			if (utlToken == null || utlToken == undefined) {
 				try {
 					let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mintIn)).run();
