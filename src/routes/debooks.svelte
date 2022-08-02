@@ -34,7 +34,7 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-07-21"
+    let start = "2022-07-27"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
     let end = "2022-08-01"
@@ -50,6 +50,8 @@
 	let innerHeight = 0
     $showMetadata = true
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
+    let showConversion = false
+    let convertingToReporting = false
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -100,7 +102,11 @@
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
+    function conversionHandler() {
 
+        showConversion = showConversion? false : true
+        convertingToReporting = convertingToReporting? false : true
+    }
     function downloadHandler() {
 
         let result = $displayArray.map(o => Object.fromEntries(tableHeader.map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
@@ -109,7 +115,7 @@
         let tableKeys = Object.keys(result[0]); //extract key names from first Object
         let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
         csvGenerator(result, tableKeys, tableHeader, filename);
-        }
+    }
 
     async function fetchForAddress (keyIn) {
         $apiData =[]
@@ -398,6 +404,7 @@ $: condition = innerWidth < 640
         {/if}
         
         <div class="grid grid-flow-col place-items-center pt-1 ">
+            {#if !loading} 
                     <div class="col-start-auto">
                         
                         <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs sm:min-w-[28rem] sm:max-w-[28rem] " />
@@ -410,13 +417,34 @@ $: condition = innerWidth < 640
                             <input type="checkbox" class="checkbox checkbox-sm" bind:checked={$showfees} />
                             
                         </label>
+                        
                     </div>
-                    {#if !loading} 
-                    <div class="col-end-auto place-items-right">
+
+                    
+                    <div class="col-end-auto ">
+                        
                         <span class="cursor-pointer"><svg on:click={downloadHandler} xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg></span>
                     </div>
+                    <div class="col-end-auto ">
+                        
+                            {#if !showConversion}
+                            <button on:click={conversionHandler} class="btn btn-xs  btn-ghost">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            USD</button>
+                            {:else}
+                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            USD</button>
+                            {/if}
+                          
+                    </div>
+                    
                     {/if}
                     
                     
@@ -436,7 +464,9 @@ $: condition = innerWidth < 640
                 {/if}
                 
                 <th class="min-w-[4rem] max-w-[4rem] text-right normal-case">Base</th>
+                {#if showConversion}
                 <th class="min-w-[4rem] max-w-[4rem] text-right normal-case">{$reportingCurrency}</th>
+                {/if}
                 <th class="min-w-[2rem]"></th>
             </tr>
           </thead>          
@@ -461,7 +491,9 @@ $: condition = innerWidth < 640
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
+                    {#if showConversion}
                     <td class="min-w-[2rem] text-right">{transaction.amount}</td>
+                    {/if}
                     <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg></a></td>

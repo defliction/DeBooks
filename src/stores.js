@@ -11,5 +11,5 @@ export let showfees = writable(false);
 export let showfailed = writable(false);
 export let currentPage = writable(1)
 export let textFilter = writable("")
-export let reportingCurrency = writable("USDC")
+export let reportingCurrency = writable("USD")
 export let showMetadata = writable(true)
