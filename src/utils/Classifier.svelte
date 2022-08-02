@@ -533,6 +533,7 @@
 	async function fetchTokenData(mintIn, utl, metaplex) {
 		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
+		
 		if ($showMetadata) {
 			
 			//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))

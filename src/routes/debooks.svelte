@@ -52,6 +52,7 @@
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
+    let storedCoinGeckoData = []
     
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
@@ -96,7 +97,12 @@
         //let utl_api = await response.json()
         //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
         //console.log(utlToken)
-        
+        let req = "https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022"
+        let response = await fetch(req);
+        let data = await response.json()                
+        console.log("Output1 ", data)
+        console.log("Output2 ", data.market_data.current_price.usd)
+
         console.log("END - starting logs")
     });
 
@@ -106,26 +112,46 @@
     async function conversionHandler() {
 
         showConversion = showConversion? false : true
-        convertingToReporting = true
-        await convertWorkingArray ()
+        showConversion? convertingToReporting = true : convertingToReporting = false
+        convertingToReporting? await convertWorkingArray () : null
         convertingToReporting = false
+        //convertingToReporting = false
         //dayjs(item.timestamp).format("DD-MM-YYYY")
     }
 
     async function convertWorkingArray () {
         let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         let utl_api = await response.json()
+        
+        let free = true // to expand when premium sub activated
 
+        
         for await (const item of $workingArray) {
             let utlToken = utl_api.content.filter(ut => ut.address == item.mint)[0]
             
             if (utlToken && utlToken.extensions) {
                 //https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=30-01-2022
-                let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
-                let response = await fetch(req);
-                let data = await response.json()                
-                
-                item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(2))
+                let filteredData = storedCoinGeckoData.filter(line => line.id == utlToken.extensions.coingeckoId && line.date == dayjs.unix(item.timestamp).format("DD-MM-YYYY") )
+
+                if (storedCoinGeckoData.length == 0 || filteredData.length == 0) {
+                    let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
+                    let response = await fetch(req);
+                    let data = await response.json()                
+                    
+                    var stored_value = {
+                        "id": utlToken.extensions.coingeckoId,
+                        "date": dayjs.unix(item.timestamp).format("DD-MM-YYYY"),
+                        "usd": data.market_data.current_price.usd
+                    }
+                    storedCoinGeckoData.push(stored_value)
+                    
+                    item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
+                }
+                else {
+                    console.log("same day value is available ", filteredData[0])
+                    item.usd_amount = parseFloat((item.amount * filteredData[0].usd).toFixed(4))
+                }
+                    
                
             }
             else {
@@ -133,9 +159,9 @@
             }
             
         }
-        $workingArray = $workingArray
-        $displayArray = $workingArray
-        sliceDisplayArray()
+        //$workingArray = $workingArray
+        //$displayArray = $workingArray
+        //sliceDisplayArray()
 
 
     }
@@ -159,6 +185,9 @@
     }
 
     async function fetchForAddress (keyIn) {
+        showConversion = false
+        convertingToReporting = false
+        $currentPage = 1
         $apiData =[]
         $workingArray = []
         $displayArray = []
@@ -166,7 +195,7 @@
         currentTransaction = 0
         currentPercentage = ""
         loading = true
-        $currentPage = 1
+        
         let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
         console.log(signatures)
         if (signatures.length == 0)
@@ -335,7 +364,7 @@
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
                 validKey = true
-               
+                $currentPage = 1
                 fetchForAddress(new web3.PublicKey($keyInput))
                 sliceDisplayArray()
                 return true
@@ -371,6 +400,8 @@ $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 $: condition = innerWidth < 640
+$: start,$currentPage = 1
+$: end, $currentPage = 1 
 //$: (async() => $keyInput = await checkKey ())();
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
