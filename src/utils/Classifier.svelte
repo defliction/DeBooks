@@ -54,10 +54,23 @@
 					
 					let offerAmount = 0
 					if (item.meta?.logMessages[6]?.includes(" ExecuteSale")) {
-						offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+							try {
+								offerAmount = JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+							}
+							catch (e) {
+								console.log("### WARNING DID NOT PARSE PRICE 3", item)
+								offerAmount = "Unknown"
+							}
 					}
 					else {
-						offerAmount = JSON.parse(item.meta?.logMessages[8].slice(13)).price/web3.LAMPORTS_PER_SOL
+						try {
+							offerAmount = JSON.parse(item.meta?.logMessages[8].slice(13)).price/web3.LAMPORTS_PER_SOL
+						}
+						catch (e) {
+								console.log("### WARNING DID NOT PARSE PRICE 4", item)
+								offerAmount = "Unknown"
+							}
+						
 					}
 					
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
@@ -128,10 +141,23 @@
 					//console.log(item.meta?.logMessages[4].slice(13))
 					let offerAmount = ""
 					if (item.meta?.innerInstructions.length > 0 ){
-						offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
+						try {
+							offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
+						}
+						catch (e) {
+							console.log("### WARNING DID NOT PARSE PRICE 1", item)
+							offerAmount = "Unknown"
+						}
+						
 					}
 					else {
-						offerAmount = "" + JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+						try {
+							offerAmount = "" + JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
+						}
+						catch (e) {
+							console.log("### WARNING DID NOT PARSE PRICE 2", item)
+							offerAmount = "Unknown"
+						}
 					}
 					
 					
@@ -533,7 +559,7 @@
 	async function fetchTokenData(mintIn, utl, metaplex) {
 		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
-		
+
 		if ($showMetadata) {
 			
 			//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))

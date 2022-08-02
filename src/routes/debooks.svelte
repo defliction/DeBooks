@@ -53,7 +53,7 @@
     let showConversion = false
     let convertingToReporting = false
     let storedCoinGeckoData = []
-    
+    let loadingText = "initializing..."
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
@@ -217,8 +217,8 @@
                 try {
                     let loopsigs = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
                     if (loopsigs.length == 0) {
-                        await sleep(500) //wait 0.5 seconds
-                        continue
+                     //   await sleep(500) //wait 0.5 seconds
+                        break
                     }
                     //updated lastday and last sig
                     lastday = await dayjs.unix(loopsigs[loopsigs.length - 1].blockTime)
@@ -247,7 +247,17 @@
             //console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
 
-            $fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
+            let y = 0
+            let yIncrement = 250
+            while (y < reformattedArray.length) {
+                
+                let array = await connection.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
+                $fetchedTransactions.push(array)
+                console.log("incrementally fetching parsed ", y, reformattedArray.length)
+                y += yIncrement
+            }
+            $fetchedTransactions = $fetchedTransactions.flat()
+            //$fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
             let response = await fetch("https://token-list-api.solana.cloud/v1/list");
             let utl_api = await response.json()
             
