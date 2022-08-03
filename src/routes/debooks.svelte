@@ -34,10 +34,10 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-07-27"
+    let start = "2022-05-01"
     $: startday = dayjs(start)
     //let end = new Date(2022,6,6)
-    let end = "2022-08-01"
+    let end = "2022-06-01"
     $: endday = dayjs(end)
     let validKey = false
     let pageIncrement = 20;
@@ -107,6 +107,7 @@
         //let topSlot = latestBlockhash.context.slot
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
+        console.log("days ", endday.diff(startday, 'days'))
         try {
            
 
@@ -118,7 +119,7 @@
         }
         
         console.log(rpcConnection)
-        await interpolateBlockSignatures()
+        //await interpolateBlockSignatures()
         console.log("END - starting logs")
     });
 
@@ -141,96 +142,120 @@
 
         let slotIncrements = 500000
         let topSlot = latestBlockhash.context.slot
-        let endBlockTime =  await connection.getBlockTime(topSlot-2)
+        let endBlockTime;
+        try {
+            endBlockTime =  await connection.getBlockTime(topSlot)
+        }
+        catch (e) {
+            endBlockTime =  await connection.getBlockTime(topSlot)
+            console.log("failed to get block time")
+        }
         let endSignature;
         let startSignature;
         
         
         //starting with the right starting point; then increment downwards
-        let biggerIncrements = 50000
-        let smallerIncrements = 5000
-
-        while (dayjs.unix(endBlockTime) > endday) {
-            
+        let biggerIncrements = 100000
+       
+        let smallerIncrements = 25000
+        //topSlot -= firstIncrement
+        loadingText = "optimizing retrieval..."
+        end_loop:
+        while ((dayjs.unix(endBlockTime).diff(endday, 'hours')) >= 6) {
+            console.log("a0 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
             try {
-                topSlot -= biggerIncrements
-                endBlockTime = await connection.getBlockTime(topSlot)
-                if (endday - dayjs.unix(endBlockTime) > biggerIncrements) {
+                if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) > 24){
                     
-                    while (dayjs.unix(endBlockTime) > endday) {
-                        topSlot -= smallerIncrements
-                        endBlockTime = await connection.getBlockTime(topSlot)
-                    }
-                    if (dayjs.unix(endBlockTime) - endday < smallerIncrements) {
-                        
-                        while (dayjs.unix(endBlockTime) < endday) {
-                            topSlot += smallerIncrements
+                    topSlot -= Math.floor(biggerIncrements  * (dayjs.unix(endBlockTime).diff(endday, 'hours'))/24) 
+                }
+                else {
+                    topSlot -= smallerIncrements
+                }
+                
+                endBlockTime = await connection.getBlockTime(topSlot)
+                console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
+                
+                //need to catch if endBlock is less than endday then top op till over
+                if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 0) {
+                    while ((dayjs.unix(endBlockTime).diff(endday, 'hours')) <= 0) {
+                        try {
+                            if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < -24){
+                    
+                                topSlot += Math.floor(biggerIncrements  * -(dayjs.unix(endBlockTime).diff(endday, 'hours'))/24 )
+                            }
+                            else {
+                                topSlot += smallerIncrements
+                            }
+                           
                             endBlockTime = await connection.getBlockTime(topSlot)
+                            console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
-                        let sigs = await connection.getBlockSignatures(topSlot)
-                        endSignature = sigs.signatures[0]
-                        console.log("END BLOCK SIG ", sigs.signatures[0], dayjs.unix(endBlockTime))
-                        break
+                        catch (e) {
+                            console.log("error in interpolate 1b", e)
+                        }
                     }
+                    let sigs = await connection.getBlockSignatures(topSlot)
+                    endSignature = sigs.signatures[0]
+                    console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
+                    break end_loop
                     
                 }
+                else if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 6 && (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0) {
+                    let sigs = await connection.getBlockSignatures(topSlot)
+                    endSignature = sigs.signatures[0]
+                    console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
+                    break end_loop
+                }
+              
 
             }
             catch (e) {
-                console.log("error in interpolate 1", e)
-
+                console.log("error in interpolate 1a",e )
             }
             
-            
-            //console.log(dayjs.unix(endBlockTime), endday)
-
         }
 
         //interpolate to find start day sig
         let startBlocktime = endBlockTime
         let startSlot = topSlot
+        
+       
+        start_loop:
         while (dayjs.unix(startBlocktime) > startday) {
-            
+            console.log("days ", (dayjs.unix(startBlocktime).diff(startday, 'days')))
             try {
-                startSlot -= biggerIncrements
-                startBlocktime = await connection.getBlockTime(startSlot)
-                console.log("bigger ",dayjs.unix(startBlocktime), dayjs.unix(startBlocktime) - startday)
-                
-                if (dayjs.unix(startBlocktime) - startday < biggerIncrements) {
+                if ((dayjs.unix(startBlocktime).diff(startday, 'days')) > 1){
                     
-                    while (dayjs.unix(startBlocktime) > startday) {
-                        try {
-                        startSlot -= smallerIncrements
-                        startBlocktime = await connection.getBlockTime(startSlot)
-                        console.log("smaller", dayjs.unix(startBlocktime))
-                        }
-                        catch (e) {
-                            console.log("error in interpolate 2b", e)
-                        }
-                    }
+                    startSlot -= biggerIncrements * 2 * (dayjs.unix(startBlocktime).diff(startday, 'days')) - Math.floor(Math.random() * (10 - 1) + 1)
+                }
+                else {
+                    startSlot -= smallerIncrements - Math.floor(Math.random() * (10 - 1) + 1)
+                }
+                
+                startBlocktime = await connection.getBlockTime(startSlot)
+                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'days')), (dayjs.unix(startBlocktime).diff(startday, 'days')) < -2)
+                
+                if ((dayjs.unix(startBlocktime).diff(startday, 'days')) < -2) {
+                    startSlot += biggerIncrements * 2 * -(dayjs.unix(startBlocktime).diff(startday, 'days')) - Math.floor(Math.random() * (10 - 1) + 1)
+                    startBlocktime = await connection.getBlockTime(startSlot)
+                }
+                else {
                     
                     let sigs = await connection.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
-                    console.log("Start BLOCK SIG ", sigs.signatures[0], dayjs.unix(startBlocktime))
-                    break
-                    
-                    
+                    console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
+                    break start_loop
                 }
 
             }
             catch (e) {
-                console.log("error in interpolate 2a", e)
-
+                console.log("error in interpolate 2a", )
             }
-            
-            
-            //console.log(dayjs.unix(endBlockTime), endday)
 
-        }
-            
+        }    
         
-        console.log("finished ", dayjs.unix(endBlockTime))
-
+        console.log("finished ",  dayjs.unix(startBlocktime).format("DD-MM-YYYY"), dayjs.unix(endBlockTime).format("DD-MM-YYYY"))
+        return [startSignature, endSignature] as const;
 
 
     }
@@ -312,7 +337,9 @@
         currentPercentage = ""
         loading = true
         
-        let signatures = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit});
+
+        let signatureBracket = await interpolateBlockSignatures()
+        let signatures = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
         //console.log(signatures)
         if (signatures.length == 0)
         {
@@ -331,7 +358,7 @@
             
                 z++
                 try {
-                    let loopsigs = await connection.getConfirmedSignaturesForAddress2(keyIn, {limit:fetchLimit,before:lastsig});
+                    let loopsigs = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
                     if (loopsigs.length == 0) {
                      //   await sleep(500) //wait 0.5 seconds
                         break
