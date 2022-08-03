@@ -35,10 +35,10 @@
 
     //let start = new Date(2022,6,1)
     let start = "2022-05-01"
-    $: startday = dayjs(start)
+    $: startday = dayjs(start).startOf('day')
     //let end = new Date(2022,6,6)
     let end = "2022-06-01"
-    $: endday = dayjs(end)
+    $: endday = dayjs(end).endOf('day')
     let validKey = false
     let pageIncrement = 20;
 
@@ -221,31 +221,47 @@
         
        
         start_loop:
-        while (dayjs.unix(startBlocktime) > startday) {
-            console.log("days ", (dayjs.unix(startBlocktime).diff(startday, 'days')))
+        while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) >= 0) {
+          
             try {
-                if ((dayjs.unix(startBlocktime).diff(startday, 'days')) > 1){
+                if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 24){
                     
-                    startSlot -= biggerIncrements * 2 * (dayjs.unix(startBlocktime).diff(startday, 'days')) - Math.floor(Math.random() * (10 - 1) + 1)
+                    startSlot -= Math.floor(biggerIncrements * 2 * (dayjs.unix(startBlocktime).diff(startday, 'hours'))/24 )
                 }
                 else {
-                    startSlot -= smallerIncrements - Math.floor(Math.random() * (10 - 1) + 1)
+                    startSlot -=  Math.floor(smallerIncrements)
                 }
                 
                 startBlocktime = await connection.getBlockTime(startSlot)
-                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'days')), (dayjs.unix(startBlocktime).diff(startday, 'days')) < -2)
+                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                 
-                if ((dayjs.unix(startBlocktime).diff(startday, 'days')) < -2) {
-                    startSlot += biggerIncrements * 2 * -(dayjs.unix(startBlocktime).diff(startday, 'days')) - Math.floor(Math.random() * (10 - 1) + 1)
-                    startBlocktime = await connection.getBlockTime(startSlot)
-                }
-                else {
-                    
+                if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0) {
+                    while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -24) {
+                        if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -48) {
+                            startSlot += Math.floor(biggerIncrements  * -(dayjs.unix(startBlocktime).diff(startday, 'hours'))/24 )
+                        }
+                        else {
+                            startSlot += smallerIncrements
+                        }
+                        
+                        startBlocktime = await connection.getBlockTime(startSlot)
+                        console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                    }
                     let sigs = await connection.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
+
                 }
+                else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24) {
+                    let sigs = await connection.getBlockSignatures(startSlot)
+                    startSignature = sigs.signatures[0]
+                    console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
+                    break start_loop
+                }
+                
+
+           
 
             }
             catch (e) {
