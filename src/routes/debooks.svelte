@@ -243,9 +243,14 @@
                         else {
                             startSlot += smallerIncrements
                         }
+                        try {
+                            startBlocktime = await connection.getBlockTime(startSlot)
+                            console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                        }
+                        catch (e) {
+                            console.log("error in interpolate 2b",  e)
+                        }
                         
-                        startBlocktime = await connection.getBlockTime(startSlot)
-                        console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                     }
                     let sigs = await connection.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
@@ -787,9 +792,11 @@ $: end, $currentPage = 1
         <div class="alert shadow-lg font-serif">
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                {#if rpcConnection}
+                {#if validKey == false}
                     <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
-                {:else }
+                {:else if validKey == true && !loading && $fetchedTransactions.length == 0}
+                    <span>No records for this period.</span>
+                {:else if !rpcConnection }
                     <span>Unable to estalbish connection to RPC provider.</span>
                 {/if}
             </div>
@@ -800,20 +807,7 @@ $: end, $currentPage = 1
 </div>
 
 {/if}
-{#if validKey == true && !loading && $fetchedTransactions.length == 0}
-    <div class="flex justify-center flex-row">
-        <div class="pt-10">
-            <div class="alert shadow-lg font-serif">
-                <div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>No records for this period.</span>
-                </div>
-            </div>
-        
-        </div>
 
-    </div>
-{/if}
 
 <style>
 .custom-pagination-nav :global(.pagination-nav) {
