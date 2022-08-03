@@ -12,7 +12,7 @@
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
     //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
-    import { Metaplex } from "@metaplex-foundation/js";
+    import { isNft, Metaplex } from "@metaplex-foundation/js";
     import { Client, UtlConfig} from '@solflare-wallet/utl-sdk';
     import type { Token } from '@solflare-wallet/utl-sdk';
     import Classifier from "../utils/Classifier.svelte";
@@ -54,6 +54,7 @@
     let convertingToReporting = false
     let storedCoinGeckoData = []
     let loadingText = "initializing..."
+    let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
   
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
@@ -102,7 +103,22 @@
         //let data = await response.json()                
         //console.log("Output1 ", data)
         //console.log("Output2 ", data.market_data.current_price.usd)
+        //let latestBlockhash =  await connection.getLatestBlockhashAndContext()
+        //let topSlot = latestBlockhash.context.slot
+        //let sigs = await connection.getBlockSignatures(topSlot-1000)
+        //console.log("BLOCK ", sigs.signatures[0])
+        try {
+           
 
+            console.log("test RPC ", await connection.getLatestBlockhashAndContext())
+            rpcConnection = true
+        }
+        catch (e) {
+            rpcConnection = false
+        }
+        
+        console.log(rpcConnection)
+        await interpolateBlockSignatures()
         console.log("END - starting logs")
     });
 
@@ -117,6 +133,106 @@
         convertingToReporting = false
         //convertingToReporting = false
         //dayjs(item.timestamp).format("DD-MM-YYYY")
+    }
+    async function interpolateBlockSignatures() {
+        
+        let latestBlockhash =  await connection.getLatestBlockhashAndContext()
+        console.log(latestBlockhash.context.slot)
+
+        let slotIncrements = 500000
+        let topSlot = latestBlockhash.context.slot
+        let endBlockTime =  await connection.getBlockTime(topSlot-2)
+        let endSignature;
+        let startSignature;
+        
+        
+        //starting with the right starting point; then increment downwards
+        let biggerIncrements = 50000
+        let smallerIncrements = 5000
+
+        while (dayjs.unix(endBlockTime) > endday) {
+            
+            try {
+                topSlot -= biggerIncrements
+                endBlockTime = await connection.getBlockTime(topSlot)
+                if (endday - dayjs.unix(endBlockTime) > biggerIncrements) {
+                    
+                    while (dayjs.unix(endBlockTime) > endday) {
+                        topSlot -= smallerIncrements
+                        endBlockTime = await connection.getBlockTime(topSlot)
+                    }
+                    if (dayjs.unix(endBlockTime) - endday < smallerIncrements) {
+                        
+                        while (dayjs.unix(endBlockTime) < endday) {
+                            topSlot += smallerIncrements
+                            endBlockTime = await connection.getBlockTime(topSlot)
+                        }
+                        let sigs = await connection.getBlockSignatures(topSlot)
+                        endSignature = sigs.signatures[0]
+                        console.log("END BLOCK SIG ", sigs.signatures[0], dayjs.unix(endBlockTime))
+                        break
+                    }
+                    
+                }
+
+            }
+            catch (e) {
+                console.log("error in interpolate 1", e)
+
+            }
+            
+            
+            //console.log(dayjs.unix(endBlockTime), endday)
+
+        }
+
+        //interpolate to find start day sig
+        let startBlocktime = endBlockTime
+        let startSlot = topSlot
+        while (dayjs.unix(startBlocktime) > startday) {
+            
+            try {
+                startSlot -= biggerIncrements
+                startBlocktime = await connection.getBlockTime(startSlot)
+                console.log("bigger ",dayjs.unix(startBlocktime), dayjs.unix(startBlocktime) - startday)
+                
+                if (dayjs.unix(startBlocktime) - startday < biggerIncrements) {
+                    
+                    while (dayjs.unix(startBlocktime) > startday) {
+                        try {
+                        startSlot -= smallerIncrements
+                        startBlocktime = await connection.getBlockTime(startSlot)
+                        console.log("smaller", dayjs.unix(startBlocktime))
+                        }
+                        catch (e) {
+                            console.log("error in interpolate 2b", e)
+                        }
+                    }
+                    
+                    let sigs = await connection.getBlockSignatures(startSlot)
+                    startSignature = sigs.signatures[0]
+                    console.log("Start BLOCK SIG ", sigs.signatures[0], dayjs.unix(startBlocktime))
+                    break
+                    
+                    
+                }
+
+            }
+            catch (e) {
+                console.log("error in interpolate 2a", e)
+
+            }
+            
+            
+            //console.log(dayjs.unix(endBlockTime), endday)
+
+        }
+            
+        
+        console.log("finished ", dayjs.unix(endBlockTime))
+
+
+
     }
 
     async function convertWorkingArray () {
@@ -628,7 +744,11 @@ $: end, $currentPage = 1
         <div class="alert shadow-lg font-serif">
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
+                {#if rpcConnection}
+                    <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
+                {:else }
+                    <span>Unable to estalbish connection to RPC provider.</span>
+                {/if}
             </div>
         </div>
     
