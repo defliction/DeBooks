@@ -34,10 +34,10 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = "2022-05-01"
+    let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
     $: startday = dayjs(start).startOf('day')
     //let end = new Date(2022,6,6)
-    let end = "2022-06-01"
+    let end = dayjs().format("YYYY-MM-DD")
     $: endday = dayjs(end).endOf('day')
     let validKey = false
     let pageIncrement = 20;
@@ -171,7 +171,7 @@
                 else {
                     topSlot -= smallerIncrements
                 }
-                
+                topSlot = Math.max(topSlot, 1)
                 endBlockTime = await connection.getBlockTime(topSlot)
                 console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
                 
@@ -186,7 +186,7 @@
                             else {
                                 topSlot += smallerIncrements
                             }
-                           
+                            topSlot = Math.max(topSlot, 1)
                             endBlockTime = await connection.getBlockTime(topSlot)
                             console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
@@ -231,7 +231,7 @@
                 else {
                     startSlot -=  Math.floor(smallerIncrements)
                 }
-                
+                startSlot = Math.max(startSlot, 0)
                 startBlocktime = await connection.getBlockTime(startSlot)
                 console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                 
@@ -265,7 +265,7 @@
 
             }
             catch (e) {
-                console.log("error in interpolate 2a", )
+                console.log("error in interpolate 2a",  e)
             }
 
         }    
@@ -421,7 +421,7 @@
             
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             //console.log("fetched ", $fetchedTransactions)
-            loadingText = "analyzing..."
+            loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
             for await (const item of $fetchedTransactions) {
               
                 currentTransaction++
