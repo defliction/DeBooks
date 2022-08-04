@@ -19,6 +19,7 @@
     let classif;
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";
+    import solanaData from '../utils/wrapped-solana.json'
 
 
     dayjs.extend(localizedFormat)
@@ -109,8 +110,6 @@
         //console.log("BLOCK ", sigs.signatures[0])
         console.log("days ", endday.diff(startday, 'days'))
         try {
-           
-
             console.log("test RPC ", await connection.getLatestBlockhashAndContext())
             rpcConnection = true
         }
@@ -118,11 +117,55 @@
             rpcConnection = false
         }
         
+        console.log(solanaData.filter(item => item.date == "02-08-2022"))
+        storedCoinGeckoData.push(solanaData)
+        storedCoinGeckoData = storedCoinGeckoData.flat()
+ 
+        //fetch historics manually
+        if (false) 
+        {
+            //let startdate = dayjs().subtract(1, 'days')
+            
+            var startdate = dayjs('2020-07-11')
+            let preFetched = []
+            for (let i = 0; i < 499; i++) {
+                try {
+                    let req = "https://pro-api.coingecko.com/api/v3/coins/solana/history?date="+startdate.format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
+                    //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
+                    let response = await fetch(req);
+                    let data = await response.json()                
+                    //console.log(data)
+                    var stored_value = {
+                        "id": "wrapped-solana",
+                        "date": startdate.format("DD-MM-YYYY"),
+                        "usd": data.market_data.current_price.usd
+                    }
+                    preFetched.push(stored_value)
+                    startdate = startdate.subtract(1, 'days')
+                }
+                catch (e) {
+                    console.log(e)
+                    break
+                }
+                
+            }
+            console.log ("fetched pricing")
+            console.log(preFetched)
+            
+            let filename = "wrapped-solana" + ".csv"
+            console.log("withOUT USD")
+            let result = preFetched.map(o => Object.fromEntries(["id", "date", "usd"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let tableKeys = Object.keys(result[0]); //extract key names from first Object
+            csvGenerator(result, tableKeys, ["id", "date", "usd"], filename);
+            
+           
+        }
+        
         console.log(rpcConnection)
         //await interpolateBlockSignatures()
         console.log("END - starting logs")
     });
-
+    
     const sleep = (milliseconds) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
@@ -296,6 +339,7 @@
                 let filteredData = storedCoinGeckoData.filter(line => line.id == utlToken.extensions.coingeckoId && line.date == dayjs.unix(item.timestamp).format("DD-MM-YYYY") )
 
                 if (storedCoinGeckoData.length == 0 || filteredData.length == 0) {
+                    console.log("CG request for ", utlToken.extensions.coingeckoId)
                     let req = "https://pro-api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
                     //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
                     let response = await fetch(req);
@@ -307,6 +351,7 @@
                         "usd": data.market_data.current_price.usd
                     }
                     storedCoinGeckoData.push(stored_value)
+                    
                     
                     item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
                 }
@@ -740,12 +785,12 @@ $: end, $currentPage = 1
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
-                    <td class="min-w-[2rem] text-right">{transaction.amount}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US')}</td>
                     {#if showConversion}
                         {#if convertingToReporting}
                             <td class="min-w-[2rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                         {:else}
-                            <td class="min-w-[2rem] text-right">{transaction.usd_amount}</td>
+                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US')}</td>
                         {/if}
                         
                     {/if}

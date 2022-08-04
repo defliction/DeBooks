@@ -2,6 +2,7 @@
 	import * as web3 from '@solana/web3.js';
 	import { workingArray, showMetadata} from '../stores.js';
 	import type { Token } from '@solflare-wallet/utl-sdk';
+	
 
 	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
