@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = true
+    $showMetadata = false
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
