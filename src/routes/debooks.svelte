@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = true
+    $showMetadata = false
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -756,48 +756,62 @@ $: end, $currentPage = 1
         </div>
         {/if}
         {#if $fetchedTransactions.length > 0 && !loading}
-        <div class="grid grid-flow-col place-items-center pt-1 ">
+        <div class="grid grid-flow-col place-items-center pt-4 pb-1">
             {#if !loading } 
                     <div class="col-start-auto">
                         
                         <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs sm:min-w-[28rem] sm:max-w-[28rem] " />
                     </div>
-               
-                    <div class="col-end-auto">
-                        <label class="label">
-                            <span class="label-text font-semibold pr-2 ">Show:</span> 
-                            <span class="label-text pr-1 ">Txn Fees</span> 
-                            <input type="checkbox" class="checkbox checkbox-sm" bind:checked={$showfees} />
-                            
-                        </label>
+                    <div class="col-end-auto grid grid-flow-col">
+                        <div class="grid grid-flow-col">
+
+                        
+                    <div >
+                        <button on:click={() => {$showfees = !$showfees}} class="btn btn-xs btn-ghost normal-case ">
+                            {#if $showfees}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            {:else}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                              </svg>
+                            {/if}
+                            Txn fees
+                        </button>
                         
                     </div>
 
                     
-                    <div class="col-end-auto ">
-                        <button on:click={downloadHandler} class="btn btn-xs btn-ghost">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                        </button>
+                    <div>
+                      
+                            <button on:click={downloadHandler} class="btn btn-xs btn-ghost normal-case" >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                            </button>
+                       
+                       
                         
                     </div>
-                    <div class="col-end-auto ">
+                    <div >
                         
                             {#if !showConversion}
-                            <button on:click={conversionHandler} class="btn btn-xs  btn-ghost">
+                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                 </svg>
                             USD</button>
                             {:else}
-                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost">
+                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case" >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             USD</button>
                             {/if}
                           
+                    </div>
+                        </div>
                     </div>
                     
                     {/if}
@@ -806,7 +820,7 @@ $: end, $currentPage = 1
                     
         </div>
                 
-        <table class="table table-compact normal-case min-w-[50%] max-w-[50%] ">
+        <table class="table table-compact normal-case min-w-[50%] max-w-[50%]">
             
           <!-- head -->
           <thead>
