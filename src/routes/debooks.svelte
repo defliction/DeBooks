@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
     import { create } from "json-aggregate"
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, exportTable } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -35,7 +35,7 @@
     let loading = false;
 
     //let start = new Date(2022,6,1)
-    let start = dayjs().subtract(1, 'days').format("YYYY-MM-DD")
+    let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
     $: startday = dayjs(start).startOf('day')
     //let end = new Date(2022,6,6)
     let end = dayjs().format("YYYY-MM-DD")
@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = false
+    $showMetadata = true
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -57,7 +57,8 @@
     let loadingText = "initializing..."
     let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
-  
+    let startTime;
+    let showInfoTip = false
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     const metaplex = new Metaplex(connection);
@@ -343,7 +344,7 @@
         const response = await callAPIFn()
         console.log(response)
         if (response.status == "429") {
-            console.log("429 on api")
+            
             const retryAfter = response.headers.get('retry-after')
             const millisToSleep = getMillisToSleep(retryAfter)
             await sleep(10000)
@@ -532,6 +533,8 @@
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             //console.log("fetched ", $fetchedTransactions)
             loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
+            $showMetadata? startTime = $time.getSeconds() : null
+
             for await (const item of $fetchedTransactions) {
               
                 currentTransaction++
@@ -585,7 +588,8 @@
             //console.log($cleanedArray)
             //console.log("printing working array")
             //.log($workingArray)
-            
+            startTime = null
+            showInfoTip = false
             $workingArray = $workingArray
             sortArray($workingArray)
             $displayArray = $workingArray
@@ -683,6 +687,7 @@ $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransacti
 $: condition = innerWidth < 755
 $: start,$currentPage = 1
 $: end, $currentPage = 1 
+$: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 //$: (async() => $keyInput = await checkKey ())();
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -742,7 +747,7 @@ $: end, $currentPage = 1
 
 {#if validKey == true }
 
-<div class="flex justify-center font-serif ">
+<div class="flex justify-center font-serif place-content-center ">
     
     <div class="overflow-x-auto relative">
         {#if loading}
@@ -822,7 +827,7 @@ $: end, $currentPage = 1
                     
         </div>
                 
-        <table class="flex table table-compact normal-case ">
+        <table class="table table-compact normal-case ">
             
           <!-- head -->
           <thead>
@@ -849,7 +854,7 @@ $: end, $currentPage = 1
                 <tr class="">
                     
                     <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                    <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] text-left">{transaction.description}</td>
+                    <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[10rem] text-left">{transaction.description}</td>
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
@@ -893,7 +898,7 @@ $: end, $currentPage = 1
             <footer class="footer footer-center p-4 bg-base-200 text-base-content rounded-md">
                 
                 <div class="items-center grid-flow-col">
-                    <a href="https://twitter.com/defliction"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+                    <a href="https://twitter.com/defliction" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
                     </a>
                   <p>DeBooks © 2022</p>
                 </div>
@@ -901,8 +906,26 @@ $: end, $currentPage = 1
         </div>
         {/if}
     </div>
-
+    
 </div>
+    {#if showInfoTip && false}
+    <div class="flex justify-center flex-row">
+        <div class="pt-10">
+            <div class="alert shadow-lg font-serif">
+                <div> 
+                   
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                   
+                        <span>We're working on it - fetching metadata, particularly lots of NFTs can feel slow</span>
+
+                        
+                </div>
+            </div>
+        
+        </div>
+    
+    </div>
+    {/if}
     {#if !loading && $fetchedTransactions.length == 0}
     <div class="flex justify-center flex-row">
         <div class="pt-10">
