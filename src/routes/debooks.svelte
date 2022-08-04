@@ -186,6 +186,7 @@
         //convertingToReporting = false
         //dayjs(item.timestamp).format("DD-MM-YYYY")
     }
+ 
     async function interpolateBlockSignatures() {
         
         let latestBlockhash =  await connection.getLatestBlockhashAndContext()
@@ -213,7 +214,7 @@
         loadingText = "optimizing retrieval..."
         end_loop:
         while ((dayjs.unix(endBlockTime).diff(endday, 'hours')) >= 6) {
-            console.log("a0 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
+           
             try {
                 if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) > 24){
                     
@@ -224,7 +225,7 @@
                 }
                 topSlot = Math.max(topSlot, 1)
                 endBlockTime = await connection.getBlockTime(topSlot)
-                console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
+                //console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
                 
                 //need to catch if endBlock is less than endday then top op till over
                 if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 0) {
@@ -239,10 +240,10 @@
                             }
                             topSlot = Math.max(topSlot, 1)
                             endBlockTime = await connection.getBlockTime(topSlot)
-                            console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
+                            //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
                         catch (e) {
-                            console.log("error in interpolate 1b", e)
+                            //console.log("error in interpolate 1b", e)
                         }
                     }
                     let sigs = await connection.getBlockSignatures(topSlot)
@@ -261,7 +262,7 @@
 
             }
             catch (e) {
-                console.log("error in interpolate 1a",e )
+                //console.log("error in interpolate 1a",e )
             }
             
         }
@@ -284,7 +285,7 @@
                 }
                 startSlot = Math.max(startSlot, 0)
                 startBlocktime = await connection.getBlockTime(startSlot)
-                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                //console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                 
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0) {
                     while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -24) {
@@ -296,10 +297,10 @@
                         }
                         try {
                             startBlocktime = await connection.getBlockTime(startSlot)
-                            console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                            //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                         }
                         catch (e) {
-                            console.log("error in interpolate 2b",  e)
+                            //console.log("error in interpolate 2b",  e)
                         }
                        
                     }
@@ -321,12 +322,12 @@
 
             }
             catch (e) {
-                console.log("error in interpolate 2a",  e)
+                //console.log("error in interpolate 2a",  e)
             }
 
         }    
         
-        console.log("finished ",  dayjs.unix(startBlocktime).format("DD-MM-YYYY"), dayjs.unix(endBlockTime).format("DD-MM-YYYY"))
+        
         return [startSignature, endSignature] as const;
 
 
@@ -765,52 +766,53 @@ $: end, $currentPage = 1
                     <div class="col-end-auto grid grid-flow-col">
                         <div class="grid grid-flow-col">
 
-                        
-                    <div >
-                        <button on:click={() => {$showfees = !$showfees}} class="btn btn-xs btn-ghost normal-case ">
-                            {#if $showfees}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            {:else}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                              </svg>
-                            {/if}
-                            Txn fees
-                        </button>
-                        
-                    </div>
+                    
+                            <div >
+                                <button on:click={() => {$showfees = !$showfees}} class="btn btn-xs btn-ghost normal-case ">
+                                    {#if $showfees}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    {:else}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    {/if}
+                                    Txn fees
+                                </button>
+                                
+                            </div>
 
                     
-                    <div>
-                      
-                            <button on:click={downloadHandler} class="btn btn-xs btn-ghost normal-case" >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                            </button>
-                       
-                       
+                   
+                            <div >
+                                
+                                    {#if !showConversion}
+                                    <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                        </svg>
+                                    USD</button>
+                                    {:else}
+                                    <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    USD</button>
+                                    {/if}
+                                
+                            </div>
+                            <div>
                         
-                    </div>
-                    <div >
-                        
-                            {#if !showConversion}
-                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                </svg>
-                            USD</button>
-                            {:else}
-                            <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case" >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            USD</button>
-                            {/if}
-                          
-                    </div>
+                                <button on:click={downloadHandler} class="btn btn-xs btn-ghost normal-case" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                </button>
+                            
+                            
+                            
+                            </div>
                         </div>
                     </div>
                     
