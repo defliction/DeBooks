@@ -346,8 +346,18 @@
 
 
     async function convertWorkingArray () {
-        let response = await fetch("https://token-list-api.solana.cloud/v1/list");
-        let utl_api = await response.json()
+        let utl_api
+        try{
+            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+            utl_api = await response.json()
+        }
+        catch (e) {
+            //failed to load utl
+            console.log("Failed to load UTL", e)
+            showConversion = false
+            return
+        }
+        
         
         let free = true // to expand when premium sub activated
 
@@ -378,7 +388,8 @@
                     }
                     catch (e) {
                         console.log("Exception ", e)
-                        sleep(1000)
+                        showConversion = false
+                        return
                     }
                     
                 }
@@ -812,12 +823,12 @@ $: end, $currentPage = 1
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
-                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                     {#if showConversion}
                         {#if convertingToReporting} 
                             <td class="min-w-[2rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                         {:else}
-                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
+                            <td class="min-w-[2rem] text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
                         {/if}
                         
                     {/if}
