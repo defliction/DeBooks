@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = true
+    $showMetadata = false
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -109,6 +109,9 @@
         //let topSlot = latestBlockhash.context.slot
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
+        
+       
+        
         console.log("days ", endday.diff(startday, 'days'))
         try {
             console.log("test RPC ", await connection.getLatestBlockhashAndContext())
@@ -348,15 +351,27 @@
     async function convertWorkingArray () {
         let utl_api
         try{
-            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
-            utl_api = await response.json()
+            let response = await fetch("https://tken-list-api.solana.cloud/v1/list");
+            let data = await response.json()
+            utl_api = data.content
         }
         catch (e) {
             //failed to load utl
-            await sleep (450)
-            console.log("Failed to load UTL", e)
-            showConversion = false
-            return
+         
+            try {
+               
+                let fetched = await fetch("https://cdn.jsdelivr.net/gh/solflare-wallet/token-list/solana-tokenlist.json")
+                let data = await fetched.json()
+                utl_api = data.tokens
+
+            }
+            catch (e) {
+                await sleep (450)
+                console.log("Failed to load UTL", e)
+                showConversion = false
+                return
+            }
+            
         }
         
         
@@ -364,7 +379,7 @@
 
         
         for await (const item of $workingArray) {
-            let utlToken = utl_api.content.filter(ut => ut.address == item.mint)[0]
+            let utlToken = utl_api.filter(ut => ut.address == item.mint)[0]
             
             if (utlToken && utlToken.extensions) {
                 //https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=30-01-2022
