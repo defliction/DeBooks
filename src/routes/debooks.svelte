@@ -323,6 +323,24 @@
 
 
     }
+    function getMillisToSleep (retryHeaderString) {
+        let millisToSleep = Math.round(parseFloat(retryHeaderString) * 1000)
+        if (isNaN(millisToSleep)) {
+            millisToSleep = Math.max(0, new Date(retryHeaderString) - new Date())
+        }
+        return millisToSleep
+    }
+    async function fetchAndRetryIfNecessary (callAPIFn) {
+        const response = await callAPIFn()
+        if (response.status === 429) {
+            const retryAfter = response.headers.get('retry-after')
+            const millisToSleep = getMillisToSleep(retryAfter)
+            await sleep(millisToSleep)
+            return fetchAndRetryIfNecessary(callAPIFn)
+        }
+        return response
+    }
+
 
     async function convertWorkingArray () {
         let response = await fetch("https://token-list-api.solana.cloud/v1/list");
@@ -340,20 +358,26 @@
 
                 if (storedCoinGeckoData.length == 0 || filteredData.length == 0) {
                     console.log("CG request for ", utlToken.extensions.coingeckoId)
-                    let req = "https://pro-api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
-                    //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
-                    let response = await fetch(req);
-                    let data = await response.json()                
-                    
-                    var stored_value = {
-                        "id": utlToken.extensions.coingeckoId,
-                        "date": dayjs.unix(item.timestamp).format("DD-MM-YYYY"),
-                        "usd": data.market_data.current_price.usd
+                    try {
+                        let req = "https://pro-api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
+                        //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
+                        let response = await fetchAndRetryIfNecessary(() => fetch(req)) ;
+                   
+                        let data = await response.json()                
+                        
+                        var stored_value = {
+                            "id": utlToken.extensions.coingeckoId,
+                            "date": dayjs.unix(item.timestamp).format("DD-MM-YYYY"),
+                            "usd": data.market_data.current_price.usd
+                        }
+                        storedCoinGeckoData.push(stored_value)
+                        item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
                     }
-                    storedCoinGeckoData.push(stored_value)
+                    catch (e) {
+                        console.log("possibly rate limited ", e)
+                        sleep(10000)
+                    }
                     
-                    
-                    item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
                 }
                 else {
                     //console.log("same day value is available ", filteredData[0])
