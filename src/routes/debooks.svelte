@@ -353,6 +353,7 @@
         }
         catch (e) {
             //failed to load utl
+            await sleep (450)
             console.log("Failed to load UTL", e)
             showConversion = false
             return
