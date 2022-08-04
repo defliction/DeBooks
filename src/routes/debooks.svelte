@@ -504,7 +504,7 @@
                         "post_balances": item.meta? item.meta.postBalances : null,
                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Txn fees " + failed_text
+                        "description": "Transaction fees " + failed_text
                     }
                     $workingArray.push(fee_expense)
                     //console.log("fee paid by user", fee_expense)
@@ -785,12 +785,12 @@ $: end, $currentPage = 1
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
-                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US')}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US', { maximumSignificantDigits: 10 })}</td>
                     {#if showConversion}
                         {#if convertingToReporting}
                             <td class="min-w-[2rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                         {:else}
-                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US')}</td>
+                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US', { maximumSignificantDigits: 4 })}</td>
                         {/if}
                         
                     {/if}
