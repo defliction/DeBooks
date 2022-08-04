@@ -825,7 +825,7 @@ $: end, $currentPage = 1
           <!-- head -->
           <thead>
             <tr class=" ">
-                <th class="min-w-[2rem]"></th>
+              
                 <th class="min-w-[2rem] text-left normal-case">Date</th>
                 <th class="sm:min-w-[28rem] sm:max-w-[28rem] min-w-[12rem] max-w-[12rem] text-left normal-case">Description</th>
                 {#if !condition}
@@ -845,15 +845,7 @@ $: end, $currentPage = 1
             {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
                 <!-- show everything -->
                 <tr class="">
-                    {#if transaction.success}
-                        <td class="min-w-[2rem]"/> 
-                    {:else}
-                        <td class="min-w-[2rem]">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                        </td>
-                    {/if}
+                    
                     <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                     <td class="whitespace-normal sm:min-w-[28rem] sm:max-w-[28rem] min-w-[12rem] max-w-[12rem] text-left">{transaction.description}</td>
                     {#if !condition}
