@@ -1,2 +1,7 @@
+<script lang='ts'>
+   import Debooks from "./debooks.svelte";
 
-<button class="btn" ><a href="/debooks">DeBooks</a></button>
+
+</script>
+
+<Debooks />

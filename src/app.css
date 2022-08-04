@@ -19,35 +19,6 @@
         
     }
     @font-face {
-        font-family: 'Roslindale-DisplayNarrowLight-Testing';
-        src: local('Roslindale-DisplayNarrowLight-Testing'), url(./fonts/Roslindale-DisplayNarrowLight-Testing.woff2) format('woff2');
-        
-    }
-    @font-face {
-        font-family: 'Roslindale-DisplayLight-Testing';
-        src: local('Roslindale-DisplayLight-Testing'), url(./fonts/Roslindale-DisplayLight-Testing.woff2) format('woff2');
-    }
-    @font-face {
-        font-family: 'Roslindale-DisplayCondensedLight-Testing';
-        src: local('Roslindale-DisplayCondensedLight-Testing'), url(./fonts/Roslindale-DisplayCondensedLight-Testing.woff2) format('woff2');
-        
-    }
-    @font-face {
-        font-family: 'Roslindale-DisplayCondensedMedium-Testing';
-        src: local('Roslindale-DisplayCondensedMedium-Testing'), url(./fonts/Roslindale-DisplayCondensedMedium-Testing.woff2) format('woff2');
-        
-    }
-    @font-face {
-        font-family: 'Roslindale-TextRegular-Testing';
-        src: local('Roslindale-TextRegular-Testing'), url(./fonts/Roslindale-TextRegular-Testing.woff2) format('woff2');
-        
-    }
-    @font-face {
-        font-family: 'RoslindaleVariable-VF-Testing';
-        src: local('RoslindaleVariable-VF-Testing'), url(./fonts/RoslindaleVariable-VF-Testing.woff2) format('woff2');
-        
-    }
-    @font-face {
         font-family: 'Roslindale-DisplayCondensedBold-Testing';
         src: local('Roslindale-DisplayCondensedBold-Testing'), url(./fonts/Roslindale-DisplayCondensedBold-Testing.woff2) format('woff2');
         
