@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = false
+    $showMetadata = true
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -105,23 +105,27 @@
         //let data = await response.json()                
         //console.log("Output1 ", data)
         //console.log("Output2 ", data.market_data.current_price.usd)
-        //let latestBlockhash =  await connection.getLatestBlockhashAndContext()
+        
         //let topSlot = latestBlockhash.context.slot
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
+        let latestBlockhash 
+        while(latestBlockhash == null) {
+
+            try {
+                latestBlockhash = await connection.getLatestBlockhashAndContext()
+                rpcConnection = true
+            }
+            catch (e) {
+                rpcConnection = false
+                console.log("unable to establish connection to RPC nodes")
+            }
+            sleep(750)
+            
+        }
+        console.log("connection ", rpcConnection)
         
        
-        
-        console.log("days ", endday.diff(startday, 'days'))
-        try {
-            console.log("test RPC ", await connection.getLatestBlockhashAndContext())
-            rpcConnection = true
-        }
-        catch (e) {
-            rpcConnection = false
-        }
-        
-        console.log(solanaData.filter(item => item.date == "02-08-2022"))
         storedCoinGeckoData.push(solanaData)
         storedCoinGeckoData = storedCoinGeckoData.flat()
  
@@ -697,10 +701,10 @@ $: end, $currentPage = 1
         
         <div class="indicator">
             <span class="indicator-item indicator-top badge badge-primary font-ros1">alpha</span>
-        {#if loading == false}
+        {#if loading == false && rpcConnection == true}
         
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
-        {:else}
+        {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
         {/if}
         </div>
@@ -904,10 +908,16 @@ $: end, $currentPage = 1
 <div class="flex justify-center flex-row">
     <div class="pt-10">
         <div class="alert shadow-lg font-serif">
-            <div>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                {#if validKey == false}
+            <div> 
+                {#if rpcConnection == true}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               
                     <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
+                    {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                      </svg>
+                        <span>Establishing connection to RPC network...</span>
                     {/if}
             </div>
         </div>
