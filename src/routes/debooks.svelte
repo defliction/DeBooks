@@ -355,7 +355,7 @@
     async function convertWorkingArray () {
         let utl_api
         try{
-            let response = await fetch("https://tken-list-api.solana.cloud/v1/list");
+            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
             let data = await response.json()
             utl_api = data.content
         }
