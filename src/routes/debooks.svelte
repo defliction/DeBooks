@@ -834,7 +834,7 @@ $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : n
             <tr class=" ">
               
                 <th class="min-w-[2rem] text-left normal-case">Date</th>
-                <th class="lg:min-w-[32rem] max-w-[32rem] text-left normal-case">Description</th>
+                <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
                 {#if !condition}
                     <th class="min-w-[4rem] text-left normal-case">Sig</th>
                 {/if}
@@ -854,7 +854,7 @@ $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : n
                 <tr class="">
                     
                     <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                    <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[10rem] text-left">{transaction.description}</td>
+                    <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
