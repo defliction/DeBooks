@@ -896,7 +896,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
         </div>
         {/if}
 
-        {#if !loading}
+        {#if !loading && $fetchedTransactions.length > 0}
         <div class="flex justify-center flex-row pt-8">
             <footer class="footer footer-center p-4 bg-base-200 text-base-content rounded-md">
                 
@@ -934,7 +934,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
         <div class="pt-10">
             <div class="alert shadow-lg font-serif">
                 <div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>No records for this period.</span>
                 </div>
             </div>
@@ -950,11 +950,11 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
         <div class="alert shadow-lg font-serif">
             <div> 
                 {#if rpcConnection == true}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                
                     <span>Enter a valid <span class="font-bold">Solana wallet</span> address to display records.</span>
                     {:else}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                       </svg>
                         <span>Establishing connection to RPC network...</span>
