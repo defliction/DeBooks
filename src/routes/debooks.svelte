@@ -100,7 +100,8 @@
         //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
         //console.log(utlToken)
         //let req = "https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022"
-        //let response = await fetch(req);
+        //let req = "https://pro-api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
+        
         //let data = await response.json()                
         //console.log("Output1 ", data)
         //console.log("Output2 ", data.market_data.current_price.usd)
@@ -332,10 +333,12 @@
     }
     async function fetchAndRetryIfNecessary (callAPIFn) {
         const response = await callAPIFn()
-        if (response.status === 429) {
+        console.log(response)
+        if (response.status == "429") {
+            console.log("429 on api")
             const retryAfter = response.headers.get('retry-after')
             const millisToSleep = getMillisToSleep(retryAfter)
-            await sleep(millisToSleep)
+            await sleep(10000)
             return fetchAndRetryIfNecessary(callAPIFn)
         }
         return response
@@ -371,17 +374,17 @@
                             "usd": data.market_data.current_price.usd
                         }
                         storedCoinGeckoData.push(stored_value)
-                        item.usd_amount = parseFloat((item.amount * data.market_data.current_price.usd).toFixed(4))
+                        item.usd_amount = (item.amount * data.market_data.current_price.usd)
                     }
                     catch (e) {
-                        console.log("possibly rate limited ", e)
-                        sleep(10000)
+                        console.log("Exception ", e)
+                        sleep(1000)
                     }
                     
                 }
                 else {
                     //console.log("same day value is available ", filteredData[0])
-                    item.usd_amount = parseFloat((item.amount * filteredData[0].usd).toFixed(4))
+                    item.usd_amount = (item.amount * filteredData[0].usd)
                 }
                     
                
@@ -528,7 +531,7 @@
                         "post_balances": item.meta? item.meta.postBalances : null,
                         "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
                         "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Transaction fees " + failed_text
+                        "description": "Txn fees " + failed_text
                     }
                     $workingArray.push(fee_expense)
                     //console.log("fee paid by user", fee_expense)
@@ -809,12 +812,12 @@ $: end, $currentPage = 1
                     {#if !condition}
                         <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                     {/if}
-                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US', { maximumSignificantDigits: 10 })}</td>
+                    <td class="min-w-[2rem] text-right">{transaction.amount.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                     {#if showConversion}
-                        {#if convertingToReporting}
+                        {#if convertingToReporting} 
                             <td class="min-w-[2rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                         {:else}
-                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US', { maximumSignificantDigits: 4 })}</td>
+                            <td class="min-w-[2rem] text-right">{transaction.usd_amount.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
                         {/if}
                         
                     {/if}
