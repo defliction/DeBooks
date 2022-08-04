@@ -390,7 +390,7 @@
                 let filteredData = storedCoinGeckoData.filter(line => line.id == utlToken.extensions.coingeckoId && line.date == dayjs.unix(item.timestamp).format("DD-MM-YYYY") )
 
                 if (storedCoinGeckoData.length == 0 || filteredData.length == 0) {
-                    console.log("CG request for ", utlToken.extensions.coingeckoId)
+                    //console.log("CG request for ", utlToken.extensions.coingeckoId)
                     try {
                         let req = "https://pro-api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
                         //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
@@ -775,10 +775,12 @@ $: end, $currentPage = 1
 
                     
                     <div class="col-end-auto ">
+                        <button on:click={downloadHandler} class="btn btn-xs btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                        </button>
                         
-                        <span class="cursor-pointer"><svg on:click={downloadHandler} xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg></span>
                     </div>
                     <div class="col-end-auto ">
                         
