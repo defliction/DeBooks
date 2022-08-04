@@ -410,8 +410,8 @@
         //console.log(signatures)
         if (signatures.length == 0)
         {
-            validKey = false
-            console.log("initial signatures length 0")
+            //validKey = false
+            console.log("initial signatures length 0", $fetchedTransactions.length)
         }  
         else
         {
@@ -831,6 +831,20 @@ $: end, $currentPage = 1
     </div>
 
 </div>
+    {#if !loading && $fetchedTransactions.length == 0}
+    <div class="flex justify-center flex-row">
+        <div class="pt-10">
+            <div class="alert shadow-lg font-serif">
+                <div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>No records for this period.</span>
+                </div>
+            </div>
+        
+        </div>
+
+    </div>
+    {/if}
 {:else}
 
 <div class="flex justify-center flex-row">
@@ -840,11 +854,7 @@ $: end, $currentPage = 1
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 {#if validKey == false}
                     <span>Enter a valid <span class="font-bold">wallet</span> address to display records.</span>
-                {:else if validKey == true && !loading && $fetchedTransactions.length == 0}
-                    <span>No records for this period.</span>
-                {:else if !rpcConnection }
-                    <span>Unable to estalbish connection to RPC provider.</span>
-                {/if}
+                    {/if}
             </div>
         </div>
     
