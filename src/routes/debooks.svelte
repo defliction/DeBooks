@@ -55,6 +55,7 @@
     let convertingToReporting = false
     let storedCoinGeckoData = []
     let loadingText = "initializing..."
+    let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
     let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime;
@@ -699,6 +700,7 @@ $: start, $currentPage = 1
 $: end, $currentPage = 1 
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
+$: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" : metadataText = "Token Metadata is Off (loading is faster)"
 //$: (async() => $keyInput = await checkKey ())();
 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
@@ -714,8 +716,8 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
     
     <div class="pt-2 text-center ">
         <div class="grid grid-flow-col place-items-end z-50">
-       
-                    <div class="tooltip tooltip-bottom" data-tip="Toggle token metadata off/on (loading is faster without fetching NFT names etc..)">
+                  
+                    <div class="tooltip tooltip-bottom" data-tip="{metadataText}">                    
                         {#if loading}
                         <button on:click={() => {$showMetadata = !$showMetadata}} disabled class="btn btn-xs btn-ghost normal-case ">
                             {#if $showMetadata}
@@ -757,7 +759,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
         <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         
         <div class="indicator">
-            <span class="indicator-item indicator-top badge badge-primary font-ros1">alpha</span>
+            <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
