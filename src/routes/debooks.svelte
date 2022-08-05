@@ -480,10 +480,11 @@
             //set initial lastday and last sig
             let lastsig = signatures[signatures.length - 1].signature
             let lastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
+            let firstLastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
             let z = 0;
             $apiData.push(signatures)
             while (lastday > startday) {
-                loadingText = "loading transactions... " + Math.round(lastday.diff(endday)/startday.diff(endday)) +"%"
+                
                 z++
                 try {
                     let loopsigs = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
@@ -493,8 +494,10 @@
                     }
                     //updated lastday and last sig
                     lastday = await dayjs.unix(loopsigs[loopsigs.length - 1].blockTime)
+                    loadingText = "pre-fetch... " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
                     lastsig = await loopsigs[loopsigs.length - 1].signature
                     $apiData.push(loopsigs)
+                    //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))
                     
                 
                 }
@@ -941,7 +944,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                    
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                    
-                        <span>We're working on it - fetching metadata, particularly lots of NFTs can feel slow</span>
+                        <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>
 
                         
                 </div>
