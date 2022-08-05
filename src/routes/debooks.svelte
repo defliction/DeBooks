@@ -802,7 +802,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 
                     
                    
-                            <div class="md:tooltip " data-tip="Convert transactions to USD">
+                            <div class="md:tooltip " data-tip="Convert transactions to USD (daily close)">
                                 
                                     {#if !showConversion}
                                     <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case">
