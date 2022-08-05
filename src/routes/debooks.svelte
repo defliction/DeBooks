@@ -20,7 +20,7 @@
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";
     import solanaData from '../utils/wrapped-solana.json'
-
+    
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -125,11 +125,10 @@
             
         }
         console.log("connection ", rpcConnection)
-        
        
         storedCoinGeckoData.push(solanaData)
         storedCoinGeckoData = storedCoinGeckoData.flat()
- 
+        console.log("latest date ", storedCoinGeckoData[0])
         //fetch historics manually
         if (false) 
         {
