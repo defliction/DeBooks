@@ -46,8 +46,8 @@ def main():
             #print(df)
             
             df.to_json('wrapped-solana.json', orient='records')
-            print(datetime.datetime.now(), "updated json data", df.date[0])
-            time.sleep(5000)
+            print(datetime.datetime.now(), "updated json data, latest date:", df.date[0])
+            time.sleep(3600)
 
 
 
