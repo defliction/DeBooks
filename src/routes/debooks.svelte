@@ -679,6 +679,13 @@
         }
         return false
     }
+    function showFeesHandler() {
+        $showfees = !$showfees
+        if ($displayArray.length <1 && $showfees) {
+            $currentPage = 1
+        }
+    }
+
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false, $currentPage=1)
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
@@ -749,10 +756,10 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 
 {#if validKey == true }
 
-<div class="flex justify-center font-serif place-content-center ">
+<div class="flex justify-center font-serif place-content-center   ">
     
-    <div class="overflow-x-auto relative">
-        {#if loading}
+    <div class=" ">
+    {#if loading}
         <div class="flex flex-row justify-center ">
             <p class="pt-4 justify-center">
                 <span class="font-serif font-medium badge badge-lg ">
@@ -762,20 +769,20 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                       </svg>{loadingText} {currentPercentage}</span> 
             </p>
         </div>
-        {/if}
-        {#if $fetchedTransactions.length > 0 && !loading}
-        <div class="grid grid-flow-col place-items-center pt-4 pb-1">
+    {/if}
+    {#if $fetchedTransactions.length > 0 && !loading}
+        <div class="grid grid-flow-col place-items-center md:pt-8 pt-4 pb-1 ">
             {#if !loading } 
                     <div class="col-start-auto">
                         
-                        <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs  lg:min-w-[28rem] md:min-w-[20rem] min-w-[14rem]" />
+                        <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs lg:min-w-[20rem] md:min-w-[16rem] min-w-[12rem]" />
                     </div>
                     <div class="col-end-auto grid grid-flow-col">
                         <div class="grid grid-flow-col">
 
                     
-                            <div >
-                                <button on:click={() => {$showfees = !$showfees}} class="btn btn-xs btn-ghost normal-case ">
+                            <div class="md:tooltip " data-tip="Toggle Txn fees on/off" >
+                                <button on:click={() => {showFeesHandler()}} class="btn btn-xs btn-ghost normal-case ">
                                     {#if $showfees}
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary-focus" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
@@ -792,7 +799,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 
                     
                    
-                            <div >
+                            <div class="md:tooltip " data-tip="Convert transactions to USD">
                                 
                                     {#if !showConversion}
                                     <button on:click={conversionHandler} class="btn btn-xs btn-ghost normal-case">
@@ -810,7 +817,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                                     {/if}
                                 
                             </div>
-                            <div>
+                            <div class="md:tooltip " data-tip="Export to .csv">
                         
                                 <button on:click={downloadHandler} class="btn btn-xs btn-ghost normal-case" >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
@@ -824,64 +831,79 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                         </div>
                     </div>
                     
-                    {/if}
+            {/if}
                     
                     
                     
         </div>
-                
-        <table class="table table-compact normal-case ">
-            
-          <!-- head -->
-          <thead>
-            <tr class=" ">
-              
-                <th class="min-w-[2rem] text-left normal-case">Date</th>
-                <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
-                {#if !condition}
-                    <th class="min-w-[4rem] text-left normal-case">Sig</th>
-                {/if}
-                
-                <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base</th>
-                {#if showConversion}
-                <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">{$reportingCurrency}</th>
-                {/if}
-                <th class="min-w-[2rem]"></th>
-            </tr>
-          </thead>          
-      
-          <tbody>
-            <!-- row 1 -->
-            {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
-                <!-- show everything -->
-                <tr class="">
-                    
-                    <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
-                    <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
-                    {#if !condition}
-                        <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
-                    {/if}
-                    <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
-                    {#if showConversion}
-                        {#if convertingToReporting} 
-                            <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
-                        {:else}
-                            <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
-                        {/if}
-                        
-                    {/if}
-                    <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg></a></td>
-                </tr>
-            {/each}
-          </tbody>
-          
-        </table>
         
+        {#if $displayArray.length > 0}
+            <table class="table table-compact normal-case ">
+                
+            <!-- head -->
+            <thead>
+                <tr class=" ">
+                
+                    <th class="min-w-[2rem] text-left normal-case">Date</th>
+                    <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
+                    {#if !condition}
+                        <th class="min-w-[4rem] text-left normal-case">Sig</th>
+                    {/if}
+                    
+                    <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base</th>
+                    {#if showConversion}
+                    <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">{$reportingCurrency}</th>
+                    {/if}
+                    <th class="min-w-[2rem]"></th>
+                </tr>
+            </thead>          
+        
+            <tbody>
+                <!-- row 1 -->
+                {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
+                    <!-- show everything -->
+                    <tr class="">
+                        
+                        <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
+                        {#if !condition}
+                            <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
+                        {/if}
+                        <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
+                        {#if showConversion}
+                            {#if convertingToReporting} 
+                                <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
+                            {:else}
+                                <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
+                            {/if}
+                            
+                        {/if}
+                        <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg></a></td>
+                    </tr>
+                {/each}
+            </tbody>
+            
+            </table>
+        {:else}
+            <div class="flex justify-center flex-row ">
+                <div class="pt-10 min-w-[28rem]">
+                    <div class="alert shadow-lg font-serif place-items-center">
+                        <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>No records for this period.</span>
+                        </div>
+                    </div>
+                
+                </div>
+        
+            </div>
         {/if}
         
-        {#if !loading && $displayArray.length > 0}
+    {/if}
+        
+    {#if !loading && $displayArray.length > 0}
         <div class="custom-pagination-nav">
             <div>
                 <PaginationNav
@@ -894,9 +916,9 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                 />
             </div>
         </div>
-        {/if}
+    {/if}
 
-        {#if !loading && $fetchedTransactions.length > 0}
+    {#if !loading && $fetchedTransactions.length > 0}
         <div class="flex justify-center flex-row pt-8">
             <footer class="footer footer-center p-4 bg-base-200 text-base-content rounded-md">
                 
@@ -907,7 +929,7 @@ $: !validKey? $currentPage = 1 : $currentPage=$currentPage
                 </div>
             </footer>
         </div>
-        {/if}
+    {/if}
     </div>
     
 </div>
