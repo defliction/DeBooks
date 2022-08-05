@@ -49,7 +49,7 @@
     let currentPercentage = "";
     let innerWidth = 0
 	let innerHeight = 0
-    $showMetadata = false
+    $showMetadata = true
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -483,7 +483,7 @@
             let z = 0;
             $apiData.push(signatures)
             while (lastday > startday) {
-            
+                loadingText = "loading transactions... " + Math.round(lastday.diff(endday)/startday.diff(endday)) +"%"
                 z++
                 try {
                     let loopsigs = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
