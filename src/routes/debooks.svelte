@@ -891,12 +891,12 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     <th class="min-w-[2rem] text-left normal-case">Date</th>
                     <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
                     {#if !condition}
-                        <th class="min-w-[4rem] text-left normal-case">Sig</th>
+                        <th class="min-w-[4rem] text-left normal-case">Ref</th>
                     {/if}
                     
-                    <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base</th>
+                    <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                     {#if showConversion}
-                    <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">{$reportingCurrency}</th>
+                    <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
                     {/if}
                     <th class="min-w-[2rem]"></th>
                 </tr>
