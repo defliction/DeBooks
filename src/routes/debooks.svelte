@@ -918,7 +918,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             {#if convertingToReporting} 
                                 <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                             {:else}
-                                <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, trailingZeroDisplay :true, maximumFractionDigits: 4 })}</td>
+                                <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
                             {/if}
                             
                         {/if}
