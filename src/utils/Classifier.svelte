@@ -1,10 +1,11 @@
 <script lang='ts'>
 	import * as web3 from '@solana/web3.js';
-	import { workingArray, showMetadata} from '../stores.js';
-	import type { Token } from '@solflare-wallet/utl-sdk';
-	
+	import { workingArray, showMetadata, connection} from '../stores.js';
+	import { Metaplex } from "@metaplex-foundation/js";
 
-	export async function classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl) {
+	const metaplex = new Metaplex($connection);
+
+	export async function classifyTransaction (item, programIDs, account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"

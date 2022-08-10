@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, connection } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -9,7 +9,7 @@
 
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
-    import { isNft, Metaplex } from "@metaplex-foundation/js";
+  
     import Classifier from "../utils/Classifier.svelte";
     let classif: Classifier;
     import { csvGenerator } from "../utils/csvGenerator";
@@ -55,18 +55,13 @@
     let startTime: number;
     let showInfoTip = false
     console.log("1")
-    try {
-         //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
-        const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
-        console.log("2s")
-        const metaplex = new Metaplex(connection);
-        console.log("3")
-    }
-    catch (e) {
-        
-        console.log("unable to establish connection ", e)
-    }
-   
+    //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
+    $connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    
+    console.log("2s")
+    
+    console.log("3")
+ 
 
     onMount(async () => {
        //await fetchAll()
@@ -95,7 +90,7 @@
         while(latestBlockhash == null) {
 
             try {
-                latestBlockhash = await connection.getLatestBlockhashAndContext()
+                latestBlockhash = await $connection.getLatestBlockhashAndContext()
                 rpcConnection = true
             }
             catch (e) {
@@ -132,17 +127,17 @@
  
     async function interpolateBlockSignatures() {
         
-        let latestBlockhash =  await connection.getLatestBlockhashAndContext()
+        let latestBlockhash =  await $connection.getLatestBlockhashAndContext()
         console.log(latestBlockhash.context.slot)
 
         let slotIncrements = 500000
         let topSlot = latestBlockhash.context.slot
         let endBlockTime;
         try {
-            endBlockTime =  await connection.getBlockTime(topSlot)
+            endBlockTime =  await $connection.getBlockTime(topSlot)
         }
         catch (e) {
-            endBlockTime =  await connection.getBlockTime(topSlot)
+            endBlockTime =  await $connection.getBlockTime(topSlot)
             console.log("failed to get block time")
         }
         let endSignature;
@@ -167,7 +162,7 @@
                     topSlot -= smallerIncrements
                 }
                 topSlot = Math.max(topSlot, 1)
-                endBlockTime = await connection.getBlockTime(topSlot)
+                endBlockTime = await $connection.getBlockTime(topSlot)
                 //console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
                 
                 //need to catch if endBlock is less than endday then top op till over
@@ -182,21 +177,21 @@
                                 topSlot += smallerIncrements
                             }
                             topSlot = Math.max(topSlot, 1)
-                            endBlockTime = await connection.getBlockTime(topSlot)
+                            endBlockTime = await $connection.getBlockTime(topSlot)
                             //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
                         catch (e) {
                             //console.log("error in interpolate 1b", e)
                         }
                     }
-                    let sigs = await connection.getBlockSignatures(topSlot)
+                    let sigs = await $connection.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
                     
                 }
                 else if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 6 && (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0) {
-                    let sigs = await connection.getBlockSignatures(topSlot)
+                    let sigs = await $connection.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
@@ -227,7 +222,7 @@
                     startSlot -=  Math.floor(smallerIncrements)
                 }
                 startSlot = Math.max(startSlot, 0)
-                startBlocktime = await connection.getBlockTime(startSlot)
+                startBlocktime = await $connection.getBlockTime(startSlot)
                 //console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                 
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0) {
@@ -239,7 +234,7 @@
                             startSlot += smallerIncrements
                         }
                         try {
-                            startBlocktime = await connection.getBlockTime(startSlot)
+                            startBlocktime = await $connection.getBlockTime(startSlot)
                             //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                         }
                         catch (e) {
@@ -247,14 +242,14 @@
                         }
                        
                     }
-                    let sigs = await connection.getBlockSignatures(startSlot)
+                    let sigs = await $connection.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
 
                 }
                 else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24) {
-                    let sigs = await connection.getBlockSignatures(startSlot)
+                    let sigs = await $connection.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
@@ -409,7 +404,7 @@
         
 
         let signatureBracket = await interpolateBlockSignatures()
-        let signatures = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
+        let signatures = await $connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
         //console.log(signatures)
         if (signatures.length == 0)
         {
@@ -429,7 +424,7 @@
                 
                 z++
                 try {
-                    let loopsigs = await connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
+                    let loopsigs = await $connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
                     if (loopsigs.length == 0) {
                      //   await sleep(500) //wait 0.5 seconds
                         break
@@ -464,7 +459,7 @@
             while (y < reformattedArray.length) {
 
                 loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
-                let array = await connection.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
+                let array = await $connection.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
                 $fetchedTransactions.push(array)
                 console.log("incrementally fetching parsed ", y, reformattedArray.length)
                 y += yIncrement
@@ -522,7 +517,7 @@
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
-                        await classif.classifyTransaction (item, programIDs, metaplex, account_index, keyIn, feePayer, utl_api.content)
+                        await classif.classifyTransaction (item, programIDs, account_index, keyIn, feePayer, utl_api.content)
                     }
                     
                 }
