@@ -52,7 +52,7 @@
     let storedCoinGeckoData: [] = []
     let loadingText = "initializing..."
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
-    let rpcConnection = false
+    let rpcConnection = true
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
@@ -84,7 +84,7 @@
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
         let latestBlockhash 
-        while(latestBlockhash == null) {
+        while(latestBlockhash == null && false){
 
             try {
                 latestBlockhash = await connection.getLatestBlockhashAndContext()
