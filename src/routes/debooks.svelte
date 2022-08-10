@@ -55,11 +55,18 @@
     let startTime: number;
     let showInfoTip = false
     console.log("1")
-    //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
-    const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
-    console.log("2s")
-    const metaplex = new Metaplex(connection);
-    console.log("3")
+    try {
+         //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
+        const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+        console.log("2s")
+        const metaplex = new Metaplex(connection);
+        console.log("3")
+    }
+    catch (e) {
+        
+        console.log("unable to establish connection ", e)
+    }
+   
 
     onMount(async () => {
        //await fetchAll()
