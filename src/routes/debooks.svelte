@@ -13,7 +13,7 @@
     import { Buffer } from 'buffer';
     //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
     import { isNft, Metaplex } from "@metaplex-foundation/js";
-    import { Client, UtlConfig} from '@solflare-wallet/utl-sdk';
+
     import type { Token } from '@solflare-wallet/utl-sdk';
     import Classifier from "../utils/Classifier.svelte";
     let classif;
@@ -63,30 +63,6 @@
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     const metaplex = new Metaplex(connection);
-    const config = new UtlConfig({
-            /**
-             * 101 - mainnet, 102 - testnet, 103 - devnet
-             */
-            chainId: 101,
-            /**
-             * number of miliseconds to wait until falling back to CDN
-             */
-            timeout: 2000,
-            /**
-             * Solana web3 Connection
-             */
-            connection: connection,
-            /**
-             * Backend API url which is used to query tokens
-             */
-            apiUrl: "https://token-list-api.solana.cloud",
-            /**
-             * CDN hosted static token list json which is used in case backend is down
-             */
-            cdnUrl: "https://cdn.jsdelivr.net/gh/solflare-wallet/token-list/solana-tokenlist.json"
-        });
-    const utl = new Client(config);
-
 
     onMount(async () => {
        //await fetchAll()
