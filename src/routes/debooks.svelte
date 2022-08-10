@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, connection } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -10,11 +10,12 @@
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
   
-    import Classifier from "../utils/Classifier.svelte";
-    let classif: Classifier;
+    import * as classif from "../utils/classif";
+   
     import { csvGenerator } from "../utils/csvGenerator";
     import solanaData from '../utils/wrapped-solana.json'
     
+    import * as mtda from '../utils/Metadata'
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -56,12 +57,10 @@
     let showInfoTip = false
     console.log("1")
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
-    $connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
-    
-    console.log("2s")
-    
-    console.log("3")
- 
+    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    //const metap = new Metaplex($connection)
+    //const mx = Metaplex.make($cnx);
+    //let mx
 
     onMount(async () => {
        //await fetchAll()
@@ -90,8 +89,9 @@
         while(latestBlockhash == null) {
 
             try {
-                latestBlockhash = await $connection.getLatestBlockhashAndContext()
+                latestBlockhash = await $cnx.getLatestBlockhashAndContext()
                 rpcConnection = true
+                 
             }
             catch (e) {
                 rpcConnection = false
@@ -101,7 +101,7 @@
             
         }
         console.log("connection ", rpcConnection)
-       
+        console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
         storedCoinGeckoData.push(solanaData)
         storedCoinGeckoData = storedCoinGeckoData.flat()
         console.log("latest date ", storedCoinGeckoData[0])
@@ -127,17 +127,17 @@
  
     async function interpolateBlockSignatures() {
         
-        let latestBlockhash =  await $connection.getLatestBlockhashAndContext()
+        let latestBlockhash =  await $cnx.getLatestBlockhashAndContext()
         console.log(latestBlockhash.context.slot)
 
         let slotIncrements = 500000
         let topSlot = latestBlockhash.context.slot
         let endBlockTime;
         try {
-            endBlockTime =  await $connection.getBlockTime(topSlot)
+            endBlockTime =  await $cnx.getBlockTime(topSlot)
         }
         catch (e) {
-            endBlockTime =  await $connection.getBlockTime(topSlot)
+            endBlockTime =  await $cnx.getBlockTime(topSlot)
             console.log("failed to get block time")
         }
         let endSignature;
@@ -162,7 +162,7 @@
                     topSlot -= smallerIncrements
                 }
                 topSlot = Math.max(topSlot, 1)
-                endBlockTime = await $connection.getBlockTime(topSlot)
+                endBlockTime = await $cnx.getBlockTime(topSlot)
                 //console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
                 
                 //need to catch if endBlock is less than endday then top op till over
@@ -177,21 +177,21 @@
                                 topSlot += smallerIncrements
                             }
                             topSlot = Math.max(topSlot, 1)
-                            endBlockTime = await $connection.getBlockTime(topSlot)
+                            endBlockTime = await $cnx.getBlockTime(topSlot)
                             //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
                         catch (e) {
                             //console.log("error in interpolate 1b", e)
                         }
                     }
-                    let sigs = await $connection.getBlockSignatures(topSlot)
+                    let sigs = await $cnx.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
                     
                 }
                 else if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 6 && (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0) {
-                    let sigs = await $connection.getBlockSignatures(topSlot)
+                    let sigs = await $cnx.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
@@ -222,7 +222,7 @@
                     startSlot -=  Math.floor(smallerIncrements)
                 }
                 startSlot = Math.max(startSlot, 0)
-                startBlocktime = await $connection.getBlockTime(startSlot)
+                startBlocktime = await $cnx.getBlockTime(startSlot)
                 //console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                 
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0) {
@@ -234,7 +234,7 @@
                             startSlot += smallerIncrements
                         }
                         try {
-                            startBlocktime = await $connection.getBlockTime(startSlot)
+                            startBlocktime = await $cnx.getBlockTime(startSlot)
                             //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
                         }
                         catch (e) {
@@ -242,14 +242,14 @@
                         }
                        
                     }
-                    let sigs = await $connection.getBlockSignatures(startSlot)
+                    let sigs = await $cnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
 
                 }
                 else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24) {
-                    let sigs = await $connection.getBlockSignatures(startSlot)
+                    let sigs = await $cnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
@@ -404,7 +404,7 @@
         
 
         let signatureBracket = await interpolateBlockSignatures()
-        let signatures = await $connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
+        let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
         //console.log(signatures)
         if (signatures.length == 0)
         {
@@ -424,7 +424,7 @@
                 
                 z++
                 try {
-                    let loopsigs = await $connection.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
+                    let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
                     if (loopsigs.length == 0) {
                      //   await sleep(500) //wait 0.5 seconds
                         break
@@ -459,7 +459,7 @@
             while (y < reformattedArray.length) {
 
                 loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
-                let array = await $connection.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
+                let array = await $cnx.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
                 $fetchedTransactions.push(array)
                 console.log("incrementally fetching parsed ", y, reformattedArray.length)
                 y += yIncrement
@@ -517,7 +517,7 @@
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
-                        await classif.classifyTransaction (item, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
                     }
                     
                 }
@@ -644,7 +644,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
 // /<DateInput on:close={fetchAll} bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
 </script>
-<Classifier bind:this={classif} />
+
 <svelte:window bind:innerWidth bind:innerHeight />
 
 

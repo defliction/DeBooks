@@ -1,11 +1,7 @@
-<script lang='ts'>
 	import * as web3 from '@solana/web3.js';
-	import { workingArray, showMetadata, connection} from '../stores.js';
-	import { Metaplex } from "@metaplex-foundation/js";
-
-	const metaplex = new Metaplex($connection);
-
-	export async function classifyTransaction (item, programIDs, account_index, keyIn, feePayer, utl) {
+	import * as mtda from '../utils/Metadata'
+	
+	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
@@ -25,13 +21,13 @@
 			})
 			//console.log("nftIDs " + nftIDs)
 			
-			let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
+			let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
 
 			if (item.meta?.logMessages[1].includes(" CancelSell")) {
-				descr = $showMetadata? "Magic Eden: Delisted " + nftnames.flatMap(s => s.name) : "Magic Eden: Delisted "
+				descr = showMetadata? "Magic Eden: Delisted " + nftnames.flatMap(s => s.name) : "Magic Eden: Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
 				//offer accepted
@@ -42,8 +38,8 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
-					descr = $showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) : "Magic Eden: Sold via Offer "
+					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
+					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) : "Magic Eden: Sold via Offer "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -92,10 +88,10 @@
 					
 					amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 					if (account_index == 0) {
-						descr = $showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
+						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
 					}
 					else {
-						descr =  $showMetadata? "Magic Eden: Bought via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
+						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
 					}
 					
 				}
@@ -109,11 +105,11 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
-					descr = $showMetadata? "Magic Eden: Price Change " + nftnames.flatMap(s => s.name) : "Magic Eden: Price Change "
+					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
+					descr = showMetadata? "Magic Eden: Price Change " + nftnames.flatMap(s => s.name) : "Magic Eden: Price Change "
 				}
 				else {
-					descr = $showMetadata? "Magic Eden: Listed " + nftnames.flatMap(s => s.name) : "Magic Eden: Listed "
+					descr = showMetadata? "Magic Eden: Listed " + nftnames.flatMap(s => s.name) : "Magic Eden: Listed "
 				}
 				
 			}
@@ -125,8 +121,8 @@
 							nftIDs.push(new web3.PublicKey(token.mint))
 						}
 					}) 
-					let nftnames = $showMetadata? await metaplex.nfts().findAllByMintList(nftIDs).run() : []
-					descr =  $showMetadata? "Magic Eden: Sold " + nftnames.flatMap(s => s.name) : "Magic Eden: Sold "
+					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
+					descr =  showMetadata? "Magic Eden: Sold " + nftnames.flatMap(s => s.name) : "Magic Eden: Sold "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -134,7 +130,7 @@
 
 				}
 				else {
-					descr = $showMetadata? "Magic Eden: Bought " + nftnames.flatMap(s => s.name) : "Magic Eden: Bought "
+					descr = showMetadata? "Magic Eden: Bought " + nftnames.flatMap(s => s.name) : "Magic Eden: Bought "
 				}
 
 				
@@ -152,7 +148,7 @@
 					//console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
 					//console.log("acc ", account_index)
-					let nftnames = $showMetadata? await metaplex.nfts().findByMint(new web3.PublicKey(account_index)).run() : []
+					let nftnames = showMetadata? await mtda.getTokenMetadata(new web3.PublicKey(account_index)) : []
 					//console.log(item.meta?.logMessages[4].slice(13))
 					/*let offerAmount = ""
 					item.meta?.logMessages.forEach(function (value) {
@@ -190,7 +186,7 @@
 					*/
 					
 
-					descr = $showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+					descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 				}
 				else {
 					descr = "Magic Eden: Make Offer "
@@ -232,7 +228,7 @@
 				"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 				"description": descr
 			}
-			$workingArray.push(new_line)
+			workingArray.push(new_line)
 			//console.log(new_line)
 		}
 		else {
@@ -283,9 +279,9 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData(uniqueToken, utl, metaplex)
+								"description": customDescripton +  " Transaction " + direction + await fetchTokenData(uniqueToken, utl, showMetadata)
 							}
-							$workingArray.push(new_line)
+							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
 						}
 					}
@@ -317,7 +313,7 @@
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 							"description": customDescripton + " Transaction " + direction + " SOL"
 						}
-						$workingArray.push(new_line)
+						workingArray.push(new_line)
 						//console.log(new_line)
 					}
 					
@@ -365,7 +361,7 @@
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 								"description": customDescripton + "SOL Transfer In "
 							}
-							$workingArray.push(new_line)
+							workingArray.push(new_line)
 							//console.log(new_line)
 
 					}
@@ -393,7 +389,7 @@
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 								"description": customDescripton+ "SOL Transfer Out "
 							}
-							$workingArray.push(new_line)
+							workingArray.push(new_line)
 							//console.log(new_line)
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "transferChecked") {
@@ -424,9 +420,9 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData(mint, utl, metaplex)
+							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData(mint, utl, showMetadata)
 						}
-						$workingArray.push(new_line)
+						workingArray.push(new_line)
 						//console.log(new_line)
 						
 						
@@ -468,9 +464,9 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData(uniqueToken, utl, metaplex)
+									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData(uniqueToken, utl, showMetadata)
 								}
-								$workingArray.push(new_line)
+								workingArray.push(new_line)
 								//console.log(new_line)
 							}
 						}
@@ -506,9 +502,9 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Burn SPL Token " + await fetchTokenData(mint, utl, metaplex)
+							"description": "Burn SPL Token " + await fetchTokenData(mint, utl, showMetadata)
 						}
-						$workingArray.push(new_line)
+						workingArray.push(new_line)
 
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "closeAccount" && instruction.parsed.info.destination == keyIn)  {
@@ -535,7 +531,7 @@
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 								"description": customDescripton+ "Closed account " + instruction.parsed.info.account.substring(0,4)
 							}
-							$workingArray.push(new_line)
+							workingArray.push(new_line)
 							//console.log(new_line)
 					}
 					else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
@@ -563,9 +559,9 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton+ "Create SPL Token account for " + await fetchTokenData(instruction.parsed.info.mint, utl, metaplex)
+							"description": customDescripton+ "Create SPL Token account for " + await fetchTokenData(instruction.parsed.info.mint, utl, showMetadata)
 						}
-						$workingArray.push(new_line)
+						workingArray.push(new_line)
 					}
 					else {
 						//generic parsed instruction! if that exists
@@ -584,17 +580,17 @@
 		}
 	}
 
-	async function fetchTokenData(mintIn, utl, metaplex) {
+	async function fetchTokenData(mintIn, utl, showMetadata) {
 		
 		let namedToken = "Unknown Token " + mintIn.substring(0,4)
 
-		if ($showMetadata) {
+		if (showMetadata) {
 			
 			//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 			let utlToken = utl.filter(item => item.address == mintIn)[0]
 			if (utlToken == null || utlToken == undefined) {
 				try {
-					let nftnames = await metaplex.nfts().findByMint(new web3.PublicKey(mintIn)).run();
+					let nftnames = await mtda.getTokenMetadata(new web3.PublicKey(mintIn));
 					
 					if (nftnames.name != "")
 					{
@@ -620,6 +616,5 @@
 	}
 	
 
-	
-</script>
+
 

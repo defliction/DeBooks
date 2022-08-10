@@ -12,7 +12,7 @@ export let currentPage = writable(1)
 export let textFilter = writable("")
 export let reportingCurrency = writable("USD")
 export let showMetadata = writable(true)
-export let connection = writable ()
+export let cnx = writable ()
 
 export const time = readable(new Date(), set => {
     const interval = setInterval(() => {
