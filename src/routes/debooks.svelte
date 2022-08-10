@@ -1,22 +1,18 @@
 <script lang='ts'>
 
     import { onMount } from "svelte";
-    import { create } from "json-aggregate"
     import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
-    import Number from "../utils/Number.svelte";
-    import { DateInput } from 'date-picker-svelte'
+
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
     //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
     import { isNft, Metaplex } from "@metaplex-foundation/js";
-
-    import type { Token } from '@solflare-wallet/utl-sdk';
     import Classifier from "../utils/Classifier.svelte";
-    let classif;
+    let classif: Classifier;
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";
     import solanaData from '../utils/wrapped-solana.json'
@@ -53,12 +49,12 @@
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
-    let storedCoinGeckoData = []
+    let storedCoinGeckoData: [] = []
     let loadingText = "initializing..."
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
     let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
-    let startTime;
+    let startTime: number;
     let showInfoTip = false
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
@@ -107,51 +103,13 @@
         storedCoinGeckoData = storedCoinGeckoData.flat()
         console.log("latest date ", storedCoinGeckoData[0])
         //fetch historics manually
-        if (false) 
-        {
-            //let startdate = dayjs().subtract(1, 'days')
-            
-            var startdate = dayjs('2020-07-11')
-            let preFetched = []
-            for (let i = 0; i < 499; i++) {
-                try {
-                    let req = "https://pro-api.coingecko.com/api/v3/coins/solana/history?date="+startdate.format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
-                    //let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
-                    let response = await fetch(req);
-                    let data = await response.json()                
-                    //console.log(data)
-                    var stored_value = {
-                        "id": "wrapped-solana",
-                        "date": startdate.format("DD-MM-YYYY"),
-                        "usd": data.market_data.current_price.usd
-                    }
-                    preFetched.push(stored_value)
-                    startdate = startdate.subtract(1, 'days')
-                }
-                catch (e) {
-                    console.log(e)
-                    break
-                }
-                
-            }
-            console.log ("fetched pricing")
-            console.log(preFetched)
-            
-            let filename = "wrapped-solana" + ".csv"
-            console.log("withOUT USD")
-            let result = preFetched.map(o => Object.fromEntries(["id", "date", "usd"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
-            let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["id", "date", "usd"], filename);
-            
-           
-        }
         
         console.log(rpcConnection)
         //await interpolateBlockSignatures()
         console.log("END - starting logs")
     });
     
-    const sleep = (milliseconds) => {
+    const sleep = (milliseconds:number) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
     async function conversionHandler() {
@@ -519,7 +477,7 @@
               
                 currentTransaction++
                 let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
-                let programIDs: string = []
+                let programIDs: string[] = []
                 item.transaction.message.instructions.forEach(function (program) {
                     
                     programIDs.push(program.programId.toBase58())
