@@ -9,11 +9,9 @@
 
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
-    //import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js";    
     import { isNft, Metaplex } from "@metaplex-foundation/js";
     import Classifier from "../utils/Classifier.svelte";
     let classif: Classifier;
-    import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";
     import solanaData from '../utils/wrapped-solana.json'
     
@@ -52,13 +50,16 @@
     let storedCoinGeckoData: [] = []
     let loadingText = "initializing..."
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
-    let rpcConnection = true
+    let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
+    console.log("1")
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     const connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    console.log("2s")
     const metaplex = new Metaplex(connection);
+    console.log("3")
 
     onMount(async () => {
        //await fetchAll()
@@ -84,7 +85,7 @@
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
         let latestBlockhash 
-        while(latestBlockhash == null && false){
+        while(latestBlockhash == null) {
 
             try {
                 latestBlockhash = await connection.getLatestBlockhashAndContext()
@@ -622,7 +623,7 @@
             $currentPage = 1
         }
     }
-
+console.log("4")
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false, $currentPage=1)
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
