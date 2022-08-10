@@ -633,8 +633,7 @@ $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 $: condition = innerWidth < 755
-$: start, $currentPage = 1
-$: end, $currentPage = 1 
+
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" : metadataText = "Token Metadata is Off (loading is faster)"
@@ -711,7 +710,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" on:focusout={checkKey} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
@@ -721,7 +720,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:input={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" on:focusout={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
