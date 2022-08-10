@@ -55,7 +55,7 @@
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
-    console.log("1")
+   
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
@@ -101,7 +101,7 @@
             
         }
         console.log("connection ", rpcConnection)
-        console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
+        //console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
         storedCoinGeckoData.push(solanaData)
         storedCoinGeckoData = storedCoinGeckoData.flat()
         console.log("latest date ", storedCoinGeckoData[0])
@@ -625,7 +625,7 @@
             $currentPage = 1
         }
     }
-console.log("4")
+
 $: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false, $currentPage=1)
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
@@ -699,9 +699,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class="text-center font-serif input input-sm input-bordered input-primary w-96  " />
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
         </div>
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
