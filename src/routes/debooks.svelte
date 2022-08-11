@@ -12,9 +12,7 @@
   
     import * as classif from "../utils/classif";
    
-    import { csvGenerator } from "../utils/csvGenerator";
-    import solanaData from '../utils/wrapped-solana.json'
-    
+    import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
 
     dayjs.extend(localizedFormat)
@@ -55,7 +53,7 @@
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
-   
+    let solanaData2
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
@@ -102,9 +100,11 @@
         }
         console.log("connection ", rpcConnection)
         //console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
-        storedCoinGeckoData.push(solanaData)
+        let response = await fetch("https://keen-kulfi-1ebeea.netlify.app/wrapped-solana.json")
+        let solanaData2 = await response.json()
+        storedCoinGeckoData.push(solanaData2)
         storedCoinGeckoData = storedCoinGeckoData.flat()
-        console.log("latest date ", storedCoinGeckoData[0])
+        //console.log("latest date ", storedCoinGeckoData[0])
         //fetch historics manually
         
         console.log(rpcConnection)
@@ -972,7 +972,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 {#if rpcConnection == true}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                
-                    <span>Enter a valid <span class="font-bold">Solana wallet</span> address to display records.</span>
+                    <span>Enter a <span class="font-bold">Solana wallet</span> address to display records.</span>
                     {:else}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
