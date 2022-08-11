@@ -706,7 +706,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" on:submit={checkKey} on:focusout={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
