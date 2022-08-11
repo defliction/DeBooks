@@ -14,6 +14,7 @@
    
     import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
+    import { decodeMetadata } from '../utils/MetadataUtils'
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -53,7 +54,7 @@
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
-    let solanaData2
+
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
@@ -98,7 +99,14 @@
             sleep(750)
             
         }
-        console.log("connection ", rpcConnection)
+        //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
+        //console.log(giraffe)
+        //let metadata_parsed = await giraffe
+        //console.log(metadata_parsed)
+        //const metadata_buf = Buffer.from(metadata_parsed.value.data, 'base64');
+        //const metadata = decodeMetadata(metadata_buf)
+        //console.log(metadata)
+        //console.log("connection ", rpcConnection)
         //console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
         let response = await fetch("https://keen-kulfi-1ebeea.netlify.app/wrapped-solana.json")
         let solanaData2 = await response.json()
@@ -633,7 +641,7 @@ $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 $: smallScreenCondition = innerWidth < 755
-
+$: start, end, $currentPage = 1
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" : metadataText = "Token Metadata is Off (loading is faster)"
@@ -923,8 +931,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 <div class="items-center grid-flow-col">
                     <a href="https://twitter.com/defliction" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current hover:fill-primary"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
                     </a>
-                  <p>DeBooks © 2022</p>
+  
+                  <p class="text-base">DeBooks © 2022</p>
                 </div>
+             
             </footer>
         </div>
     {/if}

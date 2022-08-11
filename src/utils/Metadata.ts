@@ -39,16 +39,19 @@ export async function getTokenMetadata(token_address:PublicKey) {
 			body: JSON.stringify(data),
 		}); 
 		const metadata_parsed = await metadata_res.json();
-
-		const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
-		const metadata = decodeMetadata(metadata_buf)
-		//console.log(metadata)
-
-		//const arweave_res = await fetch(metadata.data.uri)
-		//const arweave = await arweave_res.json()
-		//console.log("Arweave ", arweave)
-        //console.log(metadata)
-		return metadata.data 
+		//console.log("parsed ", token_address.toBase58(), metadata_pda.toBase58(), metadata_parsed)
+		if ( metadata_parsed.result.value) {
+			const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
+			const metadata = decodeMetadata(metadata_buf)
+			//console.log(metadata)
+	
+			//const arweave_res = await fetch(metadata.data.uri)
+			//const arweave = await arweave_res.json()
+			//console.log("Arweave ", arweave)
+			//console.log(metadata)
+			return metadata.data 
+		}
+		
 
 	} catch (e) {
 		console.log(e)
@@ -82,11 +85,14 @@ export async function getTokensMetadata(token_addresses:PublicKey[]) {
                 body: JSON.stringify(data),
             }); 
             const metadata_parsed = await metadata_res.json();
-    
-            const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
-            const metadata = decodeMetadata(metadata_buf)
-            //console.log(metadata)
-            nft_data.push(metadata.data)
+			//console.log("parsed ", token_address.toBase58(), metadata_pda.toBase58(), metadata_parsed)
+			if (metadata_parsed.result.value) {
+				const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
+				const metadata = decodeMetadata(metadata_buf)
+				//console.log(metadata)
+				nft_data.push(metadata.data)
+			}
+            
             //const arweave_res = await fetch(metadata.data.uri)
             //const arweave = await arweave_res.json()
             

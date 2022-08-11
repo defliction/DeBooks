@@ -244,7 +244,7 @@ export const METADATA_SCHEMA = new Map<any, any>([
 const METADATA_REPLACE = new RegExp('\u0000', 'g');
 
 export const decodeMetadata = (buffer: Buffer): Metadata => {
-	console.log(Metadata.length)
+	//console.log(Metadata.length)
 	const metadata = deserializeUnchecked(
 		METADATA_SCHEMA,
 		Metadata,
