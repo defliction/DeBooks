@@ -40,7 +40,7 @@ export async function getTokenMetadata(token_address:PublicKey) {
 		}); 
 		const metadata_parsed = await metadata_res.json();
 		//console.log("parsed ", token_address.toBase58(), metadata_pda.toBase58(), metadata_parsed)
-		if ( metadata_parsed.result.value) {
+		if (metadata_parsed.result.value) {
 			const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
 			const metadata = decodeMetadata(metadata_buf)
 			//console.log(metadata)
@@ -51,6 +51,10 @@ export async function getTokenMetadata(token_address:PublicKey) {
 			//console.log(metadata)
 			return metadata.data 
 		}
+		else {
+			
+		}
+	
 		
 
 	} catch (e) {

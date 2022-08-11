@@ -99,15 +99,22 @@
             sleep(750)
             
         }
+       
+        //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //console.log(giraffe)
-        //let metadata_parsed = await giraffe
+        
         //console.log(metadata_parsed)
         //const metadata_buf = Buffer.from(metadata_parsed.value.data, 'base64');
         //const metadata = decodeMetadata(metadata_buf)
         //console.log(metadata)
         //console.log("connection ", rpcConnection)
-        //console.log("Metadata", await mtda.getTokenMetadata(new web3.PublicKey("BGzmB9pD37xUVAZzGBy84Eejns7F6bGRRHUKnqRDPacj")))
+        //let metad = await mtda.getTokenMetadata(new web3.PublicKey("2ba9LpNiJQkyCwQahDiEZNFKJHUYnJ67DbyCnDdK88fP"))
+        //console.log("Metadata", metad)
+        //let teawk = await fetch("https://bafybeic6ljkikzvqjliilfqnz7sezi6ffvxkfliszntpozp3pdxko6mxlu.ipfs.nftstorage.link/2391.json")
+        //let tewak = await teawk.json()
+        //console.log(tewak)
+
         let response = await fetch("https://keen-kulfi-1ebeea.netlify.app/wrapped-solana.json")
         let solanaData2 = await response.json()
         storedCoinGeckoData.push(solanaData2)
@@ -487,7 +494,7 @@
             for await (const item of $fetchedTransactions) {
               
                 currentTransaction++
-                let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+                let account_index = item.transaction.message?.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
                 let programIDs: string[] = []
                 item.transaction.message.instructions.forEach(function (program) {
                     
@@ -706,7 +713,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" on:submit={checkKey} on:focusout={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}

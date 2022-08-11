@@ -1,6 +1,6 @@
 	import * as web3 from '@solana/web3.js';
 	import * as mtda from '../utils/Metadata'
-	
+
 	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
@@ -11,23 +11,23 @@
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
 				if (token.owner == keyIn) {
-					nftIDs.push(new web3.PublicKey(token.mint))
+					nftIDs.push(token.mint)
 				}
 			})
 			item.meta.preTokenBalances.forEach(function (token) {
 				if (token.owner == keyIn) {
-					nftIDs.push(new web3.PublicKey(token.mint))
+					nftIDs.push(token.mint)
 				}
 			})
 			//console.log("nftIDs " + nftIDs)
 			
-			let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
+			let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
 
 			if (item.meta?.logMessages[1].includes(" CancelSell")) {
-				descr = showMetadata? "Magic Eden: Delisted " + nftnames.flatMap(s => s.name) : "Magic Eden: Delisted "
+				descr = showMetadata? "Magic Eden: Delisted " + nftnames : "Magic Eden: Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
 				//offer accepted
@@ -35,11 +35,11 @@
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
-							nftIDs.push(new web3.PublicKey(token.mint))
+							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
-					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) : "Magic Eden: Sold via Offer "
+					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames : "Magic Eden: Sold via Offer "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -88,10 +88,10 @@
 					
 					amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 					if (account_index == 0) {
-						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
+						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
 					}
 					else {
-						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames.flatMap(s => s.name) + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
+						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
 					}
 					
 				}
@@ -102,14 +102,14 @@
 					let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
 					item.meta.postTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
-							nftIDs.push(new web3.PublicKey(token.mint))
+							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
-					descr = showMetadata? "Magic Eden: Price Change " + nftnames.flatMap(s => s.name) : "Magic Eden: Price Change "
+					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					descr = showMetadata? "Magic Eden: Price Change " + nftnames : "Magic Eden: Price Change "
 				}
 				else {
-					descr = showMetadata? "Magic Eden: Listed " + nftnames.flatMap(s => s.name) : "Magic Eden: Listed "
+					descr = showMetadata? "Magic Eden: Listed " + nftnames : "Magic Eden: Listed "
 				}
 				
 			}
@@ -118,11 +118,11 @@
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
-							nftIDs.push(new web3.PublicKey(token.mint))
+							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await mtda.getTokensMetadata(nftIDs) : []
-					descr =  showMetadata? "Magic Eden: Sold " + nftnames.flatMap(s => s.name) : "Magic Eden: Sold "
+					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					descr =  showMetadata? "Magic Eden: Sold " + nftnames : "Magic Eden: Sold "
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -130,7 +130,7 @@
 
 				}
 				else {
-					descr = showMetadata? "Magic Eden: Bought " + nftnames.flatMap(s => s.name) : "Magic Eden: Bought "
+					descr = showMetadata? "Magic Eden: Bought " + nftnames : "Magic Eden: Bought "
 				}
 
 				
@@ -140,7 +140,7 @@
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
-							nftIDs.push(new web3.PublicKey(token.mint))
+							nftIDs.push(token.mint)
 						}
 					}) 
 				
@@ -148,7 +148,8 @@
 					//console.log("make offer ", item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58()))
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
 					//console.log("acc ", account_index)
-					let nftnames = showMetadata? await mtda.getTokenMetadata(new web3.PublicKey(account_index)) : []
+				
+					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []
 					//console.log(item.meta?.logMessages[4].slice(13))
 					/*let offerAmount = ""
 					item.meta?.logMessages.forEach(function (value) {
@@ -186,7 +187,7 @@
 					*/
 					
 
-					descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+					descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 				}
 				else {
 					descr = "Magic Eden: Make Offer "
@@ -279,7 +280,7 @@
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData(uniqueToken, utl, showMetadata)
+								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -420,7 +421,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData(mint, utl, showMetadata)
+							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData([mint], utl, showMetadata)
 						}
 						workingArray.push(new_line)
 						//console.log(new_line)
@@ -464,7 +465,7 @@
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData(uniqueToken, utl, showMetadata)
+									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
 								}
 								workingArray.push(new_line)
 								//console.log(new_line)
@@ -502,7 +503,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Burn SPL Token " + await fetchTokenData(mint, utl, showMetadata)
+							"description": "Burn SPL Token " + await fetchTokenData([mint], utl, showMetadata)
 						}
 						workingArray.push(new_line)
 
@@ -559,7 +560,7 @@
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton+ "Create SPL Token account for " + await fetchTokenData(instruction.parsed.info.mint, utl, showMetadata)
+							"description": customDescripton+ "Create SPL Token account for " + await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
 						}
 						workingArray.push(new_line)
 					}
@@ -580,35 +581,86 @@
 		}
 	}
 
-	async function fetchTokenData(mintIn, utl, showMetadata) {
+	async function fetchTokenData(mintsIn, utl, showMetadata) {
 		
-		let namedToken = "Unknown Token " + mintIn.substring(0,4)
-
-		if (showMetadata) {
+		let namedToken = "Unknown Token "
+		if (mintsIn.length == 1) {
 			
-			//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
-			let utlToken = utl.filter(item => item.address == mintIn)[0]
-			if (utlToken == null || utlToken == undefined) {
-				try {
-					let nftnames = await mtda.getTokenMetadata(new web3.PublicKey(mintIn));
-					
-					if (nftnames.name != "")
-					{
-						namedToken = "" + nftnames.name
+			if (showMetadata) {
+				
+				//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
+				let utlToken = utl.filter(item => item.address == mintsIn[0])[0]
+				if (utlToken == null || utlToken == undefined) {
+					try {
+						let nftnames = await mtda.getTokenMetadata(new web3.PublicKey(mintsIn[0]));
+						//console.log(mintIn, nftnames)
+						if (nftnames.name != "")
+						{
+							namedToken = "" + nftnames.name
+						}
+						else if (nftnames.symbol != "" && nftnames.uri != "") {
+							let response = await fetch(nftnames.uri)
+							let data = await response.json()
+							namedToken = "" + data.name
+						}
+						else {
+							namedToken = "" + nftnames.json.name
+						}
+						
 					}
-					else {
-						namedToken = "" + nftnames.json.name
+					catch {
+						console.log("ERROR1 - Could not find token name for: ", mintsIn[0])
 					}
-					
 				}
-				catch {
-					console.log("ERROR - Could not find token name for: ", mintIn)
+				else {
+					namedToken = utlToken.symbol
 				}
 			}
 			else {
-				namedToken = utlToken.symbol
+				namedToken = "Unknown Token " + mintsIn[0].substring(0,4)
 			}
 		}
+		else if (mintsIn.length > 1) {
+			for await (const mint of mintsIn) {
+				
+
+				if (showMetadata) {
+				
+					//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
+					let utlToken = utl.filter(item => item.address == mint)[0]
+					if (utlToken == null || utlToken == undefined) {
+						try {
+							let nftnames = await mtda.getTokenMetadata(new web3.PublicKey(mint));
+							//console.log(mintIn, nftnames)
+							if (nftnames.name != "")
+							{
+								namedToken = "" + nftnames.name
+							}
+							else if (nftnames.symbol != "" && nftnames.uri != "") {
+								let response = await fetch(nftnames.uri)
+								let data = await response.json()
+								namedToken = "" + data.name
+							}
+							else {
+								namedToken = "" + nftnames.json.name
+							}
+							
+						}
+						catch {
+							console.log("ERROR2 - Could not find token name for: ", mint)
+						}
+					}
+					else {
+						namedToken = utlToken.symbol
+					}
+				}
+				else {
+					namedToken = namedToken + " " + mint.substring(0,4)
+				}
+
+			}
+		}
+		
 		
 
 		return namedToken
