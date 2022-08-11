@@ -632,7 +632,7 @@ $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $curre
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
-$: condition = innerWidth < 755
+$: smallScreenCondition = innerWidth < 755
 
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
@@ -653,7 +653,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
     <div class="pt-2 text-center ">
         <div class="grid grid-flow-col place-items-end z-50">
                   
-                    <div class="tooltip tooltip-bottom" data-tip="{metadataText}">                    
+                    <div class="md:tooltip md:tooltip-bottom" data-tip="{metadataText}">                    
                         {#if loading}
                         <button on:click={() => {$showMetadata = !$showMetadata}} disabled class="btn btn-xs btn-ghost normal-case ">
                             {#if $showMetadata}
@@ -824,15 +824,20 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <thead>
                 <tr class=" ">
                 
-                    <th class="min-w-[2rem] text-left normal-case">Date</th>
+                    <th class="min-w-[1rem] text-left normal-case">Date</th>
                     <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
-                    {#if !condition}
+                    {#if !smallScreenCondition}
                         <th class="min-w-[4rem] text-left normal-case">Ref</th>
                     {/if}
-                    
-                    <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
-                    {#if showConversion}
-                    <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
+                    {#if !showConversion && !smallScreenCondition}
+                        <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
+                    {:else if showConversion && !smallScreenCondition}
+                        <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
+                        <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
+                    {:else if showConversion && smallScreenCondition}
+                        <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
+                    {:else}
+                        <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                     {/if}
                     <th class="min-w-[2rem]"></th>
                 </tr>
@@ -843,21 +848,34 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
                     <!-- show everything -->
                     <tr class="">
-                        
-                        <td class="min-w-[2rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        {#if !smallScreenCondition}
+                            <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                        {:else}
+                            <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
+                        {/if}
                         <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
-                        {#if !condition}
+                        {#if !smallScreenCondition}
                             <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                         {/if}
+                        {#if !showConversion && !smallScreenCondition}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
-                        {#if showConversion}
+                        {:else if showConversion && !smallScreenCondition}
+                        <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                             {#if convertingToReporting} 
                                 <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                             {:else}
                                 <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
                             {/if}
-                            
+                        {:else if showConversion && smallScreenCondition}
+                            {#if convertingToReporting} 
+                                <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
+                            {:else}
+                                <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
+                            {/if}
+                        {:else}
+                        <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                         {/if}
+                        
                         <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg></a></td>
