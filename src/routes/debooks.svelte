@@ -603,12 +603,15 @@
             
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
-                validKey = true
-                $currentPage = 1
-                loadingText = "initializing..."
-                fetchForAddress(new web3.PublicKey($keyInput))
-                sliceDisplayArray()
-                return true
+                if (!loading) {
+                    validKey = true
+                    $currentPage = 1
+                    loadingText = "initializing..."
+                    fetchForAddress(new web3.PublicKey($keyInput))
+                    sliceDisplayArray()
+                    return true
+                }
+                
             } else {
                 console.log("Key not on curve: ", $keyInput, )
                 
@@ -713,7 +716,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" on:focusout={checkKey} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
@@ -749,7 +752,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
    
 </div>
 
-{#if validKey == true }
+{#if validKey == true}
 
 <div class="flex justify-center font-serif place-content-center   ">
     
