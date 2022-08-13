@@ -6,6 +6,7 @@ export let workingArray = writable([]);
 export let displayArray = writable([]);
 export let fetchedTransactions = writable([]);
 export let keyInput = writable("");
+export let loadedAddress = writable("");
 export let showfees = writable(true);
 export let showfailed = writable(false);
 export let currentPage = writable(1)

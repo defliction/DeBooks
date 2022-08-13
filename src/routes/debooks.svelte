@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -415,7 +415,7 @@
         currentTransaction = 0
         currentPercentage = ""
         loading = true
-        
+        $loadedAddress = $keyInput
         
 
         let signatureBracket = await interpolateBlockSignatures()
@@ -549,6 +549,7 @@
             $workingArray = $workingArray
             sortArray($workingArray)
             $displayArray = $workingArray
+            $currentPage = 1
             totalPages = Math.ceil($displayArray.length/pageIncrement)
             sliceDisplayArray()
             
@@ -608,13 +609,15 @@
                     $currentPage = 1
                     loadingText = "initializing..."
                     fetchForAddress(new web3.PublicKey($keyInput))
-                    sliceDisplayArray()
+                    //sliceDisplayArray()
                     return true
                 }
                 
             } else {
                 console.log("Key not on curve: ", $keyInput, )
-                
+                $loadedAddress = ""
+                validKey = false
+                return false
                 /*
                 const domainName = $keyInput; // With or without the .sol at the end
 
@@ -632,6 +635,7 @@
 
         } catch(e) {
             console.log("failed key")
+            $loadedAddress = ""
             validKey = false
             return false
         }
@@ -644,14 +648,14 @@
         }
     }
 
-$: $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false, $currentPage=1)
+$: $keyInput != "" ? checkKey() : null
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
 $: smallScreenCondition = innerWidth < 755
-$: start, end, $currentPage = 1
+
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
 $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" : metadataText = "Token Metadata is Off (loading is faster)"
@@ -716,7 +720,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" on:focusout={checkKey} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={()=> $loadedAddress!=$keyInput? checkKey():null} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
@@ -728,7 +732,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:focusout={checkKey} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
@@ -738,7 +742,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:focusout={checkKey} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
