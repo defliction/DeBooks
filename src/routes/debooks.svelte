@@ -648,7 +648,7 @@
         }
     }
 
-$: $keyInput != "" ? checkKey() : null
+$: $keyInput != "" && $keyInput != $loadedAddress ? checkKey() : null
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
 $: $displayArray, sortArray($displayArray)
@@ -720,7 +720,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={()=> $loadedAddress!=$keyInput? checkKey():null} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
