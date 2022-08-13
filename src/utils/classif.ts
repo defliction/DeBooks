@@ -244,6 +244,9 @@
 					if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 						customDescripton = "Jup.ag"
 					}
+					else if(programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
+						customDescripton = "FoxySwap"
+					}
 
 					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
 					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
@@ -317,9 +320,6 @@
 						workingArray.push(new_line)
 						//console.log(new_line)
 					}
-					
-					
-					
 					
 				}
 			else {
