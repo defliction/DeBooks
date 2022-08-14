@@ -360,14 +360,21 @@
 					}
 					else {
 						item.meta?.logMessages.forEach(function (value) {
-							if(value.toLowerCase().includes('stake')) {
-								customDescripton = "Stake"
-								return
+							try {
+								if(value.toLowerCase().includes('stake')) {
+									customDescripton = "Stake"
+									return
+								}
+								else if (value.toLowerCase().includes('claim')) {
+									customDescripton = "Claim"
+									return
+								}
 							}
-							else if (value.toLowerCase().includes('claim')) {
-								customDescripton = "Claim"
-								return
+							catch (e) {
+								console.log("error in generic text search")
 							}
+							
+						
 						})
 					}
 						
