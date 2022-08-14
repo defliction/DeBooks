@@ -61,7 +61,7 @@
 								offerAmount = ""
 							}
 						}
-						});
+					});
 					/*
 					let offerAmount = 0
 					if (item.meta?.logMessages[6]?.includes(" ExecuteSale")) {
@@ -232,6 +232,119 @@
 			workingArray.push(new_line)
 			//console.log(new_line)
 		}
+		else if(programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
+			// does it involve my wallet? to add
+					// check all instruction accounts flatmapped
+					let customDescripton = "FoxySwap"
+					
+					item.meta?.logMessages.forEach(function (value) {
+						if(value.includes('InitSwap')) {
+							try{
+								customDescripton = "FoxySwap Initiate Swap " + item.transaction.message.accountKeys[1].pubkey.toBase58().substring(0,4) + " -"
+								return
+							}
+							catch (e) {
+								console.log("Error init swap",item.transaction.signatures)
+								console.log(e)
+							}
+							
+						}
+						else if(value.includes('CompleteSwap')) {
+							try{
+								customDescripton = "FoxySwap Complete Swap " + item.transaction.message.instructions[0].accounts[0].toBase58().substring(0,4) + " -"
+								return
+							}
+							catch (e) {
+								console.log("Error complete swap",item.transaction.signatures)
+								console.log(e)
+							}
+						}
+						else if(value.includes('CancelSwap')) {
+							try{
+								customDescripton = "FoxySwap Cancel Swap " + item.transaction.message.instructions[0].accounts[0].toBase58().substring(0,4) + " -"
+								return
+							}
+							catch (e) {
+								console.log("Error complete swap",item.transaction.signatures)
+								console.log(e)
+							}
+						}
+						
+					});
+
+					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
+					const uniqueTokens =  [...new Set(combined)]
+					//console.log("Unique tokens ", combined,  uniqueTokens)
+					//token balance loop
+					for await (const uniqueToken of uniqueTokens) {
+						
+						let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+						let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+						let preBal =  preFil? preFil : 0
+						
+						let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+						let postBal = postFil? postFil : 0
+						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
+						
+						if (tokenChange != 0) {
+							//console.log("--> unique token ", uniqueToken)
+							let direction = tokenChange < 0? "Out: " : "In: "
+							//console.log("--> unique token ", tokenName.symbol? )
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": tokenChange,
+								"usd_amount": null,
+								"mint": uniqueToken,
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+							}
+							workingArray.push(new_line)
+							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
+						}
+					}
+					//SOL balance sort
+					
+					let amount = 0
+					if (feePayer == keyIn) {
+						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+					}
+					else {
+						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+					}
+					if (amount != 0) {
+						let direction = amount < 0? "Out: " : "In: "
+						var new_line = 
+						{
+							"signature": item.transaction.signatures[0],
+							"timestamp": item.blockTime, 
+							"slot": item.slot,
+							"success": item.meta?.err == null? true : false,
+							"fee": item.meta? item.meta.fee : null,
+							"amount": amount,
+							"usd_amount": null,
+							"mint": "So11111111111111111111111111111111111111112",
+							"account_keys": item.transaction.message.accountKeys,
+							"pre_balances": item.meta? item.meta.preBalances : null,
+							"post_balances": item.meta? item.meta.postBalances : null,
+							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+							"description": customDescripton + " Transaction " + direction + " SOL"
+						}
+						workingArray.push(new_line)
+						//console.log(new_line)
+					}
+		}
 		else {
 			//generic instruction work
 
@@ -244,9 +357,7 @@
 					if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 						customDescripton = "Jup.ag"
 					}
-					else if(programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
-						customDescripton = "FoxySwap"
-					}
+					
 
 					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
 					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
@@ -321,7 +432,7 @@
 						//console.log(new_line)
 					}
 					
-				}
+			}
 			else {
 				let customDescripton = ""
 				for await (const instruction of item.transaction.message.instructions) {

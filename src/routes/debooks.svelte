@@ -64,11 +64,11 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        //var trans = await connection.getParsedTransaction("4E38pTfTZJWWzNVcM8MVGdNUiDgf3gjygt4xihG3mRtq8HqqUxVKNXgLYTNfY9cwD5W8JyH5UpyHBu9zzfRS5CKv")
-        //var trans = await connection.getParsedTransaction("cqAiQymHPbD2r2JP252Lkzw29EKTnksPU1spsSFZMAzdScx5ccsQ6YCFyLrqDzyYwLyZ2xbvLcLWpnorikviuZb")
+        //var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
+        var trans = await $cnx.getParsedTransaction("2fzAUzoNYmYMd3NTKnAfHCjMQkMPSUbYo4KRfvDA5aDaUdGi5m53Wvr7d9VPTzXfjEBM3FcVzcTkWMwBULn6JLzM")
         //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         //var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
-        //console.log(trans)
+        console.log(trans)
         
         //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         //let utl_api = await response.json()
