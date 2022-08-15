@@ -346,6 +346,155 @@
 						//console.log(new_line)
 					}
 		}
+		//YAWWW Loan
+		else if(programIDs.includes("76f9QiXhCc8YLJc2LEE4Uae4Xu3itc3JCGLmup3VQwRH")) {
+			// does it involve my wallet? to add
+					// check all instruction accounts flatmapped
+					let customDescripton = "YAWWW Loan"
+					
+					item.meta?.logMessages.forEach(function (value) {
+						if(value.includes('Create loan request')) {
+							try{
+								customDescripton = "YAWWW Initiate Loan request " + item.transaction.message.instructions[5].accounts[5].toBase58().substring(0,4) + " -"
+								return
+							}
+							catch (e) {
+								console.log("Error init loan",item.transaction.signatures)
+								console.log(e)
+							}
+							
+						}
+						if(value.includes('Cancel loan request')) {
+							try{
+								customDescripton = "YAWWW Cancel Loan request " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+								return
+							}
+							catch (e) {
+								console.log("Error cancel loan",item.transaction.signatures)
+								console.log(e)
+							}
+							
+						}
+						else if(value.includes('Pay loan back')) {
+							try{
+								customDescripton = "YAWWW Loan Repaid " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+								return
+								
+							}
+							catch (e) {
+								console.log("Error repay loan",item.transaction.signatures)
+								console.log(e)
+							}
+						}
+						else if(value.includes('Accept loan request')) {
+							try{
+								if (feePayer != keyIn) {
+									customDescripton = "YAWWW Receive Loan " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+									return
+								}
+								else if (feePayer == keyIn) {
+									customDescripton = "YAWWW Lend Out " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+									return
+								}
+								
+								
+							}
+							catch (e) {
+								console.log("Error complete swap",item.transaction.signatures)
+								console.log(e)
+							}
+						}
+						else if(value.includes('Claim loan collateral')) {
+							try{
+								
+								customDescripton = "YAWWW Collateral Claimed " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+								return
+								
+								
+								
+								
+							}
+							catch (e) {
+								console.log("Error complete swap",item.transaction.signatures)
+								console.log(e)
+							}
+						}
+						
+					});
+
+					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
+					const uniqueTokens =  [...new Set(combined)]
+					//console.log("Unique tokens ", combined,  uniqueTokens)
+					//token balance loop
+					for await (const uniqueToken of uniqueTokens) {
+						
+						let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+						let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+						let preBal =  preFil? preFil : 0
+						
+						let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+						let postBal = postFil? postFil : 0
+						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
+						
+						if (tokenChange != 0) {
+							//console.log("--> unique token ", uniqueToken)
+							let direction = tokenChange < 0? "Out: " : "In: "
+							//console.log("--> unique token ", tokenName.symbol? )
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": tokenChange,
+								"usd_amount": null,
+								"mint": uniqueToken,
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+							}
+							workingArray.push(new_line)
+							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
+						}
+					}
+					//SOL balance sort
+					
+					let amount = 0
+					if (feePayer == keyIn) {
+						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+					}
+					else {
+						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+					}
+					if (amount != 0) {
+						let direction = amount < 0? "Out: " : "In: "
+						var new_line = 
+						{
+							"signature": item.transaction.signatures[0],
+							"timestamp": item.blockTime, 
+							"slot": item.slot,
+							"success": item.meta?.err == null? true : false,
+							"fee": item.meta? item.meta.fee : null,
+							"amount": amount,
+							"usd_amount": null,
+							"mint": "So11111111111111111111111111111111111111112",
+							"account_keys": item.transaction.message.accountKeys,
+							"pre_balances": item.meta? item.meta.preBalances : null,
+							"post_balances": item.meta? item.meta.postBalances : null,
+							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+							"description": customDescripton + " Transaction " + direction + " SOL"
+						}
+						workingArray.push(new_line)
+						//console.log(new_line)
+					}
+		}
 		else {
 			//generic instruction work
 
@@ -361,11 +510,15 @@
 					else {
 						item.meta?.logMessages.forEach(function (value) {
 							try {
-								if(value.toLowerCase().includes('stake')) {
+								if(value.toLowerCase().includes(' stake')) {
 									customDescripton = "Stake"
 									return
 								}
-								else if (value.toLowerCase().includes('claim')) {
+								else if (value.toLowerCase().includes(' unstake')) {
+									customDescripton = "Unstake"
+									return
+								}
+								else if (value.toLowerCase().includes(' claim')) {
 									customDescripton = "Claim"
 									return
 								}

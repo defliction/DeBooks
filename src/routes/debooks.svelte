@@ -11,7 +11,7 @@
     import { Buffer } from 'buffer';
   
     import * as classif from "../utils/classif";
-   
+    import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
     import { decodeMetadata } from '../utils/MetadataUtils'
@@ -149,10 +149,10 @@
         let topSlot = latestBlockhash.context.slot
         let endBlockTime;
         try {
-            endBlockTime =  await $cnx.getBlockTime(topSlot)
+            endBlockTime =  await $cnx.getBlockTime(topSlot-10)
         }
         catch (e) {
-            endBlockTime =  await $cnx.getBlockTime(topSlot)
+            endBlockTime =  await $cnx.getBlockTime(topSlot-10)
             console.log("failed to get block time")
         }
         let endSignature;
@@ -599,41 +599,61 @@
         //console.log("display array length: ", $displayArray.length)
     }
 
-    function checkKey () {
+    async function checkKey () {
         try {
             
+           
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
-                //deDaoKey instanceof web3.PublicKey ? fetchAll() : console.log("test")
+            
                 if (!loading) {
+                    
                     validKey = true
                     $currentPage = 1
                     loadingText = "initializing..."
                     fetchForAddress(new web3.PublicKey($keyInput))
-                    //sliceDisplayArray()
+                 
                     return true
                 }
                 
             } else {
+                
+
                 console.log("Key not on curve: ", $keyInput, )
                 $loadedAddress = ""
                 validKey = false
                 return false
-                /*
-                const domainName = $keyInput; // With or without the .sol at the end
-
-                // Step 1
-                const { pubkey } = await getDomainKey(domainName);
-
-                // Step 2
-                // The registry object contains all the info about the domain name
-                // The NFT owner is of type PublicKey | undefined
-                const { registry, nftOwner } = await NameRegistryState.retrieve(
-                connection,
-                domainKey
-                );*/
+          
             }
 
         } catch(e) {
+            //sns check
+            const { pubkey } = await getDomainKey($keyInput);
+            console.log(pubkey.toBase58())
+            if (pubkey != undefined) {
+                
+                if (!loading && $keyInput != "") {
+                    const { registry, nftOwner } = await NameRegistryState.retrieve($cnx, pubkey);
+                    $keyInput = nftOwner? nftOwner.toBase58() : registry.owner.toBase58()
+                    if (web3.PublicKey.isOnCurve($keyInput) == true) {
+               
+                        if (!loading) {
+                            
+                            validKey = true
+                            $currentPage = 1
+                            loadingText = "initializing..."
+                            fetchForAddress(new web3.PublicKey($keyInput))
+                          
+                            return true
+                        }
+                        
+                    } else {
+                        console.log("SNS Key not on curve: ", $keyInput, )
+                        $loadedAddress = ""
+                        validKey = false
+                        return false
+                    }
+                }
+            }
             console.log("failed key")
             $loadedAddress = ""
             validKey = false
@@ -648,7 +668,7 @@
         }
     }
 
-$: $keyInput != "" && $keyInput != $loadedAddress ? checkKey() : null
+//$: $keyInput != "" && $keyInput != $loadedAddress ? checkKey() : null
 $: $showfailed, sliceDisplayArray()
 $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $currentPage = totalPages : $currentPage=$currentPage : $currentPage=$currentPage
 $: $displayArray, sortArray($displayArray)
