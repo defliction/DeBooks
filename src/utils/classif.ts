@@ -508,27 +508,30 @@
 						customDescripton = "Jup.ag"
 					}
 					else {
-						item.meta?.logMessages.forEach(function (value) {
+						for (let value of item.meta?.logMessages){
 							try {
-								if(value.toLowerCase().includes(' stake')) {
+								if(value.toLowerCase().includes(' stake') || value.toLowerCase().includes(' staking') ) {
+									
 									customDescripton = "Stake"
-									return
+									break
 								}
-								else if (value.toLowerCase().includes(' unstake')) {
+								else if (value.toLowerCase().includes(' unstake') || value.toLowerCase().includes(' unstaking')) {
+								
 									customDescripton = "Unstake"
-									return
+									break
 								}
-								else if (value.toLowerCase().includes(' claim')) {
+								else if (value.toLowerCase().includes(' claim') || value.toLowerCase().includes(' claiming')) {
+									
 									customDescripton = "Claim"
-									return
+									break
 								}
 							}
 							catch (e) {
 								console.log("error in generic text search")
 							}
-							
+
+						}
 						
-						})
 					}
 						
 					
