@@ -618,7 +618,7 @@
             } else {
                 
 
-                console.log("Key not on curve: ", $keyInput, )
+                console.log("Key not on curve ")
                 $loadedAddress = ""
                 validKey = false
                 return false
@@ -632,27 +632,37 @@
             if (pubkey != undefined) {
                 
                 if (!loading && $keyInput != "") {
-                    const { registry, nftOwner } = await NameRegistryState.retrieve($cnx, pubkey);
-                    $keyInput = nftOwner? nftOwner.toBase58() : registry.owner.toBase58()
-                    if (web3.PublicKey.isOnCurve($keyInput) == true) {
-               
-                        if (!loading) {
+                    try {
+                        const { registry, nftOwner } = await NameRegistryState.retrieve($cnx, pubkey);
+                        $keyInput = nftOwner? nftOwner.toBase58() : registry.owner.toBase58()
+                        if (web3.PublicKey.isOnCurve($keyInput) == true) {
+                
+                            if (!loading) {
+                                
+                                validKey = true
+                                $currentPage = 1
+                                loadingText = "initializing..."
+                                fetchForAddress(new web3.PublicKey($keyInput))
                             
-                            validKey = true
-                            $currentPage = 1
-                            loadingText = "initializing..."
-                            fetchForAddress(new web3.PublicKey($keyInput))
-                          
-                            return true
+                                return true
+                            }
+                            
+                        } else {
+                            console.log("SNS Key not on curve " )
+                            $loadedAddress = ""
+                            $keyInput = ""
+                            validKey = false
+                            return false
                         }
-                        
-                    } else {
-                        console.log("SNS Key not on curve: ", $keyInput, )
+                    }
+                    catch (e) {
+                        console.log("Error fetching SNS " )
                         $loadedAddress = ""
                         $keyInput = ""
                         validKey = false
                         return false
                     }
+                    
                 }
             }
             console.log("failed key")
@@ -1002,7 +1012,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 {#if rpcConnection == true}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                
-                    <span>Enter a <span class="font-bold">Solana wallet</span> address to display records.</span>
+                    <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records.</span>
                     {:else}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
