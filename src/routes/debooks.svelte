@@ -149,10 +149,10 @@
         let topSlot = latestBlockhash.context.slot
         let endBlockTime;
         try {
-            endBlockTime =  await $cnx.getBlockTime(topSlot-10)
+            endBlockTime =  await $cnx.getBlockTime(topSlot)
         }
         catch (e) {
-            endBlockTime =  await $cnx.getBlockTime(topSlot-10)
+            endBlockTime =  await $cnx.getBlockTime(topSlot)
             console.log("failed to get block time")
         }
         let endSignature;
