@@ -627,7 +627,7 @@
 
         } catch(e) {
             //sns check
-            const { pubkey } = await getDomainKey($keyInput);
+            const { pubkey } = await getDomainKey($keyInput.toLowerCase());
             console.log(pubkey.toBase58())
             if (pubkey != undefined) {
                 
