@@ -649,6 +649,7 @@
                     } else {
                         console.log("SNS Key not on curve: ", $keyInput, )
                         $loadedAddress = ""
+                        $keyInput = ""
                         validKey = false
                         return false
                     }
