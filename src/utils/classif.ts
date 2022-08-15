@@ -366,9 +366,9 @@
 							}
 							
 						}
-						else if(value.includes('CompleteSwap')) {
+						else if(value.includes('Send swap item to counterparty')) {
 							try{
-								customDescripton = "FoxySwap Complete Swap " + item.transaction.message.instructions[0].accounts[0].toBase58().substring(0,4) + " -"
+								customDescripton = "YAWWW Complete Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " -"
 								break
 							}
 							catch (e) {
@@ -614,6 +614,7 @@
 						//console.log(new_line)
 					}
 		}
+		//generic instruction work
 		else {
 			//generic instruction work
 
