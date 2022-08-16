@@ -67,10 +67,10 @@
        //await fetchAll()
         console.log("START - starting logs")
         //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        var trans = await $cnx.getParsedTransaction("3mZE78Ns2zTPJGdLJgnZRSRWyuy3GrsrcucfWPDXjCqtGdzucAQP2Fbzvi1gANf3CH1TyARqx9hxXGMSGLWqoyRm")
+        //var trans = await $cnx.getParsedTransaction("3mZE78Ns2zTPJGdLJgnZRSRWyuy3GrsrcucfWPDXjCqtGdzucAQP2Fbzvi1gANf3CH1TyARqx9hxXGMSGLWqoyRm")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4SUyFeGoUd83F44gLcbQDEyrXqPd7UUfepPL6EoQ5GFJ"))
-        console.log(trans)
+        //console.log(trans)
         //var trans = await $cnx.getParsedTransaction("2VmRkW5XgCzgcvG6mCwTKf5p1WmiBJwrGpHN4YHXxN7Znhqv2feAboeBgmTVWeFDuVipBw4nPKdmtN5vTKVfFuYX")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         
@@ -769,9 +769,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         {#if loading == false && rpcConnection == true}
         
             <div class="input-group">
-                <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+                <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
                 {#if $keyInput != ""}
-                <button class="btn btn-primary btn-sm btn-square" >
+                <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
@@ -796,7 +796,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={start} min={firstDate} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" bind:value={start} min={firstDate} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
@@ -805,7 +805,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 to
             </span>
             {#if loading == false}
-                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
