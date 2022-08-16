@@ -230,10 +230,10 @@
         let startBlocktime = endBlockTime
         let startSlot = topSlot
         
-        console.log("aab1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+        
         start_loop:
-        while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 0) {
-            console.log("ab1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+        while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 0 && startSlot != 38669748) {
+            
             try {
                 if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 24){
                     
@@ -243,9 +243,9 @@
                     startSlot -=  Math.floor(smallerIncrements)
                 }
                 startSlot = Math.max(startSlot, 38669748)
-                console.log("b1a ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+                
                 startBlocktime = await $cnx.getBlockTime(startSlot)
-                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+                
                 
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0 && startBlocktime != null) {
                     while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -24) {
@@ -258,7 +258,7 @@
                         }
 
                         try {
-                            console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+                            //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                             startBlocktime = await $cnx.getBlockTime(startSlot)
                             
                         }
