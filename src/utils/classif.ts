@@ -648,6 +648,11 @@
 									customDescripton = "Claim"
 									break
 								}
+								else if (value.toLowerCase().includes(' burn') ) {
+									
+									customDescripton = "Burn"
+									break
+								}
 							}
 							catch (e) {
 								console.log("error in generic text search")
@@ -915,7 +920,7 @@
 						
 						
 					}
-					else if (instruction.program == "spl-token" && instruction.parsed.type == "burn" && instruction.parsed.info.authority == keyIn)  {
+					else if (instruction.program == "spl-token" && instruction.parsed.type.includes("burn") && instruction.parsed.info.authority == keyIn )  {
 						//to catch burns
 						let mint = instruction.parsed.info.mint
 						let decimals = item.meta.preTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
@@ -925,7 +930,6 @@
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						let postBal = postFiltered? postFiltered : 0
 
-						
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],

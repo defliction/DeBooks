@@ -67,17 +67,17 @@
        //await fetchAll()
         console.log("START - starting logs")
         //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        //var trans = await $cnx.getParsedTransaction("2qbF8zkrRTR7QcnrFza98qCr7oJH9k8sYqR7FQrN3q2p6mqtHxShaLbRGNeaLnUe7NrERvYUwZ4V6LdECixpMGHP")
+        var trans = await $cnx.getParsedTransaction("3mZE78Ns2zTPJGdLJgnZRSRWyuy3GrsrcucfWPDXjCqtGdzucAQP2Fbzvi1gANf3CH1TyARqx9hxXGMSGLWqoyRm")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4SUyFeGoUd83F44gLcbQDEyrXqPd7UUfepPL6EoQ5GFJ"))
-        console.log(trans, trans.value.owner.toBase58())
+        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4SUyFeGoUd83F44gLcbQDEyrXqPd7UUfepPL6EoQ5GFJ"))
+        console.log(trans)
         //var trans = await $cnx.getParsedTransaction("2VmRkW5XgCzgcvG6mCwTKf5p1WmiBJwrGpHN4YHXxN7Znhqv2feAboeBgmTVWeFDuVipBw4nPKdmtN5vTKVfFuYX")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         
-        var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
-        console.log(trans, trans.value.owner.toBase58())
-        var test = token.AccountLayout.decode(trans.value.data)
-        console.log(test.owner.toBase58())
+        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
+        //console.log(trans, trans.value.owner.toBase58())
+        //var test = token.AccountLayout.decode(trans.value.data)
+        //console.log(test.owner.toBase58())
         //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         //let utl_api = await response.json()
         //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
@@ -765,10 +765,26 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         
         <div class="indicator">
-            <span class="indicator-item indicator-bottom indicator-right badge badge-primary font-ros1">alpha</span>
+            <span class="indicator-item indicator-bottom indicator-start badge badge-primary font-ros1">alpha</span>
         {#if loading == false && rpcConnection == true}
         
-            <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <div class="input-group">
+                <input type="text" on:focusout={()=> $loadedAddress!=$keyInput? checkKey():null} on:submit={checkKey} placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+                {#if $keyInput != ""}
+                <button class="btn btn-primary btn-sm btn-square" >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                  </button>
+                {:else}
+                <button disabled class="btn btn-sm btn-square">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                  </button>
+                {/if}
+            </div>
+            
         {:else if loading == true || rpcConnection == false}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         {/if}
