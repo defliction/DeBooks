@@ -15,7 +15,8 @@
     import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
     import { decodeMetadata } from '../utils/MetadataUtils'
-
+    import * as token from '@solana/spl-token';
+    
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
   
@@ -65,12 +66,18 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        //var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        var trans = await $cnx.getParsedTransaction("2fzAUzoNYmYMd3NTKnAfHCjMQkMPSUbYo4KRfvDA5aDaUdGi5m53Wvr7d9VPTzXfjEBM3FcVzcTkWMwBULn6JLzM")
-        //var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        //var trans = await connection.getAccountInfoAndContext(new web3.PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"))
-        console.log(trans)
+        //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
+        //var trans = await $cnx.getParsedTransaction("2qbF8zkrRTR7QcnrFza98qCr7oJH9k8sYqR7FQrN3q2p6mqtHxShaLbRGNeaLnUe7NrERvYUwZ4V6LdECixpMGHP")
+        //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
+        var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4SUyFeGoUd83F44gLcbQDEyrXqPd7UUfepPL6EoQ5GFJ"))
+        console.log(trans, trans.value.owner.toBase58())
+        //var trans = await $cnx.getParsedTransaction("2VmRkW5XgCzgcvG6mCwTKf5p1WmiBJwrGpHN4YHXxN7Znhqv2feAboeBgmTVWeFDuVipBw4nPKdmtN5vTKVfFuYX")
+        //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         
+        var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
+        console.log(trans, trans.value.owner.toBase58())
+        var test = token.AccountLayout.decode(trans.value.data)
+        console.log(test.owner.toBase58())
         //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         //let utl_api = await response.json()
         //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")

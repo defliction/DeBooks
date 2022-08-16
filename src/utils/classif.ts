@@ -806,12 +806,14 @@
 						//console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
 						let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
 						let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+						console.log(item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint), preFiltered)
 						let preBal =  preFiltered? preFiltered : 0
 						
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
+						console.log(item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint), postFiltered)
 						let postBal = postFiltered? postFiltered : 0
 
-						//console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)) )
+						console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)),  instruction)
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 						let direction = tokenChange < 0? "Out: " : "In: "
 						var new_line = 
