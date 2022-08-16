@@ -28,11 +28,12 @@
     let fetchLimit = 250
     let loading = false;
 
-    //let start = new Date(2022,6,1)
+    //let start = dayjs(new Date(2021,1,1))
     let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
     $: startday = dayjs(start).startOf('day')
     //let end = new Date(2022,6,6)
     let end = dayjs().format("YYYY-MM-DD")
+    let firstDate = dayjs(new Date(2020,9,2)).startOf('day').format("YYYY-MM-DD")
     $: endday = dayjs(end).endOf('day')
     let validKey = false
     let pageIncrement = 20;
@@ -84,6 +85,7 @@
         //let topSlot = latestBlockhash.context.slot
         //let sigs = await connection.getBlockSignatures(topSlot-1000)
         //console.log("BLOCK ", sigs.signatures[0])
+      
         let latestBlockhash 
         while(latestBlockhash == null) {
 
@@ -99,7 +101,11 @@
             sleep(750)
             
         }
-       
+        console.log("first date", firstDate)
+        //first blocktimed block - 38669748
+        //let block = 38669748
+        //let startB = await $cnx.getBlockTime(block)
+        //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //console.log(giraffe)
@@ -196,7 +202,7 @@
                             //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
                         catch (e) {
-                            //console.log("error in interpolate 1b", e)
+                            console.log("error in interpolate 1b", e)
                         }
                     }
                     let sigs = await $cnx.getBlockSignatures(topSlot)
@@ -215,7 +221,7 @@
 
             }
             catch (e) {
-                //console.log("error in interpolate 1a",e )
+                console.log("error in interpolate 1a",e )
             }
             
         }
@@ -224,10 +230,10 @@
         let startBlocktime = endBlockTime
         let startSlot = topSlot
         
-       
+        console.log("aab1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
         start_loop:
-        while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) >= 0) {
-          
+        while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 0) {
+            console.log("ab1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
             try {
                 if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 24){
                     
@@ -236,24 +242,28 @@
                 else {
                     startSlot -=  Math.floor(smallerIncrements)
                 }
-                startSlot = Math.max(startSlot, 0)
+                startSlot = Math.max(startSlot, 38669748)
+                console.log("b1a ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                 startBlocktime = await $cnx.getBlockTime(startSlot)
-                //console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                console.log("b1 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                 
-                if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0) {
+                if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0 && startBlocktime != null) {
                     while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -24) {
+                        
                         if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -48) {
                             startSlot += Math.floor(biggerIncrements  * -(dayjs.unix(startBlocktime).diff(startday, 'hours'))/24 )
                         }
                         else {
                             startSlot += smallerIncrements
                         }
+
                         try {
+                            console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                             startBlocktime = await $cnx.getBlockTime(startSlot)
-                            //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')))
+                            
                         }
                         catch (e) {
-                            //console.log("error in interpolate 2b",  e)
+                            console.log("error in interpolate 2b",  e)
                         }
                        
                     }
@@ -263,7 +273,7 @@
                     break start_loop
 
                 }
-                else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24) {
+                else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24 && startBlocktime != null) {
                     let sigs = await $cnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
@@ -275,7 +285,7 @@
 
             }
             catch (e) {
-                //console.log("error in interpolate 2a",  e)
+                console.log("error in interpolate 2a",  e)
             }
 
         }    
@@ -763,11 +773,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 For the period
             </span>
             {#if loading == false}
-                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={start} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
+                <input type="date" on:focusout={()=> {checkKey(), $currentPage = 1}} bind:value={start} min={firstDate} max={end} class="text-center bg-base-100 border border-primary rounded-md"/>
             {:else}
                 <input type="date" disabled bind:value={start} max={end} class="text-center bg-base-100"/>
             {/if}
-            
             
             <span class="flex items-center px-2 ">
                 to
