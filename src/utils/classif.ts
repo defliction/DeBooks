@@ -35,7 +35,7 @@
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
-			if (account_index > 9) {
+			if (account_index > 6) {
 				if (item.transaction.message.instructions[1].accounts[2] == "11111111111111111111111111111111") {
 					nftIDs.push(item.transaction.message.instructions[1].accounts[4].toBase58())
 				}
