@@ -1049,10 +1049,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     
                     {#if invalidKey == false}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records.</span>
+                        <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records</span>
                     {:else}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-warning flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Invalid key entered - Try with a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address.</span>
+                        <span>Invalid key entered - Try again with a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address</span>
                     {/if}
                 {:else}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
