@@ -769,11 +769,12 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         
          
         </div>
-            
-        <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
-        
         <div class="indicator">
-            <span class="indicator-item indicator-bottom indicator-start badge badge-primary font-ros1">alpha</span>
+            <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">alpha</span>
+            <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
+        </div>
+        
+        
         {#if loading == false && rpcConnection == true}
         
             <div class="input-group">
@@ -790,9 +791,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             </div>
             
         {:else if loading == true || rpcConnection == false}
+        <div>
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
-        {/if}
         </div>
+        {/if}
+        
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif ">
@@ -1049,7 +1052,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     
                     {#if invalidKey == false}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records</span>
+                            <div>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records</div>
+                  
+                        
                     {:else}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-warning flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Invalid key entered - Try again with a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address</span>
