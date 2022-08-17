@@ -225,6 +225,7 @@
 				"amount": amount/web3.LAMPORTS_PER_SOL,
 				"usd_amount": null,
 				"mint": "So11111111111111111111111111111111111111112",
+				"token_name": nftnames,
 				"account_keys": item.transaction.message.accountKeys,
 				"pre_balances": item.meta? item.meta.preBalances : null,
 				"post_balances": item.meta? item.meta.postBalances : null,
@@ -296,6 +297,7 @@
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
+							let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -306,12 +308,13 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
+								"token_name": tokenName,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -413,6 +416,7 @@
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
+							let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -423,12 +427,13 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
+								"token_name": tokenName,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -564,6 +569,7 @@
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
+							let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -574,12 +580,13 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
+								"token_name": tokenName,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -730,6 +737,7 @@
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
+							let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -740,12 +748,13 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
+								"token_name": tokenName,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -906,6 +915,7 @@
 						//console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)),  instruction)
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 						let direction = tokenChange < 0? "Out: " : "In: "
+						let tokenName =  await fetchTokenData([mint], utl, showMetadata)
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -916,12 +926,13 @@
 							"amount": item.meta? tokenChange : null,
 							"usd_amount": null,
 							"mint": mint,
+							"token_name": tokenName,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + direction + await fetchTokenData([mint], utl, showMetadata)
+							"description": customDescripton + "SPL Transfer " + direction + tokenName
 						}
 						workingArray.push(new_line)
 						//console.log(new_line)
@@ -978,6 +989,7 @@
 							
 							if (tokenChange != 0) {
 								let direction = tokenChange < 0? "Out: " : "In: "
+								let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 								var new_line = 
 								{
 									"signature": item.transaction.signatures[0],
@@ -988,12 +1000,13 @@
 									"amount": tokenChange,
 									"usd_amount": null,
 									"mint": uniqueToken,
+									"token_name": tokenName,
 									"account_keys": item.transaction.message.accountKeys,
 									"pre_balances": item.meta? item.meta.preBalances : null,
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + direction + await fetchTokenData([uniqueToken], utl, showMetadata)
+									"description": customDescripton + " SPL Transfer " + direction + tokenName
 								}
 								workingArray.push(new_line)
 								//console.log(new_line)
@@ -1015,6 +1028,7 @@
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						let postBal = postFiltered? postFiltered : 0
 
+						let tokenName = await fetchTokenData([mint], utl, showMetadata)
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -1025,12 +1039,13 @@
 							"amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
 							"usd_amount": null,
 							"mint": mint,
+							"token_name": tokenName,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Burn SPL Token " + await fetchTokenData([mint], utl, showMetadata)
+							"description": "Burn SPL Token " + tokenName
 						}
 						workingArray.push(new_line)
 
@@ -1092,7 +1107,8 @@
 						else {
 							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
 						}
-						
+
+						let tokenName = await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -1103,12 +1119,13 @@
 							"amount": amount, //amount of SOL to create account
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": tokenName,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton+ "Create SPL Token account for " + await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
+							"description": customDescripton+ "Create SPL Token account for " + tokenName
 						}
 						workingArray.push(new_line)
 					}

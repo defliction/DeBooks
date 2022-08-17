@@ -408,15 +408,15 @@
         let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
         if (showConversion) {
            console.log("with USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "amount", "usd_amount"], filename);
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "amount", "usd_amount"], filename);
         }
         else {
             console.log("withOUT USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "amount"], filename);
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "amount"], filename);
         }
         
     }
