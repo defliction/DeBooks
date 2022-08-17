@@ -8,7 +8,14 @@
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
-			let amount = item.meta? item.meta.postBalances[0] - item.meta.preBalances[0] + item.meta.fee : null
+			let amount = 0
+			if (feePayer == keyIn){
+				amount = item.meta? item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee : 0
+			}
+			else {
+				amount = item.meta? item.meta.postBalances[account_index] - item.meta.preBalances[account_index] : 0
+			}
+			
 			//console.log("trans ", item)
 			//get NFTs
 			let nftIDs: web3.PublicKey[] = []
@@ -28,8 +35,12 @@
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
-
-			if (item.meta?.logMessages[1].includes(" CancelSell")) {
+			if (account_index > 9) {
+				nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
+				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
+			}
+			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
 				descr = showMetadata? "Magic Eden: Delisted " + nftnames : "Magic Eden: Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
@@ -225,7 +236,7 @@
 				"amount": amount/web3.LAMPORTS_PER_SOL,
 				"usd_amount": null,
 				"mint": "So11111111111111111111111111111111111111112",
-				"token_name": nftnames,
+				"token_name": "SOL",
 				"account_keys": item.transaction.message.accountKeys,
 				"pre_balances": item.meta? item.meta.preBalances : null,
 				"post_balances": item.meta? item.meta.postBalances : null,
@@ -800,8 +811,6 @@
 			else {
 				let customDescripton = ""
 
-
-
 				for await (const instruction of item.transaction.message.instructions) {
 					if (instruction.programId.toBase58() == "DeJBGdMFa1uynnnKiwrVioatTuHmNLpyFKnmB5kaFdzQ") {
 						customDescripton = "Phantom "
@@ -973,7 +982,7 @@
 							}
 							let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 							let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
-							if (test1.owner == undefined || test2.owner == undefined) {
+							if (test1 && test1.owner == undefined || test2 && test2.owner == undefined) {
 								
 								if (authority == keyIn) {
 									//transfer out
@@ -1107,15 +1116,17 @@
 					}
 					else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
 						//console.log("create SPL account", instruction)
-						let amount = 0
-						if (feePayer == keyIn) {
-							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-						}
-						else {
-							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
-						}
+						//change in SOL balance for account index of new account
+						//change in token balance for new mint
 
+						let associated_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
+						let account_amount = item.meta? (item.meta.postBalances[associated_index] - item.meta.preBalances[associated_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+						if (instruction.parsed.info.wallet != keyIn) {
+							account_amount = -account_amount
+						}
+						
 						let tokenName = await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
+						//SOL balance changes
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -1123,9 +1134,9 @@
 							"slot": item.slot,
 							"success": item.meta?.err == null? true : false,
 							"fee": item.meta? item.meta.fee : null,
-							"amount": amount, //amount of SOL to create account
+							"amount": account_amount, //amount of SOL to create account
 							"usd_amount": null,
-							"mint": "So11111111111111111111111111111111111111112",
+							"mint": instruction.parsed.info.mint,
 							"token_name": tokenName,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1135,6 +1146,7 @@
 							"description": customDescripton+ "Create SPL Token account for " + tokenName
 						}
 						workingArray.push(new_line)
+
 					}
 					else {
 						//generic parsed instruction! if that exists

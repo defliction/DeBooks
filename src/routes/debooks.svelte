@@ -56,6 +56,7 @@
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
     let startTime: number;
     let showInfoTip = false
+    let invalidKey = false;
 
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
@@ -67,13 +68,13 @@
        //await fetchAll()
         console.log("START - starting logs")
         //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        //var trans = await $cnx.getParsedTransaction("3nnxBvvH5PYfippjDVxQFARbLmmuhQgk7tvASRJXs6rjeS6wPDSGaKiCTYESrTA4wbj1w4NnHqFCMFq3KEVVY7DR")
+        var trans = await $cnx.getParsedTransaction("FusDXdWQhYNJ3xRANPDREZ5fNaWbMR95fu5zdy5wFQPr1oScwHxLsH5yeJV9oeRGRNYtHk89dpN3ARPX2jVrd1K")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("8YZb9psWb8AtAkZqCZWxfdd5U6GsLQt1Yw41oFdticbq"))
-        //console.log(trans)
-        //var trans = await $cnx.getParsedTransaction("2VmRkW5XgCzgcvG6mCwTKf5p1WmiBJwrGpHN4YHXxN7Znhqv2feAboeBgmTVWeFDuVipBw4nPKdmtN5vTKVfFuYX")
+        console.log(trans)
+        var trans = await $cnx.getParsedTransaction("5vNSXqw8mP1R9dbPFgjUm5TWDr9SBhVDREcmUSuu9193Ta1Mcpug5o6EQ7Zu1NukmnXrgwEvX7Dm9orewTYgHjdk")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        
+        console.log(trans)
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
         //console.log(trans, trans.value.owner.toBase58())
         //var test = token.AccountLayout.decode(trans.value.data)
@@ -626,6 +627,7 @@
                 if (!loading) {
                     
                     validKey = true
+                    invalidKey = false
                     $currentPage = 1
                     loadingText = "initializing..."
                     fetchForAddress(new web3.PublicKey($keyInput))
@@ -639,6 +641,7 @@
                 console.log("Key not on curve ")
                 $loadedAddress = ""
                 validKey = false
+                invalidKey = true
                 return false
           
             }
@@ -658,6 +661,7 @@
                             if (!loading) {
                                 
                                 validKey = true
+                                invalidKey = false
                                 $currentPage = 1
                                 loadingText = "initializing..."
                                 fetchForAddress(new web3.PublicKey($keyInput))
@@ -670,6 +674,7 @@
                             $loadedAddress = ""
                             $keyInput = ""
                             validKey = false
+                            invalidKey = true
                             return false
                         }
                     }
@@ -678,6 +683,7 @@
                         $loadedAddress = ""
                         $keyInput = ""
                         validKey = false
+                        invalidKey = true
                         return false
                     }
                     
@@ -686,6 +692,7 @@
             console.log("failed key")
             $loadedAddress = ""
             validKey = false
+            invalidKey = true
             return false
         }
         return false
@@ -773,15 +780,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
                 {#if $keyInput != ""}
                 <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                    GO
                   </button>
                 {:else}
                 <button disabled class="btn btn-sm btn-square">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                    GO
                   </button>
                 {/if}
             </div>
@@ -1043,15 +1046,20 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <div class="alert shadow-lg font-serif">
             <div> 
                 {#if rpcConnection == true}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-               
-                    <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records.</span>
+                    
+                    {#if invalidKey == false}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records.</span>
                     {:else}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-warning flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Invalid key entered - Try with a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address.</span>
+                    {/if}
+                {:else}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                       </svg>
                         <span>Establishing connection to RPC network...</span>
-                    {/if}
+                {/if}
             </div>
         </div>
     
