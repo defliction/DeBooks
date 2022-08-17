@@ -1,6 +1,6 @@
 	import * as web3 from '@solana/web3.js';
 	import * as mtda from '../utils/Metadata'
-	import * as token from '@solana/spl-token';
+	import * as spl_token from '@solana/spl-token';
 	
 	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
 
@@ -661,22 +661,68 @@
 						}
 						
 					}
-						
+					//check the pre and post; if any owner is undefined then find it and set it; 
+					let preTokens = item.meta.preTokenBalances
+					let postTokens =  item.meta.postTokenBalances
 					
+					for await (var token of preTokens) {
+						if (token.owner == undefined) {
+							//find owner and set it
+							console.log("looking for owner pre tokens")
+							try {
+								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
+								if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+									//SPL token
+									//get ultimate owner
+									let decoded = spl_token.AccountLayout.decode(owner.value.data)
+									let uowner = decoded.owner.toBase58()
+									token.owner = uowner
+								}
+							}
+							catch (e) {
+								console.log(e, )
+							}
+							
+						}
+					}
+					for await (var token of postTokens) {
+						if (token.owner == undefined) {
+							//find owner and set it
+							console.log("looking for owner post tokens")
+							try {
+								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
+								if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+									//SPL token
+									//get ultimate owner
+									let decoded = spl_token.AccountLayout.decode(owner.value.data)
+									let uowner = decoded.owner.toBase58()
+									token.owner = uowner
+								}
+							}
+							catch (e) {
+								console.log(e, )
+							}
+						}
+					}
 
-					let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
-					let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+
+					let preFiltered = preTokens.filter(token => token.owner == keyIn)
+					let postFiltered = postTokens.filter(token => token.owner == keyIn)
 					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
 					const uniqueTokens =  [...new Set(combined)]
 					//console.log("Unique tokens ", combined,  uniqueTokens)
 					//token balance loop
 					for await (const uniqueToken of uniqueTokens) {
 						
-						let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
-						let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-						let preBal =  preFil? preFil : 0
+
+						let decimals = preTokens.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+						let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 						
-						let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+						let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+
+
+
+						let preBal =  preFil? preFil : 0
 						let postBal = postFil? postFil : 0
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 						
@@ -811,7 +857,7 @@
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "transferChecked") {
 						let mint = instruction.parsed.info.mint
-						
+						let authority = instruction.parsed.info.authority
 						//console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
 						let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
 						let preFiltered
@@ -821,7 +867,7 @@
 						if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 							//SPL token
 							//get ultimate owner
-							let decoded = token.AccountLayout.decode(owner.value.data)
+							let decoded = spl_token.AccountLayout.decode(owner.value.data)
 							let uowner = decoded.owner.toBase58()
 							preFiltered = item.meta.preTokenBalances.filter(token => token.owner == uowner && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 							postFiltered = item.meta.postTokenBalances.filter(token => token.owner == uowner && token.mint == mint)[0]?.uiTokenAmount.uiAmount
@@ -830,6 +876,25 @@
 							preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 							postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						}
+						
+						let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
+						let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
+						if (test1.owner == undefined || test2.owner == undefined) {
+							
+							if (authority == keyIn) {
+								//transfer out
+								preFiltered = instruction.parsed.info.tokenAmount.uiAmountString
+								postFiltered = 0
+							}
+							else {
+								//transfer in
+								preFiltered = 0
+								postFiltered = instruction.parsed.info.tokenAmount.uiAmountString
+
+							}
+							
+						}
+
 						
 						let preBal =  preFiltered? preFiltered : 0
 						let postBal = postFiltered? postFiltered : 0
@@ -859,7 +924,7 @@
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "transfer") {
 						//old legacy transfer could break if other spl instructions pre loaded? or mulitple instructions chained in 1 transaction?
-
+						let authority = instruction.parsed.info.authority
 						let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 						const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
@@ -876,7 +941,7 @@
 							if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 								//SPL token
 								//get ultimate owner
-								let decoded = token.AccountLayout.decode(owner.value.data)
+								let decoded = spl_token.AccountLayout.decode(owner.value.data)
 								let uowner = decoded.owner.toBase58()
 								preFiltered = item.meta.preTokenBalances.filter(token => token.owner == uowner && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 								postFiltered = item.meta.postTokenBalances.filter(token => token.owner == uowner && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
@@ -885,7 +950,23 @@
 								preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 								postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 							}
-							
+							let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
+							let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
+							if (test1.owner == undefined || test2.owner == undefined) {
+								
+								if (authority == keyIn) {
+									//transfer out
+									preFiltered = instruction.parsed.info.tokenAmount.uiAmountString
+									postFiltered = 0
+								}
+								else {
+									//transfer in
+									preFiltered = 0
+									postFiltered = instruction.parsed.info.tokenAmount.uiAmountString
+
+								}
+								
+							}
 							let preBal =  preFiltered? preFiltered : 0
 							let postBal = postFiltered? postFiltered : 0
 
