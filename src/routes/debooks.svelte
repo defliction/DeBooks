@@ -67,10 +67,10 @@
        //await fetchAll()
         console.log("START - starting logs")
         //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        var trans = await $cnx.getParsedTransaction("3nnxBvvH5PYfippjDVxQFARbLmmuhQgk7tvASRJXs6rjeS6wPDSGaKiCTYESrTA4wbj1w4NnHqFCMFq3KEVVY7DR")
+        //var trans = await $cnx.getParsedTransaction("3nnxBvvH5PYfippjDVxQFARbLmmuhQgk7tvASRJXs6rjeS6wPDSGaKiCTYESrTA4wbj1w4NnHqFCMFq3KEVVY7DR")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4SUyFeGoUd83F44gLcbQDEyrXqPd7UUfepPL6EoQ5GFJ"))
-        console.log(trans)
+        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("8YZb9psWb8AtAkZqCZWxfdd5U6GsLQt1Yw41oFdticbq"))
+        //console.log(trans)
         //var trans = await $cnx.getParsedTransaction("2VmRkW5XgCzgcvG6mCwTKf5p1WmiBJwrGpHN4YHXxN7Znhqv2feAboeBgmTVWeFDuVipBw4nPKdmtN5vTKVfFuYX")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         

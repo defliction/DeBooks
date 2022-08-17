@@ -786,6 +786,9 @@
 			}
 			else {
 				let customDescripton = ""
+
+
+
 				for await (const instruction of item.transaction.message.instructions) {
 					if (instruction.programId.toBase58() == "DeJBGdMFa1uynnnKiwrVioatTuHmNLpyFKnmB5kaFdzQ") {
 						customDescripton = "Phantom "
@@ -876,7 +879,8 @@
 							preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 							postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						}
-						
+
+						//the way this is solved generically above is potentailly better? but slower
 						let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 						let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 						if (test1 && test1.owner == undefined || test2 && test2.owner == undefined) {
@@ -1035,9 +1039,30 @@
 						//close account refund incoming
 						//instruction.parsed.info.account change in SOL
 						let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
-						//console.log("closed account index ", closed_index)
+						console.log("closed account index ", instruction.parsed.info.account,instruction.parsed.info, closed_index)
 						let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
 						
+						//if the owner is me then show negative and positive
+						if (instruction.parsed.info.owner == keyIn){
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": amount,
+								"usd_amount": null,
+								"mint": "So11111111111111111111111111111111111111112",
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton+ "Closed account " + instruction.parsed.info.account.substring(0,4)
+							}
+							workingArray.push(new_line)
+						}
 						var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
