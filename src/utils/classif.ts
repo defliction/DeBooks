@@ -879,7 +879,7 @@
 						
 						let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 						let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
-						if (test1.owner == undefined || test2.owner == undefined) {
+						if (test1 && test1.owner == undefined || test2 && test2.owner == undefined) {
 							
 							if (authority == keyIn) {
 								//transfer out
