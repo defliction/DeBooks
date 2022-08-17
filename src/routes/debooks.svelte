@@ -729,9 +729,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
     
     
     <div class="pt-2 text-center ">
-        <div class="grid grid-flow-col place-items-end z-50">
+        <div class="grid grid-flow-col place-items-end ">
                   
-                    <div class="md:tooltip md:tooltip-bottom" data-tip="{metadataText}">                    
+                    <div class="md:tooltip md:tooltip-bottom z-50" data-tip="{metadataText}">                    
                         {#if loading}
                         <button on:click={() => {$showMetadata = !$showMetadata}} disabled class="btn btn-xs btn-ghost normal-case ">
                             {#if $showMetadata}
@@ -769,7 +769,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         
          
         </div>
-        <div class="indicator">
+        <div class="indicator z-5">
             <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">alpha</span>
             <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         </div>
