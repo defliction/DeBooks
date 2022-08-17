@@ -341,6 +341,7 @@
 							"amount": amount,
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -462,6 +463,7 @@
 							"amount": amount,
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -613,6 +615,7 @@
 							"amount": amount,
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -781,6 +784,7 @@
 							"amount": amount,
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -829,6 +833,7 @@
 								"amount": amount/web3.LAMPORTS_PER_SOL,
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -857,6 +862,7 @@
 								"amount": amount/web3.LAMPORTS_PER_SOL,
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1054,7 +1060,7 @@
 						//close account refund incoming
 						//instruction.parsed.info.account change in SOL
 						let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
-						console.log("closed account index ", instruction.parsed.info.account,instruction.parsed.info, closed_index)
+						//console.log("closed account index ", instruction.parsed.info.account,instruction.parsed.info, closed_index)
 						let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
 						
 						//if the owner is me then show negative and positive
@@ -1088,6 +1094,7 @@
 								"amount": -amount,
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
