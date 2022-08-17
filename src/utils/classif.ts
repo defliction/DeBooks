@@ -36,7 +36,13 @@
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
 			if (account_index > 9) {
-				nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
+				if (item.transaction.message.instructions[1].accounts[2] == "11111111111111111111111111111111") {
+					nftIDs.push(item.transaction.message.instructions[1].accounts[4].toBase58())
+				}
+				else {
+					nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
+				}
+				
 				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
 			}
