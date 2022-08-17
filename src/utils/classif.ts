@@ -1090,6 +1090,7 @@
 								"amount": amount,
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1133,6 +1134,7 @@
 						
 						let tokenName = await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
 						//SOL balance changes
+						
 						var new_line = 
 						{
 							"signature": item.transaction.signatures[0],
@@ -1142,14 +1144,14 @@
 							"fee": item.meta? item.meta.fee : null,
 							"amount": account_amount, //amount of SOL to create account
 							"usd_amount": null,
-							"mint": instruction.parsed.info.mint,
-							"token_name": tokenName,
+							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton+ "Create SPL Token account for " + tokenName
+							"description": customDescripton + "Create SPL Token account for " + tokenName
 						}
 						workingArray.push(new_line)
 
