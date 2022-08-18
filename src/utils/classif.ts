@@ -253,6 +253,107 @@
 			workingArray.push(new_line)
 			//console.log(new_line)
 		}
+		//Magic Eden V1
+		else if(programIDs.includes("MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8")) {
+			// does it involve my wallet? to add
+			// check all instruction accounts flatmapped
+			let customDescripton = "Magic Eden"
+		
+			let nftIDs: web3.PublicKey[] = []
+			item.meta.postTokenBalances.forEach(function (token) {
+				if (token.owner == keyIn) {
+					nftIDs.push(token.mint)
+				}
+			})
+			item.meta.preTokenBalances.forEach(function (token) {
+				if (token.owner == keyIn) {
+					nftIDs.push(token.mint)
+				}
+			})
+			let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+
+			//console.log("nftIDs " + nftIDs)
+			if (account_index > 6) {
+				nftIDs.push(item.meta.preTokenBalances[0].mint)
+				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+			}
+
+			let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+			let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
+			const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
+			const uniqueTokens =  [...new Set(combined)]
+			//console.log("Unique tokens ", combined,  uniqueTokens)
+			//token balance loop
+			for await (const uniqueToken of uniqueTokens) {
+				
+				let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+				let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+				let preBal =  preFil? preFil : 0
+				
+				let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
+				let postBal = postFil? postFil : 0
+				let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
+				
+				if (tokenChange != 0) {
+					//console.log("--> unique token ", uniqueToken)
+					let direction = tokenChange < 0? "Out: " : "In: "
+					//console.log("--> unique token ", tokenName.symbol? )
+					let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
+					var new_line = 
+					{
+						"signature": item.transaction.signatures[0],
+						"timestamp": item.blockTime, 
+						"slot": item.slot,
+						"success": item.meta?.err == null? true : false,
+						"fee": item.meta? item.meta.fee : null,
+						"amount": tokenChange,
+						"usd_amount": null,
+						"mint": uniqueToken,
+						"token_name": tokenName,
+						"account_keys": item.transaction.message.accountKeys,
+						"pre_balances": item.meta? item.meta.preBalances : null,
+						"post_balances": item.meta? item.meta.postBalances : null,
+						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+						"description": customDescripton +  " Transaction " + direction + tokenName
+					}
+					workingArray.push(new_line)
+					//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
+				}
+			}
+			//SOL balance sort
+			
+			let amount = 0
+			if (feePayer == keyIn) {
+				amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+			}
+			else {
+				amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+			}
+			if (amount != 0) {
+				let direction = amount < 0? "Out: " : "In: "
+				var new_line = 
+				{
+					"signature": item.transaction.signatures[0],
+					"timestamp": item.blockTime, 
+					"slot": item.slot,
+					"success": item.meta?.err == null? true : false,
+					"fee": item.meta? item.meta.fee : null,
+					"amount": amount,
+					"usd_amount": null,
+					"mint": "So11111111111111111111111111111111111111112",
+					"token_name": "SOL",
+					"account_keys": item.transaction.message.accountKeys,
+					"pre_balances": item.meta? item.meta.preBalances : null,
+					"post_balances": item.meta? item.meta.postBalances : null,
+					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+					"description": customDescripton + " Transaction " + direction + " SOL: " + nftnames
+				}
+				workingArray.push(new_line)
+				//console.log(new_line)
+			}
+		}
 		//Foxy Swap
 		else if(programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
 			// does it involve my wallet? to add
