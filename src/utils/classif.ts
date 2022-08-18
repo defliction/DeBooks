@@ -155,7 +155,6 @@
 
 				
 			}
-			
 			else if (item.meta?.logMessages[1].includes(" Buy") ) {
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
@@ -169,43 +168,7 @@
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
 					//console.log("acc ", account_index)
 				
-					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []
-					//console.log(item.meta?.logMessages[4].slice(13))
-					/*let offerAmount = ""
-					item.meta?.logMessages.forEach(function (value) {
-						let priceIndex = value.indexOf('{"price"')
-						if (priceIndex > 0) {
-							try {
-								offerAmount = "" + JSON.parse(value.slice(priceIndex)).price/web3.LAMPORTS_PER_SOL
-							}
-							catch (e) {
-								console.log("### WARNING DID NOT PARSE PRICE []", item)
-								offerAmount = ""
-							}
-						}
-						});*/
-					/*
-					if (item.meta?.innerInstructions.length > 0 ){
-						try {
-							offerAmount = "" + JSON.parse(item.meta?.logMessages[4].slice(13)).price/web3.LAMPORTS_PER_SOL
-						}
-						catch (e) {
-							console.log("### WARNING DID NOT PARSE PRICE 1", item)
-							offerAmount = "Unknown"
-						}
-						
-					}
-					else {
-						try {
-							offerAmount = "" + JSON.parse(item.meta?.logMessages[2].slice(13)).price/web3.LAMPORTS_PER_SOL
-						}
-						catch (e) {
-							console.log("### WARNING DID NOT PARSE PRICE 2", item)
-							offerAmount = "Unknown"
-						}
-					}
-					*/
-					
+					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []				
 
 					descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 				}
@@ -950,10 +913,7 @@
 						//console.log("SOL TRANSFER IN")
 						//SOL TRANSFER
 						
-						let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
-						if (feePayer == keyIn) {
-							amount += item.meta.fee 
-						}
+						let amount = -instruction.parsed.info.lamports
 
 						var new_line = 
 							{
@@ -979,10 +939,7 @@
 					}
 					else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
 						//console.log("SOL TRANSFER OUT")
-						let amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
-						if (feePayer == keyIn) {
-							amount += item.meta.fee 
-						}
+						let amount = -instruction.parsed.info.lamports
 
 						var new_line = 
 							{
@@ -1010,11 +967,12 @@
 						let authority = instruction.parsed.info.authority
 						//console.log("decimals", item.meta.postTokenBalances.filter(line => line.mint == mint)[0]?.uiTokenAmount.decimals)
 						let decimals = item.meta.postTokenBalances.filter(line => line.mint == mint)[0].uiTokenAmount.decimals
-						let preFiltered
-						let postFiltered
+						let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
+						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 
+						//potential improvmenet not to waiste an RPC call here
 						let owner = await connection.getAccountInfoAndContext(new web3.PublicKey(keyIn))
-						if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+						if (owner.value != null && owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 							//SPL token
 							//get ultimate owner
 							let decoded = spl_token.AccountLayout.decode(owner.value.data)
@@ -1089,9 +1047,9 @@
 							let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0].uiTokenAmount.decimals
 							let preFiltered
 							let postFiltered
-							
+							//potential improvmenet not to waiste an RPC call here
 							let owner = await connection.getAccountInfoAndContext(new web3.PublicKey(keyIn))
-							if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+							if (owner.value != null && owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 								//SPL token
 								//get ultimate owner
 								let decoded = spl_token.AccountLayout.decode(owner.value.data)
@@ -1244,33 +1202,69 @@
 						//change in token balance for new mint
 
 						let associated_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
-						let account_amount = item.meta? (item.meta.postBalances[associated_index] - item.meta.preBalances[associated_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-						if (instruction.parsed.info.wallet != keyIn) {
-							account_amount = -account_amount
-						}
-						
+						let account_amount = item.meta? (item.meta.postBalances[associated_index] - item.meta.preBalances[associated_index])/web3.LAMPORTS_PER_SOL : 0
+
 						let tokenName = await fetchTokenData([instruction.parsed.info.mint], utl, showMetadata)
-						//SOL balance changes
-						
-						var new_line = 
-						{
-							"signature": item.transaction.signatures[0],
-							"timestamp": item.blockTime, 
-							"slot": item.slot,
-							"success": item.meta?.err == null? true : false,
-							"fee": item.meta? item.meta.fee : null,
-							"amount": account_amount, //amount of SOL to create account
-							"usd_amount": null,
-							"mint": "So11111111111111111111111111111111111111112",
-							"token_name": "SOL",
-							"account_keys": item.transaction.message.accountKeys,
-							"pre_balances": item.meta? item.meta.preBalances : null,
-							"post_balances": item.meta? item.meta.postBalances : null,
-							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "Create SPL Token account for " + tokenName
+						let additional = 0
+						if (instruction.parsed.info.mint == "So11111111111111111111111111111111111111112") {
+							//reverse any wrapped sol transfer amounts too
+							try {
+								additional = item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index)[0].uiTokenAmount.uiAmount
+							}
+							
+							catch (e) {
+								console.log(e, item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index))
+							}
+
 						}
-						workingArray.push(new_line)
+						if (instruction.parsed.info.wallet == keyIn) {
+							//account created for our benefit
+							//An account balance owned by us goes up!
+							//what if we give away this account to someone else? then lose the balance in there! Check to catch this
+							
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": account_amount, //amount of SOL to create account
+								"usd_amount": null,
+								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton + "Create SPL Token account for " + tokenName
+							}
+							workingArray.push(new_line)
+						}
+						if (instruction.parsed.info.source == keyIn) {
+							// SOL out to create the account our cost;
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": -account_amount + additional, //amount of SOL to create account
+								"usd_amount": null,
+								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton + "Create SPL Token account for " + tokenName
+							}
+							workingArray.push(new_line)
+						}
+						
 
 					}
 					else {

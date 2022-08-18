@@ -67,12 +67,13 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        var trans = await $cnx.getParsedTransaction("53eB9VVmfBarboQmmTKJFxv6rNUponbdg45wa15EprhGDgi8GmTk7BGi1cSATtoVNK5HgtWoraMCLMkXtxrzq7dM")
+        var trans = await $cnx.getParsedTransaction("FusDXdWQhYNJ3xRANPDREZ5fNaWbMR95fu5zdy5wFQPr1oScwHxLsH5yeJV9oeRGRNYtHk89dpN3ARPX2jVrd1K")
+        console.log(trans)
+        var trans = await $cnx.getParsedTransaction("4TgftGNJK1sWB7qAusEs6eFvPwJYzvhNB8Bkow9NWfKp16ZHxGw2oq8Dkb1aLQuWzyhxgWfXYrapSq142WXoYPfP")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("8YZb9psWb8AtAkZqCZWxfdd5U6GsLQt1Yw41oFdticbq"))
         console.log(trans)
-        var trans = await $cnx.getParsedTransaction("HaHD1hyNUqBDzx78u5dNW1WK3R4djHxwVgbAWcUXbGrzn9dMwwhfVQbodSX3kmcWd7kMczaw6Nv4sHD94jVRCNx")
+        var trans = await $cnx.getParsedTransaction("qyaA12qSDizRS6y6JQxDViS1mPaQhu8YsCdJUZ5e2kqaw8GoJa7Zdwq3KEBh6GjTzX81N3PxPyVuKYJGPSpoaaf")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         console.log(trans)
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
@@ -551,7 +552,14 @@
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                        try {
+                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                        }
+                        catch (e)
+                        {
+                            console.log("Failed to classify, ", e, item)
+                        }
+                        
                     }
                     
                 }
