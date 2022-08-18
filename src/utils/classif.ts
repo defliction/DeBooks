@@ -348,7 +348,7 @@
 					"post_balances": item.meta? item.meta.postBalances : null,
 					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-					"description": customDescripton + " Transaction " + direction + " SOL: " + nftnames
+					"description": customDescripton + " Transaction " + direction + " SOL - " + nftnames
 				}
 				workingArray.push(new_line)
 				//console.log(new_line)
