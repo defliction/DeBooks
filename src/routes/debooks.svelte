@@ -785,28 +785,28 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         
         {#if loading == false && rpcConnection == true}
         
-            <div class="input-group">
-                <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
-                {#if $keyInput != ""}
-                <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
-                    GO
-                  </button>
-                {:else}
-                <button disabled class="btn btn-sm btn-square">
-                    GO
-                  </button>
-                {/if}
-            </div>
+        <div class="input-group justify-center">
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            {#if $keyInput != ""}
+            <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
+                GO
+                </button>
+            {:else}
+            <button disabled class="btn btn-sm btn-square">
+                GO
+                </button>
+            {/if}
+        </div>
             
         {:else if loading == true || rpcConnection == false}
-        <div>
+        <div class="justify-center">
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         </div>
         {/if}
         
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
-        <div class="flex flex-row text-sm font-serif ">
+        <div class="flex flex-row text-sm font-serif justify-center">
             <span class="flex items-center pr-2">
                 For the period
             </span>
