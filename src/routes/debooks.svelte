@@ -68,7 +68,7 @@
        //await fetchAll()
         console.log("START - starting logs")
         //*var trans = await $cnx.getParsedTransaction("2J5MU3vP77DwNTkhtoFKc56T9vVB6DciSdWGD6RwnpuGg4fPYKBoquDE6kRYkU2bZgHRzpdoWZPz6cF87vMTAVUp")
-        var trans = await $cnx.getParsedTransaction("2y72jfXhoRpGaVgLhtFWptG4U7nBfcvDi7YGfgEXm18cBWCU1P1ybTVtwmoXn1HuRSzj1MENKga1vza9CcvyJS5Q")
+        var trans = await $cnx.getParsedTransaction("53eB9VVmfBarboQmmTKJFxv6rNUponbdg45wa15EprhGDgi8GmTk7BGi1cSATtoVNK5HgtWoraMCLMkXtxrzq7dM")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
         //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("8YZb9psWb8AtAkZqCZWxfdd5U6GsLQt1Yw41oFdticbq"))
         console.log(trans)

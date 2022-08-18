@@ -257,7 +257,7 @@
 		else if(programIDs.includes("MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8")) {
 			// does it involve my wallet? to add
 			// check all instruction accounts flatmapped
-			let customDescripton = "Magic Eden"
+			let customDescripton = "Magic Eden Transaction "
 		
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
@@ -273,9 +273,25 @@
 			let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 
 			//console.log("nftIDs " + nftIDs)
-			if (account_index > 6) {
+			if (item.transaction.message.accountKeys.length < 7 && item.transaction.message.accountKeys[4].pubkey.toBase58() == "11111111111111111111111111111111") {
+				customDescripton = "Magic Eden Listing "
+			}
+			else if (item.transaction.message.accountKeys.length < 7 && item.transaction.message.accountKeys[4].pubkey.toBase58() == "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") {
+				customDescripton = "Magic Eden Cancel Listing "
+			}
+			else if (account_index == 0) {
+				customDescripton = "Magic Eden Purchase "
+			}
+			else if (account_index == 2) {
+				customDescripton = "Magic Eden Sale "
 				nftIDs.push(item.meta.preTokenBalances[0].mint)
 				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				
+			}
+			else if (account_index > 6) {
+				nftIDs.push(item.meta.preTokenBalances[0].mint)
+				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				customDescripton = "Magic Eden Royalty Income "
 			}
 
 			let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
@@ -293,7 +309,7 @@
 				let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 				let postBal = postFil? postFil : 0
 				let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
-				
+				//customDescripton = "Magic Eden "
 				if (tokenChange != 0) {
 					//console.log("--> unique token ", uniqueToken)
 					let direction = tokenChange < 0? "Out: " : "In: "
@@ -315,7 +331,7 @@
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton +  " Transaction " + direction + tokenName
+						"description": customDescripton + direction + tokenName
 					}
 					workingArray.push(new_line)
 					//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -348,7 +364,7 @@
 					"post_balances": item.meta? item.meta.postBalances : null,
 					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-					"description": customDescripton + " Transaction " + direction + " SOL - " + nftnames
+					"description": customDescripton + direction + " SOL - " + nftnames
 				}
 				workingArray.push(new_line)
 				//console.log(new_line)
