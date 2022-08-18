@@ -1208,15 +1208,9 @@
 						let additional = 0
 						if (instruction.parsed.info.mint == "So11111111111111111111111111111111111111112") {
 							//reverse any wrapped sol transfer amounts too
-							try {
-								additional = item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index)[0].uiTokenAmount.uiAmount
-							}
-							
-							catch (e) {
-								console.log(e, item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index))
-							}
-
+							additional = item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index)[0]?.uiTokenAmount.uiAmount
 						}
+						
 						if (instruction.parsed.info.wallet == keyIn) {
 							//account created for our benefit
 							//An account balance owned by us goes up!
