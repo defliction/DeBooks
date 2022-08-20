@@ -35,14 +35,18 @@
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
-			if (account_index > 4) {
-				//add in other classifiers above
-				//if (item.transaction.message.instructions[1].accounts[2] == "11111111111111111111111111111111") {
-				//	nftIDs.push(item.transaction.message.instructions[1].accounts[4].toBase58())
-				//}
-				//else {
-				//	nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
-				//}
+			//Royalty check
+			//large instruction index
+			let instr_index = 0
+			for await (const instruction of item.transaction.message.instructions) {
+				if (instruction.accounts.length > 13) {
+					//we're likely in the execute instruction
+					instr_index = instruction.accounts.flatMap(s => s.toBase58()).indexOf(keyIn.toBase58())
+					//console.log("instr index ", instruction.accounts.flatMap(s => s.toBase58()).indexOf(keyIn.toBase58()))
+				}
+			}
+			if (instr_index > 8) {
+				//add in other classifiers above?
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
@@ -51,7 +55,8 @@
 					}) 
 					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				}
-				//nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				//console.log("royalty in")
+				//for each instruction find the one with inners > 5 inner instructions; if our account is in the first 3 as a destination then we're a royalty
 				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
