@@ -913,7 +913,7 @@
 						//console.log("SOL TRANSFER IN")
 						//SOL TRANSFER
 						
-						let amount = -instruction.parsed.info.lamports
+						let amount = instruction.parsed.info.lamports
 
 						var new_line = 
 							{
