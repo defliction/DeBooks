@@ -1196,7 +1196,7 @@
 							workingArray.push(new_line)
 							//console.log(new_line)
 					}
-					else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create" && instruction.parsed.info.source == keyIn) {
+					else if (instruction.program == "spl-associated-token-account" && instruction.parsed.type == "create") {
 						//console.log("create SPL account", instruction)
 						//change in SOL balance for account index of new account
 						//change in token balance for new mint
