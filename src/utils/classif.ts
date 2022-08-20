@@ -35,15 +35,23 @@
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
-			if (account_index > 6) {
-				if (item.transaction.message.instructions[1].accounts[2] == "11111111111111111111111111111111") {
-					nftIDs.push(item.transaction.message.instructions[1].accounts[4].toBase58())
+			if (account_index > 4) {
+				//add in other classifiers above
+				//if (item.transaction.message.instructions[1].accounts[2] == "11111111111111111111111111111111") {
+				//	nftIDs.push(item.transaction.message.instructions[1].accounts[4].toBase58())
+				//}
+				//else {
+				//	nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
+				//}
+				if (nftIDs.length == 0) {
+					item.meta.preTokenBalances.forEach(function (token) {
+						if (token.owner == me_escrow) {
+							nftIDs.push(token.mint)
+						}
+					}) 
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				}
-				else {
-					nftIDs.push(item.transaction.message.instructions[1].accounts[2].toBase58())
-				}
-				
-				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				//nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
