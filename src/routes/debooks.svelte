@@ -67,7 +67,7 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        //var trans = await $cnx.getParsedTransaction("FusDXdWQhYNJ3xRANPDREZ5fNaWbMR95fu5zdy5wFQPr1oScwHxLsH5yeJV9oeRGRNYtHk89dpN3ARPX2jVrd1K")
+        //var trans = await $cnx.getParsedTransaction("3Ecz6ev7ueKJmU6oBnxuXLcXzJ3sSfRF4zCRBKVn6KC9wytWV8p4oY61hRhqZ3DBdavTF1CRSN7oDaAiBMMaxVbv")
         //console.log(trans)
         //var trans = await $cnx.getParsedTransaction("2xy7x73yRQmbzkN9HVREmQLGjojweB52A1gej5irw5DeRT5qcPPirgFDYdUoUbk5LJEsXBMMYxJ7Xsw2oMRQ3C4K")
         //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")

@@ -45,6 +45,8 @@
 					//console.log("instr index ", instruction.accounts.flatMap(s => s.toBase58()).indexOf(keyIn.toBase58()))
 				}
 			}
+			//for (let value of item.meta?.logMessages) {}
+			
 			if (instr_index > 8) {
 				//add in other classifiers above?
 				if (nftIDs.length == 0) {
@@ -168,7 +170,7 @@
 
 				
 			}
-			else if (item.meta?.logMessages[1].includes(" Buy") ) {
+			else if (item.meta?.logMessages[1].includes(" Buy") || item.meta?.logMessages[7]?.includes(" Buy") ) {
 				if (nftIDs.length == 0) {
 					item.meta.preTokenBalances.forEach(function (token) {
 						if (token.owner == me_escrow) {
@@ -182,14 +184,24 @@
 					//console.log("acc ", account_index)
 				
 					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []				
-
-					descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+					if (item.meta?.logMessages[2].includes("Program 11111111111111111111111111111111 invoke") || item.meta?.logMessages[8]?.includes("Program 11111111111111111111111111111111 invoke")  ) {
+						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+					}
+					else {
+						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
+					}
+					
 				}
 				else {
-					descr = "Magic Eden: Make Offer "
+					if (item.meta?.logMessages[2].includes("Program 11111111111111111111111111111111 invoke") || item.meta?.logMessages[8]?.includes("Program 11111111111111111111111111111111 invoke")  ) {
+						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+					}
+					else {
+						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
+					}
+					
 				}
 				
-
 				
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelBuy") ) {
@@ -603,9 +615,31 @@
 							}
 							
 						}
-						if(value.includes('Cancel loan request')) {
+						else if(value.includes('Cancel loan request')) {
 							try{
 								customDescripton = "YAWWW Cancel Loan request " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+								break
+							}
+							catch (e) {
+								console.log("Error cancel loan",item.transaction.signatures)
+								console.log(e)
+							}
+							
+						}
+						else if(value.includes('Create loan offer')) {
+							try{
+								customDescripton = "YAWWW Create Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+								break
+							}
+							catch (e) {
+								console.log("Error cancel loan",item.transaction.signatures)
+								console.log(e)
+							}
+							
+						}
+						else if(value.includes('Cancel loan offer')) {
+							try{
+								customDescripton = "YAWWW Cancel Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
 								break
 							}
 							catch (e) {
