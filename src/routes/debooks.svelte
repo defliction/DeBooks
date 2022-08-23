@@ -646,8 +646,7 @@
         try {
             
            
-            //if (web3.PublicKey.isOnCurve($keyInput) == true) {
-            if (true) {
+            if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 if (!loading) {
                     
                     validKey = true
