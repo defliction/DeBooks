@@ -47,6 +47,7 @@
 	let innerHeight = 0
     $showMetadata = true
     let metadataAnimation = false
+    let metadataAnimText = ""
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -402,6 +403,7 @@
         //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
         if (showMetadata && !loading && $fetchedTransactions.length > 0 && $loadedAddress == $keyInput) {
             metadataAnimation = true
+            metadataAnimText = ""
             await classifyArray (new web3.PublicKey($keyInput))
             metadataAnimation = false
         }
@@ -415,10 +417,11 @@
         
         loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
         $showMetadata? startTime = $time.getSeconds() : null
-
+        let txn = 0
         for await (const item of $fetchedTransactions) {
-            
-            currentTransaction++
+            txn += 1
+           
+
             let account_index = item.transaction.message?.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
             let programIDs: string[] = []
             item.transaction.message.instructions.forEach(function (program) {
@@ -470,6 +473,8 @@
                 }
                 
             }
+            metadataAnimText = "" + Math.min(99,Math.round(txn/$fetchedTransactions.length*100))+"%"
+            
         }
         
         //console.log("printing cleaned array")
@@ -860,11 +865,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             
                         </button>
                         {:else if metadataAnimation}
-                        <button class="btn btn-xs btn-ghost normal-case ">
+                        <button class="btn btn-xs btn-ghost normal-case font-serif ">
                             <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
                                 <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
+                            </svg><span class = "pl-2">{metadataAnimText} </span>
                         </button>
                         {:else}
                             <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
