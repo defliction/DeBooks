@@ -472,7 +472,6 @@
                 }
             }
         }
-
         signatures = signatures.flat()
         signatures = signatures.filter(x => x !== undefined)
         signatures = [...new Set(signatures.map(a => a.signature))].map(signature => {
@@ -483,19 +482,19 @@
         if (signatures.length == 0)
         {
             //validKey = false
-            console.log("initial signatures length 0", $fetchedTransactions.length)
+            console.log("initial signatures length 0", signatures.length)
         }  
         else
         {
             
-            console.log(signatures)
+            //console.log(signatures)
             $apiData.push(signatures)
             $apiData = $apiData.flat()
-            console.log("flat account transactions: ", $apiData)
+            //console.log("flat account transactions: ", $apiData)
             
             //fetch all transactions
             //console.log("fetched account transactions: ", test)
-            console.log("fetched account transactions: ", $apiData)
+            //console.log("fetched account transactions: ", $apiData)
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
 
