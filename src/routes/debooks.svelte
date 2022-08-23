@@ -399,7 +399,7 @@
     }
     async function metadataHandler() {
         $showMetadata = !$showMetadata
-        console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
+        //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
         if (showMetadata && !loading && $fetchedTransactions.length > 0) {
             metadataAnimation = true
             await classifyArray (new web3.PublicKey($keyInput))
