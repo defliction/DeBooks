@@ -419,16 +419,17 @@
         let utl_api = await response.json()
 
         let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
-        
+        let account_list = [keyIn]
         for await (const account of tokenAccounts.value) {
-            
+
             if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
+                account_list.push(account.pubkey)
                 console.log("adding mint ",account.pubkey.toBase58() )
                 signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
             }
 
-           
         }
+        //get all signatures, remove dupes and undefined;
         //console.log(signatures)
         if (signatures.length == 0)
         {
@@ -466,6 +467,7 @@
                      //   await sleep(500) //wait 0.5 seconds
                         break
                     }
+                    loopsigs = loopsigs.filter(x => x !== undefined)
                     //updated lastday and last sig
                     lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
                     loadingText = "pre-fetch... " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
@@ -497,6 +499,7 @@
             //console.log("date filtered results ", results.length)
             var reformattedArray = results.map((result) => result.signature);
 
+            //fetching parsed transaction
             let y = 0
             let yIncrement = 250
             while (y < reformattedArray.length) {
