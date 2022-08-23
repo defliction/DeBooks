@@ -91,7 +91,9 @@
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //console.log(giraffe)
-
+        //let trans = await $cnx.getParsedTransaction("2WCGGJd52r9wpVqFsUKH4dsfgewQcEGzPUQtkH8WQMRxVyBaHGm69KdnjCGKKNgCncMaX66MLfBRTCsypCr9PTGn")
+        //console.log(trans)
+        //console.log(trans.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()))
         //console.log(metadata_parsed)
         //const metadata_buf = Buffer.from(metadata_parsed.value.data, 'base64');
         //const metadata = decodeMetadata(metadata_buf)
@@ -430,8 +432,9 @@
         
         let signatures = []
         account_list = account_list.flat()
+        loadingText = "pre-fetch..."
         for await (const account of account_list) {
-
+            loadingText = "pre-fetch... " + account_list.indexOf(account) + "/" + account_list.length
             let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
             if (fetched != undefined) {
                 signatures.push(fetched)
@@ -461,7 +464,7 @@
                     loopsigs = loopsigs.filter(x => x !== undefined)
                     //updated lastday and last sig
                     lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
-                    loadingText = "pre-fetch... " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
+                    loadingText = "pre-fetch... " + account_list.indexOf(account) + "/" + account_list.length + " - " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
                     lastsig = await loopsigs[loopsigs.length - 1].signature
                     signatures.push(loopsigs)
                     //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))

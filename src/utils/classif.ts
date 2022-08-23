@@ -870,11 +870,8 @@
 						
 
 						let decimals = preTokens.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
-						let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-						
+						let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 						let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-
-
 
 						let preBal =  preFil? preFil : 0
 						let postBal = postFil? postFil : 0
@@ -908,37 +905,40 @@
 						}
 					}
 					//SOL balance sort
-					
-					let amount = 0
-					if (feePayer == keyIn) {
-						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-					}
-					else {
-						amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
-					}
-					if (amount != 0) {
-						let direction = amount < 0? "Out: " : "In: "
-						var new_line = 
-						{
-							"signature": item.transaction.signatures[0],
-							"timestamp": item.blockTime, 
-							"slot": item.slot,
-							"success": item.meta?.err == null? true : false,
-							"fee": item.meta? item.meta.fee : null,
-							"amount": amount,
-							"usd_amount": null,
-							"mint": "So11111111111111111111111111111111111111112",
-							"token_name": "SOL",
-							"account_keys": item.transaction.message.accountKeys,
-							"pre_balances": item.meta? item.meta.preBalances : null,
-							"post_balances": item.meta? item.meta.postBalances : null,
-							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + " Transaction " + direction + " SOL"
+					if (account_index != -1) {
+						let amount = 0
+						if (feePayer == keyIn) {
+							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
 						}
-						workingArray.push(new_line)
-						//console.log(new_line)
+						else {
+							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+							//console.log("NaN? ", amount, account_index)
+						}
+						if (amount != 0 ) {
+							let direction = amount < 0? "Out: " : "In: "
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": amount,
+								"usd_amount": null,
+								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton + " Transaction " + direction + " SOL"
+							}
+							workingArray.push(new_line)
+							//console.log(new_line)
+						}
 					}
+					
 					
 			}
 			else {
