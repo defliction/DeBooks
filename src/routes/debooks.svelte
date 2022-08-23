@@ -67,34 +67,12 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        //var trans = await $cnx.getParsedTransaction("3Ecz6ev7ueKJmU6oBnxuXLcXzJ3sSfRF4zCRBKVn6KC9wytWV8p4oY61hRhqZ3DBdavTF1CRSN7oDaAiBMMaxVbv")
-        //console.log(trans)
-        //var trans = await $cnx.getParsedTransaction("2xy7x73yRQmbzkN9HVREmQLGjojweB52A1gej5irw5DeRT5qcPPirgFDYdUoUbk5LJEsXBMMYxJ7Xsw2oMRQ3C4K")
-        //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("8YZb9psWb8AtAkZqCZWxfdd5U6GsLQt1Yw41oFdticbq"))
-        //console.log(trans)
-        //var trans = await $cnx.getParsedTransaction("qyaA12qSDizRS6y6JQxDViS1mPaQhu8YsCdJUZ5e2kqaw8GoJa7Zdwq3KEBh6GjTzX81N3PxPyVuKYJGPSpoaaf")
-        //*var trans = await connection.getParsedTransaction("3ofEvDuyUDGP867qNr9XkLtrmpK3doyvrQ9xjuvCrpQx7MfDxmfSn2hayzwRUtDm3HuUXUEmvCUCzKXWitA9BTZx")
-        //console.log(trans)
-        //var trans = await $cnx.getAccountInfoAndContext(new web3.PublicKey("4sQ649C5BTYKiF7NPEQtrrY28oc1keuucKRcykbu3uxp"))
-        //console.log(trans, trans.value.owner.toBase58())
-        //var test = token.AccountLayout.decode(trans.value.data)
-        //console.log(test.owner.toBase58())
-        //let response = await fetch("https://token-list-api.solana.cloud/v1/list");
-        //let utl_api = await response.json()
-        //let utlToken = utl_api.content.filter(item => item.address == "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
-        //console.log(utlToken)
-        //let req = "https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022"
-        //let req = "https://pro-api.coingecko.com/api/v3/coins/wrapped-solana/history?date=31-01-2022&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
-        
-        //let data = await response.json()                
-        //console.log("Output1 ", data)
-        //console.log("Output2 ", data.market_data.current_price.usd)
-        
-        //let topSlot = latestBlockhash.context.slot
-        //let sigs = await connection.getBlockSignatures(topSlot-1000)
-        //console.log("BLOCK ", sigs.signatures[0])
-      
+        var trans = await $cnx.getParsedTokenAccountsByOwner(new web3.PublicKey("GCM3kszSh1pkBGy9dmZheAUnhhSXPqebTt9ezDD4kPL2"), {
+                            programId: token.TOKEN_PROGRAM_ID,
+                            })
+        //let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+            
+        console.log(trans)
         let latestBlockhash 
         while(latestBlockhash == null) {
 
@@ -438,7 +416,15 @@
         
 
         let signatureBracket = await interpolateBlockSignatures()
-        let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]});
+
+        let tokenAccounts = await $cnx.getParsedTokenAccountsByOwner(new web3.PublicKey(keyIn), {
+                            programId: token.TOKEN_PROGRAM_ID,
+                            })
+        
+        let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+        for await (const account of tokenAccounts.value) {
+            signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
+        }
         //console.log(signatures)
         if (signatures.length == 0)
         {
@@ -449,9 +435,9 @@
         {
             
             //set initial lastday and last sig
-            let lastsig = signatures[signatures.length - 1].signature
-            let lastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
-            let firstLastday = dayjs.unix(signatures[signatures.length - 1].blockTime)
+            let lastsig = await signatures[signatures.length - 1].signature
+            let lastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
+            let firstLastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
             let z = 0;
             $apiData.push(signatures)
             while (lastday > startday) {
@@ -459,12 +445,16 @@
                 z++
                 try {
                     let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
+                    for await (const account of tokenAccounts.value) {
+                        loopsigs.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]);
+                        console.log('loopsig', loopsigs)
+                    }
                     if (loopsigs.length == 0) {
                      //   await sleep(500) //wait 0.5 seconds
                         break
                     }
                     //updated lastday and last sig
-                    lastday = await dayjs.unix(loopsigs[loopsigs.length - 1].blockTime)
+                    lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
                     loadingText = "pre-fetch... " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
                     lastsig = await loopsigs[loopsigs.length - 1].signature
                     $apiData.push(loopsigs)
@@ -474,14 +464,16 @@
                 }
                 catch (e) {
                     console.log("Error in loopsigs", e)
-                    await sleep(500) //wait 0.5 seconds
+                    //await sleep(500) //wait 0.5 seconds
                 }
                     
             
             }
+            
             $apiData = $apiData.flat()
+            $apiData = [...new Set($apiData)];
             //fetch all transactions
-            console.log("fetched account transactions: ", $apiData.length)
+            console.log("fetched account transactions: ", $apiData)
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
 
