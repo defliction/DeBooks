@@ -46,6 +46,7 @@
     let innerWidth = 0
 	let innerHeight = 0
     $showMetadata = true
+    let metadataAnimation = false
     let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
     let showConversion = false
     let convertingToReporting = false
@@ -395,6 +396,95 @@
             csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount"], filename);
         }
         
+    }
+    async function metadataHandler() {
+        $showMetadata = !$showMetadata
+        console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
+        if (showMetadata && !loading && $fetchedTransactions.length > 0) {
+            metadataAnimation = true
+            await classifyArray (new web3.PublicKey($keyInput))
+            metadataAnimation = false
+        }
+        
+    }
+    async function classifyArray (keyIn) {
+        //loading = true
+        let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+        let utl_api = await response.json()
+        $workingArray = []
+        
+        loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
+        $showMetadata? startTime = $time.getSeconds() : null
+
+        for await (const item of $fetchedTransactions) {
+            
+            currentTransaction++
+            let account_index = item.transaction.message?.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+            let programIDs: string[] = []
+            item.transaction.message.instructions.forEach(function (program) {
+                
+                programIDs.push(program.programId.toBase58())
+            })
+            
+
+            //new fee item
+            let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
+            if (feePayer == keyIn) {
+                let failed_text = item.meta.err != null? ": Failed txn" : ""
+                
+                var fee_expense = 
+                {
+                    "signature": item.transaction.signatures[0],
+                    "timestamp": item.blockTime, 
+                    "slot": item.slot,
+                    "success": true,
+                    "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
+                    "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
+                    "usd_amount": null,
+                    "mint": "So11111111111111111111111111111111111111112",
+                    "token_name": "SOL",
+                    "type": "Fees",
+                    "account_keys": item.transaction.message.accountKeys,
+                    "pre_balances": item.meta? item.meta.preBalances : null,
+                    "post_balances": item.meta? item.meta.postBalances : null,
+                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
+                    "description": "Txn fees " + failed_text
+                }
+                $workingArray.push(fee_expense)
+                //console.log("fee paid by user", fee_expense)
+            }
+            if (item.meta.err == null) {
+                //console.log("programIDs ", programIDs, item)
+                //only classify successful transactions!
+                //MAGIC EDEN TRANSACTIONS >>
+                if (item != null || item != undefined) {
+                    try {
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                    }
+                    catch (e)
+                    {
+                        console.log("Failed to classify, ", e, item)
+                    }
+                    
+                }
+                
+            }
+        }
+        
+        //console.log("printing cleaned array")
+        //console.log($cleanedArray)
+        //console.log("printing working array")
+        //.log($workingArray)
+        startTime = null
+        showInfoTip = false
+        $workingArray = $workingArray
+        sortArray($workingArray)
+        $displayArray = $workingArray
+        //$currentPage = 1
+        //totalPages = Math.ceil($displayArray.length/pageIncrement)
+        sliceDisplayArray()
+        //loading = false
     }
 
     async function fetchForAddress (keyIn) {
@@ -757,20 +847,27 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                   
                     <div class="md:tooltip md:tooltip-bottom z-50" data-tip="{metadataText}">                    
                         {#if loading}
-                        <button on:click={() => {$showMetadata = !$showMetadata}} disabled class="btn btn-xs btn-ghost normal-case ">
+                            <button on:click={metadataHandler} disabled class="btn btn-xs btn-ghost normal-case ">
                             {#if $showMetadata}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                {:else}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-                                </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            {:else}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                            </svg>
                             {/if}
                             
                         </button>
+                        {:else if metadataAnimation}
+                        <button class="btn btn-xs btn-ghost normal-case ">
+                            <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
+                                <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
                         {:else}
-                            <button on:click={() => {$showMetadata = !$showMetadata}} class="btn btn-xs btn-ghost normal-case ">
+                            <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
                                 {#if $showMetadata}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
