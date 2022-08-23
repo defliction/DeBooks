@@ -70,9 +70,14 @@
         var trans = await $cnx.getParsedTokenAccountsByOwner(new web3.PublicKey("GCM3kszSh1pkBGy9dmZheAUnhhSXPqebTt9ezDD4kPL2"), {
                             programId: token.TOKEN_PROGRAM_ID,
                             })
-        //let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
-            
-        console.log(trans)
+        let signatures = await $cnx.getSignaturesForAddress(new web3.PublicKey("GCM3kszSh1pkBGy9dmZheAUnhhSXPqebTt9ezDD4kPL2"), {limit:10})
+        let array = []
+        array.push(signatures)
+        array.push(signatures)
+        array.push(signatures)
+        
+        array = array.flat()
+        console.log([...new Set(array)])                  
         let latestBlockhash 
         while(latestBlockhash == null) {
 
@@ -96,7 +101,7 @@
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
         //console.log(giraffe)
-        
+
         //console.log(metadata_parsed)
         //const metadata_buf = Buffer.from(metadata_parsed.value.data, 'base64');
         //const metadata = decodeMetadata(metadata_buf)
@@ -154,7 +159,6 @@
         
         //starting with the right starting point; then increment downwards
         let biggerIncrements = 100000
-       
         let smallerIncrements = 25000
         //topSlot -= firstIncrement
         loadingText = "optimizing retrieval..."
@@ -420,10 +424,19 @@
         let tokenAccounts = await $cnx.getParsedTokenAccountsByOwner(new web3.PublicKey(keyIn), {
                             programId: token.TOKEN_PROGRAM_ID,
                             })
-        
+
+        let response = await fetch("https://token-list-api.solana.cloud/v1/list");
+        let utl_api = await response.json()
+
         let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
         for await (const account of tokenAccounts.value) {
-            signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
+            
+            if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
+                console.log("adding mint ",account.pubkey.toBase58() )
+                signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
+            }
+
+           
         }
         //console.log(signatures)
         if (signatures.length == 0)
@@ -446,8 +459,16 @@
                 try {
                     let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
                     for await (const account of tokenAccounts.value) {
-                        loopsigs.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]);
-                        console.log('loopsig', loopsigs)
+                        if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
+                            console.log("adding mint ",account.pubkey.toBase58() )
+                            let fetched = (await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]
+                            if (fetched != undefined) {
+                                loopsigs.push(fetched);
+                            }
+                            
+                        }
+                        
+                        //console.log('loopsig', loopsigs)
                     }
                     if (loopsigs.length == 0) {
                      //   await sleep(500) //wait 0.5 seconds
@@ -471,8 +492,12 @@
             }
             
             $apiData = $apiData.flat()
-            $apiData = [...new Set($apiData)];
+            console.log("flat account transactions: ", $apiData)
+            $apiData = [...new Set($apiData.map(a => a.signature))].map(signature => {
+                                                return $apiData.find(a => a.signature === signature)
+                                                });
             //fetch all transactions
+            //console.log("fetched account transactions: ", test)
             console.log("fetched account transactions: ", $apiData)
             //console.log($apiData)
             var results = $apiData.filter(transaction => dayjs.unix(transaction.blockTime) < endday && dayjs.unix(transaction.blockTime) > startday);
@@ -494,8 +519,7 @@
             }
             $fetchedTransactions = $fetchedTransactions.flat()
             //$fetchedTransactions = await connection.getParsedTransactions(reformattedArray)
-            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
-            let utl_api = await response.json()
+            
             
             //console.log("fetched ", $fetchedTransactions.flatMap(s => s.transaction.signatures))
             //console.log("fetched ", $fetchedTransactions)
@@ -622,8 +646,8 @@
         try {
             
            
-            if (web3.PublicKey.isOnCurve($keyInput) == true) {
-            
+            //if (web3.PublicKey.isOnCurve($keyInput) == true) {
+            if (true) {
                 if (!loading) {
                     
                     validKey = true
