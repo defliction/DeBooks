@@ -81,7 +81,7 @@
                 rpcConnection = false
                 console.log("unable to establish connection to RPC nodes")
             }
-            sleep(750)
+            sleep(150)
             
         }
         console.log("first date", firstDate)
@@ -400,7 +400,7 @@
     async function metadataHandler() {
         $showMetadata = !$showMetadata
         //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
-        if (showMetadata && !loading && $fetchedTransactions.length > 0) {
+        if (showMetadata && !loading && $fetchedTransactions.length > 0 && $loadedAddress == $keyInput) {
             metadataAnimation = true
             await classifyArray (new web3.PublicKey($keyInput))
             metadataAnimation = false
