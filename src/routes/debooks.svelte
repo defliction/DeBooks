@@ -67,17 +67,7 @@
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-        var trans = await $cnx.getParsedTokenAccountsByOwner(new web3.PublicKey("GCM3kszSh1pkBGy9dmZheAUnhhSXPqebTt9ezDD4kPL2"), {
-                            programId: token.TOKEN_PROGRAM_ID,
-                            })
-        let signatures = await $cnx.getSignaturesForAddress(new web3.PublicKey("GCM3kszSh1pkBGy9dmZheAUnhhSXPqebTt9ezDD4kPL2"), {limit:10})
-        let array = []
-        array.push(signatures)
-        array.push(signatures)
-        array.push(signatures)
-        
-        array = array.flat()
-        console.log([...new Set(array)])                  
+    
         let latestBlockhash 
         while(latestBlockhash == null) {
 
@@ -429,6 +419,7 @@
         let utl_api = await response.json()
 
         let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+        
         for await (const account of tokenAccounts.value) {
             
             if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
@@ -446,7 +437,8 @@
         }  
         else
         {
-            
+            signatures = signatures.filter(x => x !== undefined)
+            console.log(signatures)
             //set initial lastday and last sig
             let lastsig = await signatures[signatures.length - 1].signature
             let lastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
