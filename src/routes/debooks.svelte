@@ -384,15 +384,15 @@
         let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
         if (showConversion) {
            console.log("with USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "amount", "usd_amount"], filename);
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"], filename);
         }
         else {
             console.log("withOUT USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
+            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "amount"], filename);
+            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount"], filename);
         }
         
     }
@@ -553,6 +553,7 @@
                         "usd_amount": null,
                         "mint": "So11111111111111111111111111111111111111112",
                         "token_name": "SOL",
+                        "type": "Fees",
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
                         "post_balances": item.meta? item.meta.postBalances : null,

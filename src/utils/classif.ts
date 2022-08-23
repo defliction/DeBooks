@@ -35,6 +35,7 @@
 			//console.log("NFTNAMES " +  nftnames.flatMap(s => s.name))
 			//item.meta.logMessages[1].includes(" Sell")? "Listed ":null + item.meta.logMessages[1].includes(" CancelSell")? "Delisted ":null +
 			let descr = "Magic Eden: Unknown"
+			let txn_type = "Generic"
 			//Royalty check
 			//large instruction index
 			let instr_index = 0
@@ -60,6 +61,7 @@
 				//console.log("royalty in")
 				//for each instruction find the one with inners > 5 inner instructions; if our account is in the first 3 as a destination then we're a royalty
 				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
+				txn_type = "Royalty Income"
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
 				descr = showMetadata? "Magic Eden: Delisted " + nftnames : "Magic Eden: Delisted "
@@ -75,6 +77,7 @@
 					}) 
 					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames : "Magic Eden: Sold via Offer "
+					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -124,9 +127,11 @@
 					amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 					if (account_index == 0) {
 						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
+						txn_type = "NFT sale"
 					}
 					else {
 						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
+						txn_type = "NFT purchase"
 					}
 					
 				}
@@ -158,6 +163,7 @@
 					}) 
 					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr =  showMetadata? "Magic Eden: Sold " + nftnames : "Magic Eden: Sold "
+					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
 					
@@ -166,6 +172,7 @@
 				}
 				else {
 					descr = showMetadata? "Magic Eden: Bought " + nftnames : "Magic Eden: Bought "
+					txn_type = "NFT purchase"
 				}
 
 				
@@ -211,11 +218,13 @@
 			}
 			else if (item.meta?.logMessages[1].includes(" Withdraw") ) {
 				descr = "Magic Eden: Escrow Withdrawal"
+				txn_type = "Escrow"
 
 				
 			}
 			else if (item.meta?.logMessages[1].includes(" Deposit") ) {
 				descr = "Magic Eden: Escrow Desposit"
+				txn_type = "Escrow"
 
 				
 			}
@@ -231,6 +240,7 @@
 				"usd_amount": null,
 				"mint": "So11111111111111111111111111111111111111112",
 				"token_name": "SOL",
+				"type": txn_type,
 				"account_keys": item.transaction.message.accountKeys,
 				"pre_balances": item.meta? item.meta.preBalances : null,
 				"post_balances": item.meta? item.meta.postBalances : null,
@@ -246,6 +256,7 @@
 			// does it involve my wallet? to add
 			// check all instruction accounts flatmapped
 			let customDescripton = "Magic Eden Transaction "
+			let txn_type = "Generic"
 		
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
@@ -269,9 +280,11 @@
 			}
 			else if (account_index == 0) {
 				customDescripton = "Magic Eden Purchase "
+				txn_type = "NFT purchase"
 			}
 			else if (account_index == 2) {
 				customDescripton = "Magic Eden Sale "
+				txn_type = "NFT sale"
 				nftIDs.push(item.meta.preTokenBalances[0].mint)
 				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				
@@ -280,6 +293,7 @@
 				nftIDs.push(item.meta.preTokenBalances[0].mint)
 				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				customDescripton = "Magic Eden Royalty Income "
+				txn_type = "Royalty Income"
 			}
 
 			let preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn)
@@ -347,6 +361,7 @@
 					"usd_amount": null,
 					"mint": "So11111111111111111111111111111111111111112",
 					"token_name": "SOL",
+					"type": txn_type,
 					"account_keys": item.transaction.message.accountKeys,
 					"pre_balances": item.meta? item.meta.preBalances : null,
 					"post_balances": item.meta? item.meta.postBalances : null,
@@ -363,10 +378,12 @@
 			// does it involve my wallet? to add
 					// check all instruction accounts flatmapped
 					let customDescripton = "FoxySwap"
+					let txn_type = "Swap"
 					for (let value of item.meta?.logMessages){
 						if(value.includes('InitSwap')) {
 							try{
 								customDescripton = "FoxySwap Initiate Swap " + item.transaction.message.accountKeys[1].pubkey.toBase58().substring(0,4) + " -"
+								
 								break
 							}
 							catch (e) {
@@ -431,6 +448,7 @@
 								"usd_amount": null,
 								"mint": uniqueToken,
 								"token_name": tokenName,
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -464,6 +482,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -481,7 +500,7 @@
 					// check all instruction accounts flatmapped
 					
 					let customDescripton = "YAWWW Swap"
-					
+					let txn_type = "Swap"
 					for (let value of item.meta?.logMessages){
 						
 						if(value.includes('Initialize swap')) {
@@ -551,6 +570,7 @@
 								"usd_amount": null,
 								"mint": uniqueToken,
 								"token_name": tokenName,
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -586,6 +606,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -603,6 +624,7 @@
 			// does it involve my wallet? to add
 					// check all instruction accounts flatmapped
 					let customDescripton = "YAWWW Loan"
+					let txn_type = "Loan"
 					for (let value of item.meta?.logMessages){
 						if(value.includes('Create loan request')) {
 							try{
@@ -727,6 +749,7 @@
 								"usd_amount": null,
 								"mint": uniqueToken,
 								"token_name": tokenName,
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -760,6 +783,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -780,7 +804,7 @@
 					// does it involve my wallet? to add
 					// check all instruction accounts flatmapped
 					let customDescripton = "Generic"
-					
+					let txn_type = "Generic"
 					if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 						customDescripton = "Jup.ag"
 					}
@@ -790,11 +814,13 @@
 								if(value.toLowerCase().includes(' stake') || value.toLowerCase().includes(' staking') ) {
 									
 									customDescripton = "Stake"
+									txn_type = "Stake"
 									break
 								}
 								else if (value.toLowerCase().includes(' unstake') || value.toLowerCase().includes(' unstaking')) {
 								
 									customDescripton = "Unstake"
+									txn_type = "Stake"
 									break
 								}
 								else if (value.toLowerCase().includes(' claim') || value.toLowerCase().includes(' claiming')) {
@@ -805,6 +831,7 @@
 								else if (value.toLowerCase().includes(' burn') ) {
 									
 									customDescripton = "Burn"
+									txn_type = "Burn"
 									break
 								}
 							}
@@ -859,7 +886,6 @@
 						}
 					}
 
-
 					let preFiltered = preTokens.filter(token => token.owner == keyIn)
 					let postFiltered = postTokens.filter(token => token.owner == keyIn)
 					const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
@@ -868,7 +894,6 @@
 					//token balance loop
 					for await (const uniqueToken of uniqueTokens) {
 						
-
 						let decimals = preTokens.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
 						let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 						let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
@@ -893,6 +918,7 @@
 								"usd_amount": null,
 								"mint": uniqueToken,
 								"token_name": tokenName,
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -927,6 +953,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -943,7 +970,7 @@
 			}
 			else {
 				let customDescripton = ""
-
+				let txn_type = "Generic"
 				for await (const instruction of item.transaction.message.instructions) {
 					if (instruction.programId.toBase58() == "DeJBGdMFa1uynnnKiwrVioatTuHmNLpyFKnmB5kaFdzQ") {
 						customDescripton = "Phantom "
@@ -961,7 +988,7 @@
 						//SOL TRANSFER
 						
 						let amount = instruction.parsed.info.lamports
-
+						txn_type = "Transfer"
 						var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -973,6 +1000,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -987,7 +1015,7 @@
 					else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
 						//console.log("SOL TRANSFER OUT")
 						let amount = -instruction.parsed.info.lamports
-
+						txn_type = "Transfer"
 						var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
@@ -999,6 +1027,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1054,7 +1083,7 @@
 						
 						let preBal =  preFiltered? preFiltered : 0
 						let postBal = postFiltered? postFiltered : 0
-
+						txn_type = "Transfer"
 						//console.log("amounts ", preBal, postBal, parseFloat((postBal-preBal).toFixed(decimals)),  instruction)
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
 						let direction = tokenChange < 0? "Out: " : "In: "
@@ -1070,6 +1099,7 @@
 							"usd_amount": null,
 							"mint": mint,
 							"token_name": tokenName,
+							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -1133,6 +1163,7 @@
 							if (tokenChange != 0) {
 								let direction = tokenChange < 0? "Out: " : "In: "
 								let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
+								txn_type = "Transfer"
 								var new_line = 
 								{
 									"signature": item.transaction.signatures[0],
@@ -1144,6 +1175,7 @@
 									"usd_amount": null,
 									"mint": uniqueToken,
 									"token_name": tokenName,
+									"type": txn_type,
 									"account_keys": item.transaction.message.accountKeys,
 									"pre_balances": item.meta? item.meta.preBalances : null,
 									"post_balances": item.meta? item.meta.postBalances : null,
@@ -1170,7 +1202,7 @@
 						
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 						let postBal = postFiltered? postFiltered : 0
-
+						txn_type = "Burn"
 						let tokenName = await fetchTokenData([mint], utl, showMetadata)
 						var new_line = 
 						{
@@ -1183,6 +1215,7 @@
 							"usd_amount": null,
 							"mint": mint,
 							"token_name": tokenName,
+							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
@@ -1199,7 +1232,7 @@
 						let closed_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(instruction.parsed.info.account)
 						//console.log("closed account index ", instruction.parsed.info.account,instruction.parsed.info, closed_index)
 						let amount = item.meta? (item.meta.postBalances[closed_index] - item.meta.preBalances[closed_index])/web3.LAMPORTS_PER_SOL : 0
-						
+						txn_type = "Close Account"
 						//if the owner is me then show negative and positive
 						if (instruction.parsed.info.owner == keyIn){
 							var new_line = 
@@ -1213,6 +1246,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1233,6 +1267,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1257,7 +1292,7 @@
 							//reverse any wrapped sol transfer amounts too
 							additional = item.meta.postTokenBalances.filter(item => item.accountIndex == associated_index)[0]?.uiTokenAmount.uiAmount
 						}
-						
+						txn_type = "Create Account"
 						if (instruction.parsed.info.wallet == keyIn) {
 							//account created for our benefit
 							//An account balance owned by us goes up!
@@ -1274,6 +1309,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1296,6 +1332,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
@@ -1309,7 +1346,7 @@
 
 					}
 					else {
-						//generic parsed instruction! if that exists
+						//generic parsed instruction! if that exists?
 					}
 					
 				} 
