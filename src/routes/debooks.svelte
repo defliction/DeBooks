@@ -418,49 +418,40 @@
         let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         let utl_api = await response.json()
 
-        let signatures = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+       
         let account_list = [keyIn]
         for await (const account of tokenAccounts.value) {
-
             if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
                 account_list.push(account.pubkey)
                 console.log("adding mint ",account.pubkey.toBase58() )
-                signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
+                //signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
             }
-
         }
-        //get all signatures, remove dupes and undefined;
-        //console.log(signatures)
-        if (signatures.length == 0)
-        {
-            //validKey = false
-            console.log("initial signatures length 0", $fetchedTransactions.length)
-        }  
-        else
-        {
-            signatures = signatures.filter(x => x !== undefined)
-            console.log(signatures)
+        
+        let signatures = []
+        account_list = account_list.flat()
+        for await (const account of account_list) {
+
+            let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+            if (fetched != undefined) {
+                signatures.push(fetched)
+            }
             //set initial lastday and last sig
-            let lastsig = await signatures[signatures.length - 1].signature
+            
+            let lastsig:string = await signatures[signatures.length - 1].signature
             let lastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
             let firstLastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
-            let z = 0;
-            $apiData.push(signatures)
             while (lastday > startday) {
-                
-                z++
                 try {
                     let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
                     for await (const account of tokenAccounts.value) {
                         if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
-                            console.log("adding mint ",account.pubkey.toBase58() )
+                            //console.log("adding mint ",account.pubkey.toBase58() )
                             let fetched = (await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]
                             if (fetched != undefined) {
                                 loopsigs.push(fetched);
                             }
-                            
-                        }
-                        
+                        } 
                         //console.log('loopsig', loopsigs)
                     }
                     if (loopsigs.length == 0) {
@@ -472,24 +463,36 @@
                     lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
                     loadingText = "pre-fetch... " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
                     lastsig = await loopsigs[loopsigs.length - 1].signature
-                    $apiData.push(loopsigs)
+                    signatures.push(loopsigs)
                     //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))
-                    
-                
                 }
                 catch (e) {
                     console.log("Error in loopsigs", e)
                     //await sleep(500) //wait 0.5 seconds
                 }
-                    
-            
             }
+        }
+
+        signatures = signatures.flat()
+        signatures = signatures.filter(x => x !== undefined)
+        signatures = [...new Set(signatures.map(a => a.signature))].map(signature => {
+                                                return signatures.find(a => a.signature === signature)
+                                                });
+        //get all signatures, remove dupes and undefined;
+        //console.log(signatures)
+        if (signatures.length == 0)
+        {
+            //validKey = false
+            console.log("initial signatures length 0", $fetchedTransactions.length)
+        }  
+        else
+        {
             
+            console.log(signatures)
+            $apiData.push(signatures)
             $apiData = $apiData.flat()
             console.log("flat account transactions: ", $apiData)
-            $apiData = [...new Set($apiData.map(a => a.signature))].map(signature => {
-                                                return $apiData.find(a => a.signature === signature)
-                                                });
+            
             //fetch all transactions
             //console.log("fetched account transactions: ", test)
             console.log("fetched account transactions: ", $apiData)
