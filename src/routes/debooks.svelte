@@ -418,6 +418,7 @@
         
         loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
         $showMetadata? startTime = $time.getSeconds() : null
+        let owner = await $cnx.getAccountInfoAndContext(new web3.PublicKey(keyIn))
         let txn = 0
         for await (const item of $fetchedTransactions) {
             txn += 1
@@ -464,7 +465,7 @@
                 //MAGIC EDEN TRANSACTIONS >>
                 if (item != null || item != undefined) {
                     try {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content)
                     }
                     catch (e)
                     {
@@ -621,6 +622,7 @@
             //console.log("fetched ", $fetchedTransactions)
             loadingText = $showMetadata? "analyzing with metadata..." : "analyzing..."
             $showMetadata? startTime = $time.getSeconds() : null
+            let owner = await $cnx.getAccountInfoAndContext(new web3.PublicKey(keyIn))
 
             for await (const item of $fetchedTransactions) {
               
@@ -666,7 +668,7 @@
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
                         try {
-                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, feePayer, utl_api.content)
+                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content)
                         }
                         catch (e)
                         {

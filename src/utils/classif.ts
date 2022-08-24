@@ -5,7 +5,7 @@
 	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
 	let fetchedList = []
 
-	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, feePayer, utl) {
+	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
@@ -1048,11 +1048,11 @@
 						let postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn)
 
 						//potential improvmenet not to waiste an RPC call here
-						let owner = await connection.getAccountInfoAndContext(new web3.PublicKey(keyIn))
-						if (owner.value != null && owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+						
+						if (ownerIn.value != null && ownerIn.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 							//SPL token
 							//get ultimate owner
-							let decoded = spl_token.AccountLayout.decode(owner.value.data)
+							let decoded = spl_token.AccountLayout.decode(ownerIn.value.data)
 							let uowner = decoded.owner.toBase58()
 							preFiltered = item.meta.preTokenBalances.filter(token => token.owner == uowner && token.mint == mint)[0]?.uiTokenAmount.uiAmount
 							postFiltered = item.meta.postTokenBalances.filter(token => token.owner == uowner && token.mint == mint)[0]?.uiTokenAmount.uiAmount
@@ -1126,11 +1126,11 @@
 							let preFiltered
 							let postFiltered
 							//potential improvmenet not to waiste an RPC call here
-							let owner = await connection.getAccountInfoAndContext(new web3.PublicKey(keyIn))
-							if (owner.value != null && owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+							
+							if (ownerIn.value != null && ownerIn.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 								//SPL token
 								//get ultimate owner
-								let decoded = spl_token.AccountLayout.decode(owner.value.data)
+								let decoded = spl_token.AccountLayout.decode(ownerIn.value.data)
 								let uowner = decoded.owner.toBase58()
 								preFiltered = item.meta.preTokenBalances.filter(token => token.owner == uowner && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 								postFiltered = item.meta.postTokenBalances.filter(token => token.owner == uowner && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
@@ -1139,6 +1139,7 @@
 								preFiltered = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 								postFiltered = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 							}
+
 							let test1 = item.meta.preTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 							let test2 = item.meta.postTokenBalances.filter(token => token.owner == undefined && token.mint == mint)[0]
 							if (test1 && test1.owner == undefined || test2 && test2.owner == undefined) {
