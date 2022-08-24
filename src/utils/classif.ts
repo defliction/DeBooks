@@ -1372,7 +1372,7 @@
 				
 				let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mintsIn[0])
 				if (existingIndex != -1) {
-					console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
+					//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
 					namedToken = fetchedList[existingIndex].name
 					return namedToken
 				}
@@ -1435,7 +1435,11 @@
 				
 
 				if (showMetadata) {
-				
+					let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mint)
+					if (existingIndex != -1) {
+						//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
+						namedToken = namedToken + " " + fetchedList[existingIndex].name
+					}
 					//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 					let utlToken = utl.filter(item => item.address == mint)[0]
 					if (utlToken == null || utlToken == undefined) {
@@ -1444,15 +1448,30 @@
 							//console.log(mintIn, nftnames)
 							if (nftnames.name != "")
 							{
-								namedToken = "" + nftnames.name
+								var add_item = {
+									"mint":mint,
+									"name": nftnames.name
+								}
+								fetchedList.push(add_item)
+								namedToken = namedToken + " "  + nftnames.name
 							}
 							else if (nftnames.symbol != "" && nftnames.uri != "") {
 								let response = await fetch(nftnames.uri)
 								let data = await response.json()
-								namedToken = "" + data.name
+								var add_item = {
+									"mint":mint,
+									"name": "" + data.name
+								}
+								fetchedList.push(add_item)
+								namedToken = namedToken + " "  + data.name
 							}
 							else {
-								namedToken = "" + nftnames.json.name
+								var add_item = {
+									"mint":mint,
+									"name": "" + nftnames.json.name
+								}
+								fetchedList.push(add_item)
+								namedToken = namedToken + " " + nftnames.json.name
 							}
 							
 						}
@@ -1461,7 +1480,12 @@
 						}
 					}
 					else {
-						namedToken = utlToken.symbol
+						var add_item = {
+							"mint":mint,
+							"name": "" + utlToken.symbol
+						}
+						fetchedList.push(add_item)
+						namedToken = namedToken + " " + utlToken.symbol
 					}
 				}
 				else {
