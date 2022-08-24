@@ -3,6 +3,7 @@
 	import * as spl_token from '@solana/spl-token';
 	
 	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+	let fetchedList = []
 
 	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, feePayer, utl) {
 		//MAGIC EDEN TRANSACTIONS >>
@@ -1369,6 +1370,13 @@
 			
 			if (showMetadata) {
 				
+				let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mintsIn[0])
+				if (existingIndex != -1) {
+					console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
+					namedToken = fetchedList[existingIndex].name
+					return namedToken
+				}
+
 				//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 				let utlToken = utl.filter(item => item.address == mintsIn[0])[0]
 				if (utlToken == null || utlToken == undefined) {
@@ -1378,14 +1386,29 @@
 						if (nftnames.name != "")
 						{
 							namedToken = "" + nftnames.name
+							var add_item = {
+								"mint": mintsIn[0],
+								"name": namedToken
+							}
+							fetchedList.push(add_item)
 						}
 						else if (nftnames.symbol != "" && nftnames.uri != "") {
 							let response = await fetch(nftnames.uri)
 							let data = await response.json()
 							namedToken = "" + data.name
+							var add_item = {
+								"mint": mintsIn[0],
+								"name": namedToken
+							}
+							fetchedList.push(add_item)
 						}
 						else {
 							namedToken = "" + nftnames.json.name
+							var add_item = {
+								"mint": mintsIn[0],
+								"name": namedToken
+							}
+							fetchedList.push(add_item)
 						}
 						
 					}
@@ -1395,6 +1418,12 @@
 				}
 				else {
 					namedToken = utlToken.symbol
+					var add_item = {
+						"mint": mintsIn[0],
+						"name": namedToken
+					}
+					fetchedList.push(add_item)
+					
 				}
 			}
 			else {
@@ -1441,8 +1470,6 @@
 
 			}
 		}
-		
-		
 
 		return namedToken
 
