@@ -405,6 +405,7 @@
             metadataAnimation = true
             metadataAnimText = ""
             await classifyArray (new web3.PublicKey($keyInput))
+            showConversion = false
             metadataAnimation = false
         }
         
