@@ -891,11 +891,6 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         
                     </div>
         
-            
-           
-               
-        
-         
         </div>
         <div class="indicator z-5">
             <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">alpha</span>
