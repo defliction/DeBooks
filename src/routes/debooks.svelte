@@ -228,14 +228,13 @@
                     startSlot -=  Math.floor(smallerIncrements)
                 }
                 startSlot = Math.max(startSlot, 38669748)
-                
                 startBlocktime = await $cnx.getBlockTime(startSlot)
                 
-                
-                if (dayjs.unix(startBlocktime).diff(startday, 'hours') < 0 && startBlocktime != null) {
-                    while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -24) {
+                if (dayjs.unix(startBlocktime).diff(startday, 'hours') <= -8 && startBlocktime != null) {
+                    while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -8) {
                         
                         if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -48) {
+                            
                             startSlot += Math.floor(biggerIncrements  * -(dayjs.unix(startBlocktime).diff(startday, 'hours'))/24 )
                         }
                         else {
@@ -243,11 +242,11 @@
                         }
 
                         try {
-                            //console.log("b2 ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
+                            //console.log("b2b ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                             startBlocktime = await $cnx.getBlockTime(startSlot)
                             
                         }
-                        catch (e) {
+                        catch (e) { 
                             console.log("error in interpolate 2b",  e)
                         }
                        
@@ -255,10 +254,10 @@
                     let sigs = await $cnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
-                    break start_loop
+                    //break start_loop
 
                 }
-                else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -24 && startBlocktime != null) {
+                else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -8 && startBlocktime != null) {
                     let sigs = await $cnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
@@ -868,7 +867,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             
                         </button>
                         {:else if metadataAnimation}
-                        <button class="btn btn-xs btn-ghost normal-case font-serif ">
+                        <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
                             <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
                                 <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

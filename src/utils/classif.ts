@@ -849,7 +849,7 @@
 					
 					for await (var token of preTokens) {
 						if (token.owner == undefined) {
-							//find owner and set it
+							//find owner and set it - old transactions don't have this data
 							console.log("looking for owner pre tokens")
 							try {
 								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
