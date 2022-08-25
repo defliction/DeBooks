@@ -156,6 +156,9 @@
         let smallerIncrements = 25000
         //topSlot -= firstIncrement
         loadingText = "optimizing retrieval..."
+        //let endTimeDiff = (dayjs.unix(endBlockTime).diff(endday, 'hours'))
+        
+        
         end_loop:
         while ((dayjs.unix(endBlockTime).diff(endday, 'hours')) >= 6) {
            
@@ -169,8 +172,9 @@
                 }
                 topSlot = Math.max(topSlot, 1)
                 endBlockTime = await $cnx.getBlockTime(topSlot)
+                //loadingText = "optimizing retrieval..." + (1-(dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff)
                 //console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
-                
+                loadingText = "optimizing retrieval 1/2..." //+ Math.round((1-((dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff))*100)+"%"
                 //need to catch if endBlock is less than endday then top op till over
                 if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 0) {
                     while ((dayjs.unix(endBlockTime).diff(endday, 'hours')) <= 0) {
@@ -184,6 +188,7 @@
                             }
                             topSlot = Math.max(topSlot, 1)
                             endBlockTime = await $cnx.getBlockTime(topSlot)
+                            loadingText = "optimizing retrieval 1/2..." //+ Math.round((1-((dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff))*100)+"%"
                             //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
                         catch (e) {
@@ -214,7 +219,7 @@
         //interpolate to find start day sig
         let startBlocktime = endBlockTime
         let startSlot = topSlot
-        
+        //let startTimeDiff = (dayjs.unix(endBlockTime).diff(startday, 'hours'))
         
         start_loop:
         while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) > 0 && startSlot != 38669748) {
@@ -229,7 +234,8 @@
                 }
                 startSlot = Math.max(startSlot, 38669748)
                 startBlocktime = await $cnx.getBlockTime(startSlot)
-                
+                loadingText = "optimizing retrieval 2/2..." //+ Math.round((1-(-(dayjs.unix(startBlocktime).diff(endday, 'hours'))/startTimeDiff-1))*100)+"%"
+                //console.log(-(dayjs.unix(startBlocktime).diff(endday, 'hours')), startTimeDiff)
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') <= -8 && startBlocktime != null) {
                     while ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < -8) {
                         
@@ -244,7 +250,8 @@
                         try {
                             //console.log("b2b ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
                             startBlocktime = await $cnx.getBlockTime(startSlot)
-                            
+                            //console.log(-(dayjs.unix(startBlocktime).diff(endday, 'hours')), startTimeDiff)
+                            loadingText = "optimizing retrieval 2/2..." //+ Math.round((1-(-(dayjs.unix(startBlocktime).diff(endday, 'hours'))/startTimeDiff-1))*100)+"%"
                         }
                         catch (e) { 
                             console.log("error in interpolate 2b",  e)
