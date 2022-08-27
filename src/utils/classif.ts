@@ -896,6 +896,9 @@
 					for await (const uniqueToken of uniqueTokens) {
 						
 						let decimals = preTokens.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+						if (decimals == undefined) {
+							decimals = postFiltered.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+						}
 						let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 						let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 
@@ -939,7 +942,7 @@
 								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
-							//console.log(new_line)
+							console.log(new_line, decimals)
 						}
 					}
 					//SOL balance sort
