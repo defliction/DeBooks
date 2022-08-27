@@ -1127,7 +1127,7 @@
 							"description": customDescripton + "SPL Transfer " + direction + tokenName
 						}
 						workingArray.push(new_line)
-						//console.log(new_line)
+						//console.log(new_line, mint, preBal, postBal, )
 					}
 					else if (instruction.program == "spl-token" && instruction.parsed.type == "transfer") {
 						//old legacy transfer could break if other spl instructions pre loaded? or mulitple instructions chained in 1 transaction?

@@ -87,8 +87,8 @@
         }
         console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("3M2TgyKBiK3L89GswNkkje1YsuXitHzxtyszWUT54uEjoYdeW4JiK1QUht6A46xTGfGDcgYSFgBQcBj6KYo7dHB6")
-        console.log(trans1)
+        //let trans1 = await $cnx.getParsedTransaction("3M2TgyKBiK3L89GswNkkje1YsuXitHzxtyszWUT54uEjoYdeW4JiK1QUht6A46xTGfGDcgYSFgBQcBj6KYo7dHB6")
+        // /console.log(trans1)
         //let block = 38669748
         //let startB = await $cnx.getBlockTime(block)
         //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
