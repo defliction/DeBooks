@@ -903,6 +903,17 @@
 						let postBal = postFil? postFil : 0
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 						
+						if (uniqueToken == "So11111111111111111111111111111111111111112") {
+							if (feePayer == keyIn) {
+								tokenChange -= item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+								
+							}
+							else {
+								tokenChange -= item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+								//console.log("NaN? ", amount, account_index)
+							}
+						}
+
 						if (tokenChange != 0) {
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
@@ -928,7 +939,7 @@
 								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
-							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
+							//console.log(new_line)
 						}
 					}
 					//SOL balance sort
@@ -936,6 +947,7 @@
 						let amount = 0
 						if (feePayer == keyIn) {
 							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
+							
 						}
 						else {
 							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
@@ -963,6 +975,9 @@
 								"description": customDescripton + " Transaction " + direction + " SOL"
 							}
 							workingArray.push(new_line)
+							
+							//console.log("SOL", new_line, (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL,(item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL )
+							
 							//console.log(new_line)
 						}
 					}
