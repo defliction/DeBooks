@@ -85,7 +85,7 @@
             sleep(150)
             
         }
-        console.log("first date", firstDate)
+        //console.log("first date", firstDate)
         //first blocktimed block - 38669748
         //let trans1 = await $cnx.getParsedTransaction("3M2TgyKBiK3L89GswNkkje1YsuXitHzxtyszWUT54uEjoYdeW4JiK1QUht6A46xTGfGDcgYSFgBQcBj6KYo7dHB6")
         // /console.log(trans1)
@@ -393,13 +393,13 @@
 
         let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
         if (showConversion) {
-           console.log("with USD")
+           //console.log("with USD")
             let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
             csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"], filename);
         }
         else {
-            console.log("withOUT USD")
+            //console.log("withOUT USD")
             let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
             let tableKeys = Object.keys(result[0]); //extract key names from first Object
             csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount"], filename);

@@ -942,7 +942,7 @@
 								"description": customDescripton +  " Transaction " + direction + tokenName
 							}
 							workingArray.push(new_line)
-							console.log(new_line, decimals)
+							//console.log(new_line, decimals)
 						}
 					}
 					//SOL balance sort
