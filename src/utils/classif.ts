@@ -5,7 +5,7 @@
 	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
 	let fetchedList = []
 
-	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, feePayer, utl) {
+	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, feePayer, utl, account_list) {
 		//MAGIC EDEN TRANSACTIONS >>
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
@@ -906,14 +906,56 @@
 						let postBal = postFil? postFil : 0
 						let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 						
+						let preIndex = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.accountIndex
+						let postIndex = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.accountIndex
+						//need to find the SOL balance change of the wrapped sol account
 						if (uniqueToken == "So11111111111111111111111111111111111111112") {
-							if (feePayer == keyIn) {
-								tokenChange -= item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
-								
+							
+							if (postIndex) {
+								tokenChange = item.meta? (item.meta.postBalances[postIndex] - item.meta.preBalances[postIndex])/web3.LAMPORTS_PER_SOL : 0	
 							}
-							else {
-								tokenChange -= item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
+							else if (preIndex) {
+								tokenChange = item.meta? (item.meta.postBalances[preIndex] - item.meta.preBalances[preIndex])/web3.LAMPORTS_PER_SOL : 0
 								//console.log("NaN? ", amount, account_index)
+							}
+						}
+						else {
+							//recognise sol balance change in a sub-account
+							let amount = 0
+							if (postIndex) {
+								amount = item.meta? (item.meta.postBalances[postIndex] - item.meta.preBalances[postIndex])/web3.LAMPORTS_PER_SOL : 0	
+							}
+							else if (preIndex) {
+								amount = item.meta? (item.meta.postBalances[preIndex] - item.meta.preBalances[preIndex])/web3.LAMPORTS_PER_SOL : 0
+								//console.log("NaN? ", amount, account_index)
+							}
+
+							if (amount != 0 ) {
+								let direction = amount < 0? "Out: " : "In: "
+								var new_line = 
+								{
+									"signature": item.transaction.signatures[0],
+									"timestamp": item.blockTime, 
+									"slot": item.slot,
+									"success": item.meta?.err == null? true : false,
+									"fee": item.meta? item.meta.fee : null,
+									"amount": amount,
+									"usd_amount": null,
+									"mint": "So11111111111111111111111111111111111111112",
+									"token_name": "SOL",
+									"type": txn_type,
+									"account_keys": item.transaction.message.accountKeys,
+									"pre_balances": item.meta? item.meta.preBalances : null,
+									"post_balances": item.meta? item.meta.postBalances : null,
+									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+									"description": customDescripton + " Transaction " + direction + " SOL"
+								}
+								workingArray.push(new_line)
+								
+								//console.log("SOL", new_line, (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL,(item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL )
+								
+								//console.log(new_line)
 							}
 						}
 
@@ -956,6 +998,7 @@
 							amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
 							//console.log("NaN? ", amount, account_index)
 						}
+
 						if (amount != 0 ) {
 							let direction = amount < 0? "Out: " : "In: "
 							var new_line = 
@@ -1005,17 +1048,72 @@
 					if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.destination == keyIn) {
 						//console.log("SOL TRANSFER IN")
 						//SOL TRANSFER
-						
 						let amount = instruction.parsed.info.lamports
 						txn_type = "Transfer"
-						var new_line = 
+						let ownedIndex = account_list.indexOf(instruction.parsed.info.source)
+						if (ownedIndex != -1) {
+							//I Own the source account reflect +?
+							var new_line = 
 							{
 								"signature": item.transaction.signatures[0],
 								"timestamp": item.blockTime, 
 								"slot": item.slot,
 								"success": item.meta?.err == null? true : false,
 								"fee": item.meta? item.meta.fee : null,
-								"amount": amount/web3.LAMPORTS_PER_SOL,
+								"amount": -amount/web3.LAMPORTS_PER_SOL,
+								"usd_amount": null,
+								"mint": "So11111111111111111111111111111111111111112",
+								"token_name": "SOL",
+								"type": txn_type,
+								"account_keys": item.transaction.message.accountKeys,
+								"pre_balances": item.meta? item.meta.preBalances : null,
+								"post_balances": item.meta? item.meta.postBalances : null,
+								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+								"description": customDescripton + "SOL Transfer Out "
+							}
+							workingArray.push(new_line)
+						}
+						
+						
+						var new_line = 
+						{
+							"signature": item.transaction.signatures[0],
+							"timestamp": item.blockTime, 
+							"slot": item.slot,
+							"success": item.meta?.err == null? true : false,
+							"fee": item.meta? item.meta.fee : null,
+							"amount": amount/web3.LAMPORTS_PER_SOL,
+							"usd_amount": null,
+							"mint": "So11111111111111111111111111111111111111112",
+							"token_name": "SOL",
+							"type": txn_type,
+							"account_keys": item.transaction.message.accountKeys,
+							"pre_balances": item.meta? item.meta.preBalances : null,
+							"post_balances": item.meta? item.meta.postBalances : null,
+							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
+							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
+							"description": customDescripton + "SOL Transfer In "
+						}
+						workingArray.push(new_line)
+							//console.log(new_line)
+
+					}
+					else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
+						//console.log("SOL TRANSFER OUT")
+						let amount = -instruction.parsed.info.lamports
+						txn_type = "Transfer"
+						let ownedIndex = account_list.indexOf(instruction.parsed.info.destination)
+						if (ownedIndex != -1) {
+							//I Own the source account reflect +?
+							var new_line = 
+							{
+								"signature": item.transaction.signatures[0],
+								"timestamp": item.blockTime, 
+								"slot": item.slot,
+								"success": item.meta?.err == null? true : false,
+								"fee": item.meta? item.meta.fee : null,
+								"amount": -amount/web3.LAMPORTS_PER_SOL,
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
@@ -1028,13 +1126,7 @@
 								"description": customDescripton + "SOL Transfer In "
 							}
 							workingArray.push(new_line)
-							//console.log(new_line)
-
-					}
-					else if (instruction.parsed.type == "transfer" && instruction.program == "system" && instruction.parsed.info.source == keyIn) {
-						//console.log("SOL TRANSFER OUT")
-						let amount = -instruction.parsed.info.lamports
-						txn_type = "Transfer"
+						}
 						var new_line = 
 							{
 								"signature": item.transaction.signatures[0],

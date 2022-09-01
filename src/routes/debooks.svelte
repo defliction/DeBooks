@@ -87,8 +87,8 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        //let trans1 = await $cnx.getParsedTransaction("3M2TgyKBiK3L89GswNkkje1YsuXitHzxtyszWUT54uEjoYdeW4JiK1QUht6A46xTGfGDcgYSFgBQcBj6KYo7dHB6")
-        // /console.log(trans1)
+        let trans1 = await $cnx.getParsedTransaction("4AZuBTYK6BUpZo16ZMnXP3VKyDkSqW3b3PWTLpZzaWQqcm3CtDtLf85Ya6G4m6nyMrCBuTJL2pNboEhkW7SZyWxR")
+        console.log(trans1)
         //let block = 38669748
         //let startB = await $cnx.getBlockTime(block)
         //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
@@ -530,11 +530,11 @@
 
         let account_list = [keyIn]
         for await (const account of tokenAccounts.value) {
-            if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
+            //if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
                 account_list.push(account.pubkey)
-                console.log("adding mint ", account.pubkey.toBase58() )
+                //console.log("adding mint ", account.pubkey.toBase58() )
                 //signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
-            }
+            //}
         }
         
         let signatures = []
@@ -542,7 +542,7 @@
         loadingText = "pre-fetch..."
 
        await Promise.all(account_list.map(async (account) => {
-            loadingText = "pre-fetch... " + account_list.indexOf(account) + "/" + account_list.length
+            loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%"
             let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
             if (fetched != undefined) {
                 signatures.push(fetched)
@@ -572,7 +572,7 @@
                     loopsigs = loopsigs.filter(x => x !== undefined)
                     //updated lastday and last sig
                     lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
-                    loadingText = "pre-fetch... " + account_list.indexOf(account) + "/" + account_list.length + " - " + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%"
+                    loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%" + " (" + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%)"
                     lastsig = await loopsigs[loopsigs.length - 1].signature
                     signatures.push(loopsigs)
                     //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))
@@ -682,7 +682,7 @@
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
                         try {
-                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content)
+                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content, account_list)
                         }
                         catch (e)
                         {
