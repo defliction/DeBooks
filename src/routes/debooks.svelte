@@ -137,15 +137,18 @@
     async function interpolateBlockSignatures() {
         
         let latestBlockhash =  await $cnx.getLatestBlockhashAndContext()
-        console.log(latestBlockhash.context.slot)
+        console.log("slot", latestBlockhash.context.slot)
 
         let slotIncrements = 500000
-        let topSlot = latestBlockhash.context.slot
+
+        let topSlot;
         let endBlockTime;
         try {
+            topSlot = latestBlockhash.context.slot
             endBlockTime =  await $cnx.getBlockTime(topSlot)
         }
         catch (e) {
+            topSlot = latestBlockhash.context.slot-50
             endBlockTime =  await $cnx.getBlockTime(topSlot)
             console.log("failed to get block time")
         }
@@ -525,12 +528,11 @@
         let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         let utl_api = await response.json()
 
-       
         let account_list = [keyIn]
         for await (const account of tokenAccounts.value) {
             if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
                 account_list.push(account.pubkey)
-                console.log("adding mint ",account.pubkey.toBase58() )
+                console.log("adding mint ", account.pubkey.toBase58() )
                 //signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
             }
         }
@@ -538,7 +540,8 @@
         let signatures = []
         account_list = account_list.flat()
         loadingText = "pre-fetch..."
-        for await (const account of account_list) {
+
+       await Promise.all(account_list.map(async (account) => {
             loadingText = "pre-fetch... " + account_list.indexOf(account) + "/" + account_list.length
             let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
             if (fetched != undefined) {
@@ -579,7 +582,10 @@
                     //await sleep(500) //wait 0.5 seconds
                 }
             }
-        }
+
+        }));
+        //console.log("array1", array1)
+
         signatures = signatures.flat()
         signatures = signatures.filter(x => x !== undefined)
         signatures = [...new Set(signatures.map(a => a.signature))].map(signature => {
