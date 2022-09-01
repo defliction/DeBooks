@@ -1050,7 +1050,8 @@
 						//SOL TRANSFER
 						let amount = instruction.parsed.info.lamports
 						txn_type = "Transfer"
-						let ownedIndex = account_list.indexOf(instruction.parsed.info.source)
+						let ownedIndex = account_list.flatMap(key => key.toBase58()).indexOf(instruction.parsed.info.source)
+						//console.log("ownediNdex",item.transaction.signatures[0], ownedIndex, account_list)
 						if (ownedIndex != -1) {
 							//I Own the source account reflect +?
 							var new_line = 
@@ -1103,7 +1104,9 @@
 						//console.log("SOL TRANSFER OUT")
 						let amount = -instruction.parsed.info.lamports
 						txn_type = "Transfer"
-						let ownedIndex = account_list.indexOf(instruction.parsed.info.destination)
+						//this could be sped up by converting destination to a publickey?
+						let ownedIndex = account_list.flatMap(key => key.toBase58()).indexOf(instruction.parsed.info.destination)
+						//console.log("ownediNdex",item.transaction.signatures[0], ownedIndex, account_list)
 						if (ownedIndex != -1) {
 							//I Own the source account reflect +?
 							var new_line = 
