@@ -757,7 +757,7 @@
 
     async function checkKey () {
         try {
-            
+            $keyInput = $keyInput.trim()
            
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
                 if (!loading) {
