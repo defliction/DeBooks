@@ -61,11 +61,11 @@
 				}
 				//console.log("royalty in")
 				//for each instruction find the one with inners > 5 inner instructions; if our account is in the first 3 as a destination then we're a royalty
-				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames : "Magic Eden: Royalty Income "
+				descr = showMetadata? "Magic Eden: Royalty Income " + nftnames.name : "Magic Eden: Royalty Income "
 				txn_type = "Royalty Income"
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
-				descr = showMetadata? "Magic Eden: Delisted " + nftnames : "Magic Eden: Delisted "
+				descr = showMetadata? "Magic Eden: Delisted " + nftnames.name : "Magic Eden: Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
 				//offer accepted
@@ -77,7 +77,7 @@
 						}
 					}) 
 					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
-					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames : "Magic Eden: Sold via Offer "
+					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.name : "Magic Eden: Sold via Offer "
 					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
@@ -127,11 +127,11 @@
 					
 					amount = item.meta.postBalances[account_index] - item.meta.preBalances[account_index]
 					if (account_index == 0) {
-						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
+						descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.name + " - " + offerAmount + " SOL" : "Magic Eden: Sold via Offer " + "- " + offerAmount + " SOL"
 						txn_type = "NFT sale"
 					}
 					else {
-						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
+						descr =  showMetadata? "Magic Eden: Bought via Offer " +  nftnames.name + " - " + offerAmount + " SOL" : "Magic Eden: Bought via Offer " + "- " + offerAmount + " SOL"
 						txn_type = "NFT purchase"
 					}
 					
@@ -147,10 +147,10 @@
 						}
 					}) 
 					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
-					descr = showMetadata? "Magic Eden: Price Change " + nftnames : "Magic Eden: Price Change "
+					descr = showMetadata? "Magic Eden: Price Change " + nftnames.name : "Magic Eden: Price Change "
 				}
 				else {
-					descr = showMetadata? "Magic Eden: Listed " + nftnames : "Magic Eden: Listed "
+					descr = showMetadata? "Magic Eden: Listed " + nftnames.name : "Magic Eden: Listed "
 				}
 				
 			}
@@ -163,7 +163,7 @@
 						}
 					}) 
 					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
-					descr =  showMetadata? "Magic Eden: Sold " + nftnames : "Magic Eden: Sold "
+					descr =  showMetadata? "Magic Eden: Sold " + nftnames.name : "Magic Eden: Sold "
 					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
 					//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
@@ -172,7 +172,7 @@
 
 				}
 				else {
-					descr = showMetadata? "Magic Eden: Bought " + nftnames : "Magic Eden: Bought "
+					descr = showMetadata? "Magic Eden: Bought " + nftnames.name : "Magic Eden: Bought "
 					txn_type = "NFT purchase"
 				}
 
@@ -193,19 +193,19 @@
 				
 					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []				
 					if (item.meta?.logMessages[2].includes("Program 11111111111111111111111111111111 invoke") || item.meta?.logMessages[8]?.includes("Program 11111111111111111111111111111111 invoke")  ) {
-						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 					}
 					else {
-						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
+						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames.name : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
 					}
 					
 				}
 				else {
 					if (item.meta?.logMessages[2].includes("Program 11111111111111111111111111111111 invoke") || item.meta?.logMessages[8]?.includes("Program 11111111111111111111111111111111 invoke")  ) {
-						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
+						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 					}
 					else {
-						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
+						descr = showMetadata?  "Magic Eden: Adjust Offer " +  nftnames.name : "Magic Eden: Adjust Offer " //+ " - " + offerAmount + " SOL"
 					}
 					
 				}
@@ -241,6 +241,7 @@
 				"usd_amount": null,
 				"mint": "So11111111111111111111111111111111111111112",
 				"token_name": "SOL",
+				"uri": nftnames.uri,
 				"type": txn_type,
 				"account_keys": item.transaction.message.accountKeys,
 				"pre_balances": item.meta? item.meta.preBalances : null,
@@ -328,13 +329,14 @@
 						"amount": tokenChange,
 						"usd_amount": null,
 						"mint": uniqueToken,
-						"token_name": tokenName,
+						"token_name": tokenName.name,
+						"uri": tokenName.uri,
 						"account_keys": item.transaction.message.accountKeys,
 						"pre_balances": item.meta? item.meta.preBalances : null,
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton + direction + tokenName
+						"description": customDescripton + direction + tokenName.name
 					}
 					workingArray.push(new_line)
 					//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -362,6 +364,7 @@
 					"usd_amount": null,
 					"mint": "So11111111111111111111111111111111111111112",
 					"token_name": "SOL",
+					"uri": null,
 					"type": txn_type,
 					"account_keys": item.transaction.message.accountKeys,
 					"pre_balances": item.meta? item.meta.preBalances : null,
@@ -448,14 +451,15 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
-								"token_name": tokenName,
+								"token_name": tokenName.name,
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + tokenName
+								"description": customDescripton +  " Transaction " + direction + tokenName.name
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -483,6 +487,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"uri": null,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
@@ -570,14 +575,15 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
-								"token_name": tokenName,
+								"token_name": tokenName.name,
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + tokenName
+								"description": customDescripton +  " Transaction " + direction + tokenName.name
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -607,6 +613,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"uri": null,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
@@ -749,14 +756,15 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
-								"token_name": tokenName,
+								"token_name": tokenName.name,
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + tokenName
+								"description": customDescripton +  " Transaction " + direction + tokenName.name
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
@@ -784,6 +792,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"uri": null,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
@@ -943,6 +952,7 @@
 									"usd_amount": null,
 									"mint": "So11111111111111111111111111111111111111112",
 									"token_name": "SOL",
+									"uri": null,
 									"type": txn_type,
 									"account_keys": item.transaction.message.accountKeys,
 									"pre_balances": item.meta? item.meta.preBalances : null,
@@ -974,14 +984,15 @@
 								"amount": tokenChange,
 								"usd_amount": null,
 								"mint": uniqueToken,
-								"token_name": tokenName,
+								"token_name": tokenName.name,
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton +  " Transaction " + direction + tokenName
+								"description": customDescripton +  " Transaction " + direction + tokenName.name
 							}
 							workingArray.push(new_line)
 							//console.log(new_line, decimals)
@@ -1012,6 +1023,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1065,6 +1077,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1088,6 +1101,7 @@
 							"usd_amount": null,
 							"mint": "So11111111111111111111111111111111111111112",
 							"token_name": "SOL",
+							"uri": null,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1120,6 +1134,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1141,6 +1156,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1212,14 +1228,15 @@
 							"amount": item.meta? tokenChange : null,
 							"usd_amount": null,
 							"mint": mint,
-							"token_name": tokenName,
+							"token_name": tokenName.name,
+							"uri": tokenName.uri,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": customDescripton + "SPL Transfer " + direction + tokenName
+							"description": customDescripton + "SPL Transfer " + direction + tokenName.name
 						}
 						workingArray.push(new_line)
 						//console.log(new_line, mint, preBal, postBal, )
@@ -1289,14 +1306,15 @@
 									"amount": tokenChange,
 									"usd_amount": null,
 									"mint": uniqueToken,
-									"token_name": tokenName,
+									"token_name": tokenName.name,
+									"uri": tokenName.uri,
 									"type": txn_type,
 									"account_keys": item.transaction.message.accountKeys,
 									"pre_balances": item.meta? item.meta.preBalances : null,
 									"post_balances": item.meta? item.meta.postBalances : null,
 									"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 									"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-									"description": customDescripton + " SPL Transfer " + direction + tokenName
+									"description": customDescripton + " SPL Transfer " + direction + tokenName.name
 								}
 								workingArray.push(new_line)
 								//console.log(new_line)
@@ -1329,14 +1347,15 @@
 							"amount": item.meta? parseFloat((postBal-preBal).toFixed(decimals)) : null,
 							"usd_amount": null,
 							"mint": mint,
-							"token_name": tokenName,
+							"token_name": tokenName.name,
+							"uri": tokenName.uri,
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
 							"pre_balances": item.meta? item.meta.preBalances : null,
 							"post_balances": item.meta? item.meta.postBalances : null,
 							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-							"description": "Burn SPL Token " + tokenName
+							"description": "Burn SPL Token " + tokenName.name
 						}
 						workingArray.push(new_line)
 
@@ -1361,6 +1380,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1382,6 +1402,7 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": null,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
@@ -1424,13 +1445,14 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton + "Create SPL Token account for " + tokenName
+								"description": customDescripton + "Create SPL Token account for " + tokenName.name
 							}
 							workingArray.push(new_line)
 						}
@@ -1447,13 +1469,14 @@
 								"usd_amount": null,
 								"mint": "So11111111111111111111111111111111111111112",
 								"token_name": "SOL",
+								"uri": tokenName.uri,
 								"type": txn_type,
 								"account_keys": item.transaction.message.accountKeys,
 								"pre_balances": item.meta? item.meta.preBalances : null,
 								"post_balances": item.meta? item.meta.postBalances : null,
 								"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 								"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-								"description": customDescripton + "Create SPL Token account for " + tokenName
+								"description": customDescripton + "Create SPL Token account for " + tokenName.name
 							}
 							workingArray.push(new_line)
 						}
@@ -1479,7 +1502,7 @@
 
 	async function fetchTokenData(mintsIn, utl, showMetadata) {
 		
-		let namedToken = "Unknown Token "
+		let namedToken = {"mint": "", "name":"Unknown Token ", "uri": "" }
 		if (mintsIn.length == 1) {
 			
 			if (showMetadata) {
@@ -1487,7 +1510,7 @@
 				let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mintsIn[0])
 				if (existingIndex != -1) {
 					//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
-					namedToken = fetchedList[existingIndex].name
+					namedToken = fetchedList[existingIndex]
 					return namedToken
 				}
 
@@ -1497,32 +1520,41 @@
 					try {
 						let nftnames = await mtda.getTokenMetadata(new web3.PublicKey(mintsIn[0]));
 						//console.log(mintIn, nftnames)
-						if (nftnames.name != "")
+						if (nftnames?.name != "")
 						{
-							namedToken = "" + nftnames.name
+							
 							var add_item = {
-								"mint": mintsIn[0],
-								"name": namedToken
+								"mint": mintsIn[0].toString,
+								"name": nftnames.name,
+								"uri": nftnames.uri,
 							}
+							namedToken = add_item
 							fetchedList.push(add_item)
+							console.log("1", nftnames)
 						}
 						else if (nftnames.symbol != "" && nftnames.uri != "") {
 							let response = await fetch(nftnames.uri)
 							let data = await response.json()
-							namedToken = "" + data.name
+							//already have image link here
 							var add_item = {
 								"mint": mintsIn[0],
-								"name": namedToken
+								"name": data.name,
+								"uri": nftnames.uri,
 							}
+							namedToken = add_item 
 							fetchedList.push(add_item)
+							console.log("2", nftnames, data)
 						}
 						else {
-							namedToken = "" + nftnames.json.name
+							
 							var add_item = {
 								"mint": mintsIn[0],
-								"name": namedToken
+								"name": nftnames.json.name,
+								"uri": nftnames.json.uri,
 							}
+							namedToken = add_item 
 							fetchedList.push(add_item)
+							console.log("3", nftnames)
 						}
 						
 					}
@@ -1531,19 +1563,26 @@
 					}
 				}
 				else {
-					namedToken = utlToken.symbol
+					
 					var add_item = {
 						"mint": mintsIn[0],
-						"name": namedToken
+						"name": utlToken.symbol,
+						"uri": ""
 					}
 					fetchedList.push(add_item)
-					
+					namedToken = add_item
 				}
 			}
 			else {
-				namedToken = "Unknown Token " + mintsIn[0].substring(0,4)
+				var add_item = {
+					"mint": mintsIn[0],
+					"name": "Unknown Token " + mintsIn[0].substring(0,4),
+					"uri": ""
+				}
+				namedToken = add_item
 			}
 		}
+		//have not attending to multiple mints
 		else if (mintsIn.length > 1) {
 			for await (const mint of mintsIn) {
 				
@@ -1568,6 +1607,7 @@
 								}
 								fetchedList.push(add_item)
 								namedToken = namedToken + " "  + nftnames.name
+								console.log("1", nftnames)
 							}
 							else if (nftnames.symbol != "" && nftnames.uri != "") {
 								let response = await fetch(nftnames.uri)
@@ -1578,6 +1618,7 @@
 								}
 								fetchedList.push(add_item)
 								namedToken = namedToken + " "  + data.name
+								console.log("2", data)
 							}
 							else {
 								var add_item = {
@@ -1586,6 +1627,7 @@
 								}
 								fetchedList.push(add_item)
 								namedToken = namedToken + " " + nftnames.json.name
+								console.log("3", nftnames)
 							}
 							
 						}
