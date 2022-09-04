@@ -16,7 +16,9 @@
     import * as mtda from '../utils/Metadata'
     import { decodeMetadata } from '../utils/MetadataUtils'
     import * as token from '@solana/spl-token';
-    
+    import { tooltip } from 'svooltip';
+	import 'svooltip/svooltip.css'; // Include default styling
+
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
   
@@ -1083,7 +1085,19 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
-                        <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
+                        {#if transaction.uri != "" || transaction.uri != null}
+                            <td use:tooltip={{
+                                content: transaction.uri ,
+                                placement: 'bottom-start',
+                                delay: [1000, 0],
+                                offset: 15,
+                                target: 'body'
+                                }} 
+                            class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
+                        {:else}
+                            <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
+                        {/if}
+                       
                         {#if !smallScreenCondition}
                             <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
                         {/if}
