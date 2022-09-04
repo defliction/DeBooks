@@ -76,7 +76,7 @@
 							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr = showMetadata? "Magic Eden: Sold via Offer " +  nftnames.name : "Magic Eden: Sold via Offer "
 					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
@@ -146,8 +146,10 @@
 							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr = showMetadata? "Magic Eden: Price Change " + nftnames.name : "Magic Eden: Price Change "
+					console.log(nftnames)
+					
 				}
 				else {
 					descr = showMetadata? "Magic Eden: Listed " + nftnames.name : "Magic Eden: Listed "
@@ -162,7 +164,7 @@
 							nftIDs.push(token.mint)
 						}
 					}) 
-					let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr =  showMetadata? "Magic Eden: Sold " + nftnames.name : "Magic Eden: Sold "
 					txn_type = "NFT sale"
 					//correct net amount to wallet (net of royalties)
@@ -191,7 +193,7 @@
 					let account_index = item.transaction.message.instructions[0].accounts.flatMap(s => s.toBase58())[2]
 					//console.log("acc ", account_index)
 				
-					let nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []				
+					nftnames = showMetadata? await fetchTokenData([account_index], utl, showMetadata) : []				
 					if (item.meta?.logMessages[2].includes("Program 11111111111111111111111111111111 invoke") || item.meta?.logMessages[8]?.includes("Program 11111111111111111111111111111111 invoke")  ) {
 						descr = showMetadata?  "Magic Eden: Make Offer " +  nftnames.name : "Magic Eden: Make Offer " //+ " - " + offerAmount + " SOL"
 					}
@@ -251,7 +253,7 @@
 				"description": descr
 			}
 			workingArray.push(new_line)
-			//console.log(new_line)
+			
 		}
 		//Magic Eden V1
 		else if(programIDs.includes("MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8")) {
@@ -1509,8 +1511,9 @@
 				
 				let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mintsIn[0])
 				if (existingIndex != -1) {
-					//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
+					
 					namedToken = fetchedList[existingIndex]
+					console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
 					return namedToken
 				}
 
@@ -1524,7 +1527,7 @@
 						{
 							
 							var add_item = {
-								"mint": mintsIn[0].toString,
+								"mint": mintsIn[0],
 								"name": nftnames.name,
 								"uri": nftnames.uri,
 							}

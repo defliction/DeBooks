@@ -509,9 +509,9 @@
         //loading = false
     }
     async function fetchImage(uriIn) {
-        console.log("fetching ", uriIn)
+        //console.log("fetching ", uriIn)
         let image_url = await fetch(uriIn)
-        console.log("fetched ", image_url)
+        //console.log("fetched ", image_url)
         let image_link = await image_url.json()
         //transaction.uri
         return image_link.image
@@ -1104,16 +1104,17 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
-                        {#if transaction.uri != ""}
-                            <Popover action="hover" arrow={false}>                                
+                        {#if transaction.uri != "" && $showMetadata}
+                            <Popover action="hover" arrow={false}>    
+                                <div slot=content>
+                                    {#await fetchImage(transaction.uri) then value}
+                                        <img class='mask mask-squircle scale-50 -translate-y-[1rem] sm:-translate-y-[3rem]' src={value} /> 
+                                    {/await}
+                                </div>                            
                                 <td slot=target class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
                                  
                                 {transaction.description}</td>
-                                <div slot=content>
-                                    {#await fetchImage(transaction.uri) then value}
-                                        <img class='mask mask-squircle scale-50 -translate-y-[2rem]' src={value} /> 
-                                    {/await}
-                                </div>
+                                
                           </Popover>
                             
                         {:else}
