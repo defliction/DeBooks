@@ -1129,7 +1129,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                             loading image
                                         </span>    
                                     {:then value}
-                                        <img class='shadow-xl border-8 border-neutral rounded-[3rem] scale-50 -translate-y-[1rem] lg:-translate-y-[4rem]' src={value} /> 
+                                        {#if value != null}
+                                            <img class='shadow-xl border-8 border-neutral rounded-[3rem] scale-50 -translate-y-[1rem] lg:-translate-y-[4rem]' src={value} /> 
+                                        {/if}
                                     {/await}
                                 </div>                            
                                
