@@ -1533,7 +1533,7 @@
 							}
 							namedToken = add_item
 							fetchedList.push(add_item)
-							console.log("1", nftnames)
+							//console.log("1", nftnames)
 						}
 						else if (nftnames.symbol != "" && nftnames.uri != "") {
 							let response = await fetch(nftnames.uri)
@@ -1546,7 +1546,7 @@
 							}
 							namedToken = add_item 
 							fetchedList.push(add_item)
-							console.log("2", nftnames, data)
+							//console.log("2", nftnames, data)
 						}
 						else {
 							
@@ -1557,7 +1557,7 @@
 							}
 							namedToken = add_item 
 							fetchedList.push(add_item)
-							console.log("3", nftnames)
+							//console.log("3", nftnames)
 						}
 						
 					}
@@ -1585,7 +1585,7 @@
 				namedToken = add_item
 			}
 		}
-		//have not attending to multiple mints
+		//have not attended to multiple mints
 		else if (mintsIn.length > 1) {
 			for await (const mint of mintsIn) {
 				
