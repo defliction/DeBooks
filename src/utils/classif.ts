@@ -1513,7 +1513,7 @@
 				if (existingIndex != -1) {
 					
 					namedToken = fetchedList[existingIndex]
-					console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
+					//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
 					return namedToken
 				}
 

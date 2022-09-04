@@ -1126,7 +1126,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                         </p>
                                     </div>
                                     {:then value}
-                                        <img class='mask mask-squircle scale-50 -translate-y-[1rem] sm:-translate-y-[3rem]' src={value} /> 
+                                        <img class='rounded-[3rem] scale-50 translate-y-[2rem] sm:-translate-y-[1rem]' src={value} /> 
                                     {/await}
                                 </div>                            
                                 <td slot=target class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
