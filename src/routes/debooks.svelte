@@ -16,8 +16,9 @@
     import * as mtda from '../utils/Metadata'
     import { decodeMetadata } from '../utils/MetadataUtils'
     import * as token from '@solana/spl-token';
-    import { tooltip } from 'svooltip';
-	import 'svooltip/svooltip.css'; // Include default styling
+    import Popover from 'svelte-popover'
+
+
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -461,6 +462,7 @@
                     "usd_amount": null,
                     "mint": "So11111111111111111111111111111111111111112",
                     "token_name": "SOL",
+                    "uri": "",
                     "type": "Fees",
                     "account_keys": item.transaction.message.accountKeys,
                     "pre_balances": item.meta? item.meta.preBalances : null,
@@ -505,6 +507,14 @@
         //totalPages = Math.ceil($displayArray.length/pageIncrement)
         sliceDisplayArray()
         //loading = false
+    }
+    async function fetchImage(uriIn) {
+        console.log("fetching ", uriIn)
+        let image_url = await fetch(uriIn)
+        console.log("fetched ", image_url)
+        let image_link = await image_url.json()
+        //transaction.uri
+        return image_link.image
     }
 
     async function fetchForAddress (keyIn) {
@@ -667,6 +677,7 @@
                         "usd_amount": null,
                         "mint": "So11111111111111111111111111111111111111112",
                         "token_name": "SOL",
+                        "uri": "",
                         "type": "Fees",
                         "account_keys": item.transaction.message.accountKeys,
                         "pre_balances": item.meta? item.meta.preBalances : null,
@@ -1086,9 +1097,17 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
                         {#if transaction.uri != ""}
-                            <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
-                                <a href={transaction.uri}> <img src={transaction.uri} /> 
-                                {transaction.description}</a></td>
+                            <Popover action="hover">                                
+                                <td slot=target class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
+                                 
+                                {transaction.description}</td>
+                                <div slot=content>
+                                    {#await fetchImage(transaction.uri) then value}
+                                        <img src={value} /> 
+                                    {/await}
+                                </div>
+                          </Popover>
+                            
                         {:else}
                             <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
                         {/if}
