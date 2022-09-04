@@ -552,50 +552,58 @@
         let signatures = []
         account_list = account_list.flat()
         loadingText = "pre-fetch..."
-
-       await Promise.all(account_list.map(async (account) => {
-            loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%"
-            let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
-            if (fetched != undefined) {
-                signatures.push(fetched)
-            }
-            //set initial lastday and last sig
-            
-            let lastsig:string = await signatures[signatures.length - 1].signature
-            let lastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
-            let firstLastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
-            while (lastday > startday) {
-                try {
-                    let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
-                    for await (const account of tokenAccounts.value) {
-                        if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
-                            //console.log("adding mint ",account.pubkey.toBase58() )
-                            let fetched = (await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]
-                            if (fetched != undefined) {
-                                loopsigs.push(fetched);
-                            }
-                        } 
-                        //console.log('loopsig', loopsigs)
-                    }
-                    if (loopsigs.length == 0) {
-                     //   await sleep(500) //wait 0.5 seconds
-                        break
-                    }
-                    loopsigs = loopsigs.filter(x => x !== undefined)
-                    //updated lastday and last sig
-                    lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
-                    loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%" + " (" + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%)"
-                    lastsig = await loopsigs[loopsigs.length - 1].signature
-                    signatures.push(loopsigs)
-                    //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))
+        
+        let position = 0;
+        let batchSize = 200;
+        while (position < account_list.length) {
+            const itemsForBatch = account_list.slice(position, position + batchSize);
+            await Promise.all(itemsForBatch.map(async (account) => {
+        
+                loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%"
+                let fetched = await $cnx.getSignaturesForAddress(account, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]})
+                if (fetched != undefined) {
+                    signatures.push(fetched)
                 }
-                catch (e) {
-                    console.log("Error in loopsigs", e)
-                    //await sleep(500) //wait 0.5 seconds
+                //set initial lastday and last sig
+                
+                let lastsig:string = await signatures[signatures.length - 1].signature
+                let lastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
+                let firstLastday = dayjs.unix(await signatures[signatures.length - 1].blockTime)
+                while (lastday > startday) {
+                    try {
+                        let loopsigs = await $cnx.getSignaturesForAddress(keyIn, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]});
+                        for await (const account of tokenAccounts.value) {
+                            if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
+                                //console.log("adding mint ",account.pubkey.toBase58() )
+                                let fetched = (await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:lastsig, until:signatureBracket[0]}))[0]
+                                if (fetched != undefined) {
+                                    loopsigs.push(fetched);
+                                }
+                            } 
+                            //console.log('loopsig', loopsigs)
+                        }
+                        if (loopsigs.length == 0) {
+                        //   await sleep(500) //wait 0.5 seconds
+                            break
+                        }
+                        loopsigs = loopsigs.filter(x => x !== undefined)
+                        //updated lastday and last sig
+                        lastday = dayjs.unix(await loopsigs[loopsigs.length - 1].blockTime)
+                        loadingText = "pre-fetch... " + Math.round(account_list.indexOf(account)/account_list.length*100)+"%" + " (" + Math.min(Math.round(firstLastday.diff(lastday, 'hours')/firstLastday.diff(startday, 'hours')*100,0),100) +"%)"
+                        lastsig = await loopsigs[loopsigs.length - 1].signature
+                        signatures.push(loopsigs)
+                        //console.log("signatures ", lastday.format("DD-MM-YYY"), startday.format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), endday.diff(lastday, 'hours'), endday.diff(startday, 'hours'), endday.diff(lastday, 'hours')/endday.diff(startday, 'hours'))
+                    }
+                    catch (e) {
+                        console.log("Error in loopsigs", e)
+                        //await sleep(500) //wait 0.5 seconds
+                    }
                 }
-            }
 
-        }));
+            }));
+            position += batchSize;
+        }
+       
         //console.log("array1", array1)
 
         signatures = signatures.flat()
@@ -728,7 +736,7 @@
         loading = false 
             
         
-    }
+        }
     function sortArray(arrayIn) {
         arrayIn = arrayIn.sort(function sortDates(a, b) { // non-anonymous as you ordered...
             return b.timestamp > a.timestamp ?  1 // if b should come earlier, push a to end
@@ -1097,13 +1105,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
                         {#if transaction.uri != ""}
-                            <Popover action="hover">                                
+                            <Popover action="hover" arrow={false}>                                
                                 <td slot=target class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
                                  
                                 {transaction.description}</td>
                                 <div slot=content>
                                     {#await fetchImage(transaction.uri) then value}
-                                        <img src={value} /> 
+                                        <img class='mask mask-squircle scale-50 -translate-y-[2rem]' src={value} /> 
                                     {/await}
                                 </div>
                           </Popover>
