@@ -1085,15 +1085,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
-                        {#if transaction.uri != "" || transaction.uri != null}
-                            <td use:tooltip={{
-                                content: transaction.uri ,
-                                placement: 'bottom-start',
-                                delay: [1000, 0],
-                                offset: 15,
-                                target: 'body'
-                                }} 
-                            class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
+                        {#if transaction.uri != ""}
+                            <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
+                                <a href={transaction.uri}> <img src={transaction.uri} /> 
+                                {transaction.description}</a></td>
                         {:else}
                             <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
                         {/if}
