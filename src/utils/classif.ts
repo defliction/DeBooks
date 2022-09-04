@@ -148,7 +148,7 @@
 					}) 
 					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					descr = showMetadata? "Magic Eden: Price Change " + nftnames.name : "Magic Eden: Price Change "
-					console.log(nftnames)
+					//console.log(nftnames)
 					
 				}
 				else {
@@ -1588,13 +1588,11 @@
 		//have not attended to multiple mints
 		else if (mintsIn.length > 1) {
 			for await (const mint of mintsIn) {
-				
-
 				if (showMetadata) {
 					let existingIndex = fetchedList.flatMap(s => s.mint).indexOf(mint)
 					if (existingIndex != -1) {
 						//console.log("found existing mint ",fetchedList[existingIndex], existingIndex)
-						namedToken = namedToken + " " + fetchedList[existingIndex].name
+						namedToken.name = namedToken.name + " " + fetchedList[existingIndex].name
 					}
 					//let utlToken:Token = await utl.fetchMint(new web3.PublicKey(mintIn))
 					let utlToken = utl.filter(item => item.address == mint)[0]
@@ -1606,31 +1604,34 @@
 							{
 								var add_item = {
 									"mint":mint,
-									"name": nftnames.name
+									"name": nftnames.name,
+									"uri": nftnames.uri
 								}
 								fetchedList.push(add_item)
-								namedToken = namedToken + " "  + nftnames.name
-								console.log("1", nftnames)
+								namedToken.name = namedToken.name + " "  + nftnames.name
+								//console.log("1", nftnames)
 							}
 							else if (nftnames.symbol != "" && nftnames.uri != "") {
 								let response = await fetch(nftnames.uri)
 								let data = await response.json()
 								var add_item = {
 									"mint":mint,
-									"name": "" + data.name
+									"name": "" + data.name,
+									"uri": data.uri
 								}
 								fetchedList.push(add_item)
-								namedToken = namedToken + " "  + data.name
-								console.log("2", data)
+								namedToken.name = namedToken.name + " "  + data.name
+								//console.log("2", data)
 							}
 							else {
 								var add_item = {
 									"mint":mint,
-									"name": "" + nftnames.json.name
+									"name": "" + nftnames.json.name,
+									"uri": nftnames.json.uri
 								}
 								fetchedList.push(add_item)
-								namedToken = namedToken + " " + nftnames.json.name
-								console.log("3", nftnames)
+								namedToken.name = namedToken.name + " " + nftnames.json.name
+								//console.log("3", nftnames)
 							}
 							
 						}
@@ -1641,14 +1642,15 @@
 					else {
 						var add_item = {
 							"mint":mint,
-							"name": "" + utlToken.symbol
+							"name": "" + utlToken.symbol,
+							"uri": ""
 						}
 						fetchedList.push(add_item)
-						namedToken = namedToken + " " + utlToken.symbol
+						namedToken.name = namedToken.name + " " + utlToken.symbol
 					}
 				}
 				else {
-					namedToken = namedToken + " " + mint.substring(0,4)
+					namedToken.name = namedToken.name + " " + mint.substring(0,4)
 				}
 
 			}

@@ -63,6 +63,7 @@
     let showInfoTip = false
     let invalidKey = false;
 
+
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
@@ -883,6 +884,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 //$: start, end && $keyInput != "" ? checkKey() ? new web3.PublicKey($keyInput) : loading = false : (validKey = false, loading = false)
 //<DateInput on:close={fetchAll} bind:value={start} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />   
 // /<DateInput on:close={fetchAll} bind:value={end} closeOnSelection={true} format="yyyy-MM-dd" placeholder="2022-01-01" />
+
+
+
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -1111,30 +1115,26 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
                         {#if transaction.uri != "" && $showMetadata}
-                            <Popover action="hover" arrow={false}>    
+                        <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
+                            <Popover class="whitespace-normal" action="hover" arrow={false} overlayColor=rgba(0,0,0,0) >    
+                                <span slot="target" class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</span>
                                 <div slot=content>
                                     {#await fetchImage(transaction.uri)}
-                                    <div class="flex flex-row justify-center ">
-                                        <p class="pt-4 justify-center">
-                                            <span class="font-serif font-medium badge badge-lg ">
-                                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <span class="font-serif font-medium badge badge-lg ">
+                                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                  </svg>
-                                                  Loading image
-                                                </span> 
-                                        </p>
-                                    </div>
+                                                    
+                                            </svg>
+                                            Loading image
+                                        </span>    
                                     {:then value}
-                                        <img class='rounded-[3rem] scale-50 translate-y-[2rem] sm:-translate-y-[1rem]' src={value} /> 
+                                        <img class='shadow-xl border-8 border-neutral rounded-[3rem] scale-50 -translate-y-[1rem] lg:-translate-y-[4rem]' src={value} /> 
                                     {/await}
                                 </div>                            
-                                <td slot=target class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
-                                 
-                                {transaction.description}</td>
-                                
+                               
                           </Popover>
-                            
+                        </td>
                         {:else}
                             <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
                         {/if}
