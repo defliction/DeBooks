@@ -510,11 +510,17 @@
     }
     async function fetchImage(uriIn) {
         //console.log("fetching ", uriIn)
-        let image_url = await fetch(uriIn)
-        //console.log("fetched ", image_url)
-        let image_link = await image_url.json()
-        //transaction.uri
-        return image_link.image
+        try {
+            let image_url = await fetch(uriIn)
+            //console.log("fetched ", image_url)
+            let image_link = await image_url.json()
+            //transaction.uri
+            return image_link.image
+        }
+        catch (e) {
+            console.log("Failed to fetch image", e)
+        }
+        
     }
 
     async function fetchForAddress (keyIn) {
@@ -1107,7 +1113,19 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {#if transaction.uri != "" && $showMetadata}
                             <Popover action="hover" arrow={false}>    
                                 <div slot=content>
-                                    {#await fetchImage(transaction.uri) then value}
+                                    {#await fetchImage(transaction.uri)}
+                                    <div class="flex flex-row justify-center ">
+                                        <p class="pt-4 justify-center">
+                                            <span class="font-serif font-medium badge badge-lg ">
+                                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                  </svg>
+                                                  Loading image
+                                                </span> 
+                                        </p>
+                                    </div>
+                                    {:then value}
                                         <img class='mask mask-squircle scale-50 -translate-y-[1rem] sm:-translate-y-[3rem]' src={value} /> 
                                     {/await}
                                 </div>                            
