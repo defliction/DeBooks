@@ -1116,7 +1116,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {/if}
                         {#if transaction.uri != "" && $showMetadata}
                         <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
-                            <Popover class="whitespace-normal" action="hover" arrow={false} overlayColor=rgba(0,0,0,0) >    
+                            <Popover action="hover" arrow={false} overlayColor=rgba(0,0,0,0) >    
                                 <span slot="target" class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</span>
                                 <div slot=content>
                                     {#await fetchImage(transaction.uri)}
@@ -1126,7 +1126,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     
                                             </svg>
-                                            Loading image
+                                            loading image
                                         </span>    
                                     {:then value}
                                         <img class='shadow-xl border-8 border-neutral rounded-[3rem] scale-50 -translate-y-[1rem] lg:-translate-y-[4rem]' src={value} /> 
