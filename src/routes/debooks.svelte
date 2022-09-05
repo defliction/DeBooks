@@ -80,7 +80,6 @@
             try {
                 latestBlockhash = await $cnx.getLatestBlockhashAndContext()
                 rpcConnection = true
-                 
             }
             catch (e) {
                 rpcConnection = false
@@ -91,8 +90,8 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        //let trans1 = await $cnx.getParsedTransaction("4AZuBTYK6BUpZo16ZMnXP3VKyDkSqW3b3PWTLpZzaWQqcm3CtDtLf85Ya6G4m6nyMrCBuTJL2pNboEhkW7SZyWxR")
-        //console.log(trans1)
+        let trans1 = await $cnx.getParsedTransaction("ktxAdyQU7dzAnJy7RboBbDfSsuF6uFGdEmvU5SwLtndDzEahcegZnWc7ymLLUNoQgdV1QugTrMUqDVyvY1f7vv6")
+        console.log(trans1)
         //let block = 38669748
         //let startB = await $cnx.getBlockTime(block)
         //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
@@ -551,6 +550,7 @@
         for await (const account of tokenAccounts.value) {
             //if (utl_api.content.flatMap(s => s.address).indexOf(account.account.data.parsed.info.mint) !== -1) {
                 account_list.push(account.pubkey)
+                
                 //console.log("adding mint ", account.pubkey.toBase58() )
                 //signatures.push((await $cnx.getSignaturesForAddress(account.pubkey, {limit:fetchLimit,before:signatureBracket[1], until:signatureBracket[0]}))[0]);
             //}
@@ -1116,8 +1116,17 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {/if}
                         {#if transaction.uri != "" && $showMetadata}
                         <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">
+                            
                             <Popover action="hover" arrow={false} overlayColor=rgba(0,0,0,0) >    
-                                <span slot="target" class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</span>
+                                <div slot="target" class="flex justify-center align-middle flex-row ">
+                                   <span class='pr-2'> {transaction.description}</span>
+                                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                  </svg>
+                                  
+                                </div>
+                                
+                              
                                 <div slot=content>
                                     {#await fetchImage(transaction.uri)}
                                         <span class="font-serif font-medium badge badge-lg ">
@@ -1135,7 +1144,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                     {/await}
                                 </div>                            
                                
-                          </Popover>
+                            </Popover>
                         </td>
                         {:else}
                             <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>

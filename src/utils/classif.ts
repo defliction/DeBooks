@@ -261,7 +261,8 @@
 			// check all instruction accounts flatmapped
 			let customDescripton = "Magic Eden Transaction "
 			let txn_type = "Generic"
-		
+			let amount = 0
+			let escrowedToken = 0
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
 				if (token.owner == keyIn) {
@@ -274,13 +275,77 @@
 				}
 			})
 			let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
-
+			let me1_escrow = "GUfCR9mK6azb9vcpsxgXyj7XRPAKJd4KMHTTVvtncGgp"
 			//console.log("nftIDs " + nftIDs)
 			if (item.transaction.message.accountKeys.length < 7 && item.transaction.message.accountKeys[4].pubkey.toBase58() == "11111111111111111111111111111111") {
 				customDescripton = "Magic Eden Listing "
+				//GUfCR9mK6azb9vcpsxgXyj7XRPAKJd4KMHTTVvtncGgp
+				if (nftIDs.length == 0) {
+					
+					for await (const token of item.meta.postTokenBalances) {
+						if (token.owner == undefined) {
+							//find owner and set it - old transactions don't have this data
+							//console.log("looking for owner pre tokens")
+							try {
+								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
+								if (owner.value?.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+									//SPL token
+									//get ultimate owner
+									let decoded = spl_token.AccountLayout.decode(owner.value.data)
+									let uowner = decoded.owner.toBase58()
+									token.owner = uowner
+								}
+							
+							}
+							catch (e) {
+								console.log(e, )
+							}
+							
+						}
+						if (token.owner == me1_escrow) {
+							nftIDs.push(token.mint)
+							escrowedToken = token.uiTokenAmount.uiAmount
+							//console.log("Listing",amount, token)
+							
+						}
+					}
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					
+				}
+				
 			}
 			else if (item.transaction.message.accountKeys.length < 7 && item.transaction.message.accountKeys[4].pubkey.toBase58() == "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") {
 				customDescripton = "Magic Eden Cancel Listing "
+				if (nftIDs.length == 0) {
+					for await (const token of item.meta.preTokenBalances) {
+						if (token.owner == undefined) {
+							//find owner and set it - old transactions don't have this data
+							//console.log("looking for owner pre tokens")
+							try {
+								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
+								if (owner.value?.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+									//SPL token
+									//get ultimate owner
+									let decoded = spl_token.AccountLayout.decode(owner.value.data)
+									let uowner = decoded.owner.toBase58()
+									token.owner = uowner
+								}
+							
+							}
+							catch (e) {
+								console.log(e, )
+							}
+							
+						}
+						if (token.owner == me1_escrow) {
+							nftIDs.push(token.mint)
+							escrowedToken = -token.uiTokenAmount.uiAmount
+						}
+					}
+		
+					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+					
+				}
 			}
 			else if (account_index == 0) {
 				customDescripton = "Magic Eden Purchase "
@@ -291,6 +356,7 @@
 				txn_type = "NFT sale"
 				nftIDs.push(item.meta.preTokenBalances[0].mint)
 				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
+				//E2fbgSLsyCXXP7uoqqrXDTzjTVdURYAyXVab2XzjUoys
 				
 			}
 			else if (account_index > 6) {
@@ -308,15 +374,20 @@
 			//token balance loop
 			for await (const uniqueToken of uniqueTokens) {
 				
+				
 				let decimals = item.meta.postTokenBalances.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
+			
 				let preFil = item.meta.preTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 				let preBal =  preFil? preFil : 0
 				
 				let postFil = item.meta.postTokenBalances.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 				let postBal = postFil? postFil : 0
-				let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
+				let tokenChange = parseFloat((postBal-preBal).toFixed(decimals))
+				
+				 
+
 				//customDescripton = "Magic Eden "
-				if (tokenChange != 0) {
+				if (tokenChange && tokenChange != 0) {
 					//console.log("--> unique token ", uniqueToken)
 					let direction = tokenChange < 0? "Out: " : "In: "
 					//console.log("--> unique token ", tokenName.symbol? )
@@ -346,14 +417,17 @@
 			}
 			//SOL balance sort
 			
-			let amount = 0
+			
 			if (feePayer == keyIn) {
 				amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index] + item.meta.fee)/web3.LAMPORTS_PER_SOL : 0
 			}
 			else {
 				amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
 			}
-			if (amount != 0) {
+			if (amount == undefined && escrowedToken != 0){
+				amount = escrowedToken
+			}
+			if (amount != 0 ) {
 				let direction = amount < 0? "Out: " : "In: "
 				var new_line = 
 				{
@@ -366,14 +440,14 @@
 					"usd_amount": null,
 					"mint": "So11111111111111111111111111111111111111112",
 					"token_name": "SOL",
-					"uri": "",
+					"uri": nftnames.uri,
 					"type": txn_type,
 					"account_keys": item.transaction.message.accountKeys,
 					"pre_balances": item.meta? item.meta.preBalances : null,
 					"post_balances": item.meta? item.meta.postBalances : null,
 					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-					"description": customDescripton + direction + " SOL - " + nftnames
+					"description": customDescripton + direction + " - " + nftnames.name
 				}
 				workingArray.push(new_line)
 				//console.log(new_line)
@@ -861,16 +935,17 @@
 					for await (var token of preTokens) {
 						if (token.owner == undefined) {
 							//find owner and set it - old transactions don't have this data
-							console.log("looking for owner pre tokens")
+							//console.log("looking for owner pre tokens")
 							try {
 								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
-								if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+								if (owner.value?.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 									//SPL token
 									//get ultimate owner
 									let decoded = spl_token.AccountLayout.decode(owner.value.data)
 									let uowner = decoded.owner.toBase58()
 									token.owner = uowner
 								}
+							
 							}
 							catch (e) {
 								console.log(e, )
@@ -881,16 +956,17 @@
 					for await (var token of postTokens) {
 						if (token.owner == undefined) {
 							//find owner and set it
-							console.log("looking for owner post tokens")
+							//console.log("looking for owner post tokens")
 							try {
 								let owner = await connection.getAccountInfoAndContext(item.transaction.message.accountKeys[token.accountIndex].pubkey)
-								if (owner.value.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+								if (owner.value?.owner.toBase58() == 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
 									//SPL token
 									//get ultimate owner
 									let decoded = spl_token.AccountLayout.decode(owner.value.data)
 									let uowner = decoded.owner.toBase58()
 									token.owner = uowner
 								}
+								
 							}
 							catch (e) {
 								console.log(e, )
