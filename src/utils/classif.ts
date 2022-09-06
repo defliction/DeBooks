@@ -262,20 +262,21 @@
 			let customDescripton = "Magic Eden Transaction "
 			let txn_type = "Generic"
 			let amount = 0
-			let escrowedToken = 0
+			let me1_escrow = "GUfCR9mK6azb9vcpsxgXyj7XRPAKJd4KMHTTVvtncGgp"
+			let escrowedToken
 			let nftIDs: web3.PublicKey[] = []
 			item.meta.postTokenBalances.forEach(function (token) {
-				if (token.owner == keyIn) {
+				if (token.owner == keyIn || token.owner == me1_escrow ) {
 					nftIDs.push(token.mint)
 				}
 			})
 			item.meta.preTokenBalances.forEach(function (token) {
-				if (token.owner == keyIn) {
+				if (token.owner == keyIn || token.owner == me1_escrow ) {
 					nftIDs.push(token.mint)
 				}
 			})
 			let nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
-			let me1_escrow = "GUfCR9mK6azb9vcpsxgXyj7XRPAKJd4KMHTTVvtncGgp"
+			
 			//console.log("nftIDs " + nftIDs)
 			if (item.transaction.message.accountKeys.length < 7 && item.transaction.message.accountKeys[4].pubkey.toBase58() == "11111111111111111111111111111111") {
 				customDescripton = "Magic Eden Listing "
@@ -302,13 +303,15 @@
 							}
 							
 						}
-						if (token.owner == me1_escrow) {
+						
+						if (token.owner == me1_escrow || token.owner == keyIn) {
 							nftIDs.push(token.mint)
-							escrowedToken = token.uiTokenAmount.uiAmount
+							escrowedToken = token
 							//console.log("Listing",amount, token)
 							
 						}
 					}
+					
 					nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 					
 				}
@@ -337,9 +340,11 @@
 							}
 							
 						}
-						if (token.owner == me1_escrow) {
+						if (token.owner == me1_escrow || token.owner == keyIn) {
 							nftIDs.push(token.mint)
-							escrowedToken = -token.uiTokenAmount.uiAmount
+							escrowedToken = token
+							//console.log("Listing",amount, token)
+							
 						}
 					}
 		
@@ -349,6 +354,8 @@
 			}
 			else if (account_index == 0) {
 				customDescripton = "Magic Eden Purchase "
+				nftIDs.push(item.meta.postTokenBalances[0].mint)
+				nftnames = showMetadata? await fetchTokenData(nftIDs, utl, showMetadata) : []
 				txn_type = "NFT purchase"
 			}
 			else if (account_index == 2) {
@@ -372,6 +379,7 @@
 			const uniqueTokens =  [...new Set(combined)]
 			//console.log("Unique tokens ", combined,  uniqueTokens)
 			//token balance loop
+			/*
 			for await (const uniqueToken of uniqueTokens) {
 				
 				
@@ -414,7 +422,7 @@
 					workingArray.push(new_line)
 					//console.log(new_line, (postBal-preBal), (postBal-preBal).toFixed(decimals), tokenChange)
 				}
-			}
+			}*/
 			//SOL balance sort
 			
 			
@@ -424,10 +432,15 @@
 			else {
 				amount = item.meta? (item.meta.postBalances[account_index] - item.meta.preBalances[account_index])/web3.LAMPORTS_PER_SOL : 0
 			}
-			if (amount == undefined && escrowedToken != 0){
-				amount = escrowedToken
+			if (amount == undefined ){
+				//amount = escrowedToken
+				amount = item.meta? (item.meta.postBalances[escrowedToken.account_index] - item.meta.preBalances[escrowedToken.account_index])/web3.LAMPORTS_PER_SOL : 0
+				if (feePayer == escrowedToken.owner) {
+					amount = amount - (item.meta.fee)/web3.LAMPORTS_PER_SOL 
+				}
+				
 			}
-			if (amount != 0 ) {
+			if (amount != 0 && feePayer == keyIn || amount != undefined && feePayer == keyIn) {
 				let direction = amount < 0? "Out: " : "In: "
 				var new_line = 
 				{
@@ -447,10 +460,11 @@
 					"post_balances": item.meta? item.meta.postBalances : null,
 					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-					"description": customDescripton + direction + " - " + nftnames.name
+					"description": customDescripton + direction + "" + nftnames.name
 				}
 				workingArray.push(new_line)
-				//console.log(new_line)
+			
+				
 			}
 		}
 		//Foxy Swap
@@ -1047,7 +1061,7 @@
 							}
 						}
 
-						if (tokenChange != 0) {
+						if (tokenChange != 0 && feePayer == keyIn) {
 							//console.log("--> unique token ", uniqueToken)
 							let direction = tokenChange < 0? "Out: " : "In: "
 							//console.log("--> unique token ", tokenName.symbol? )
