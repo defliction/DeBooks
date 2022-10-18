@@ -1,6 +1,6 @@
 <script lang='ts'>
 
-    import { onMount } from "svelte";
+    import { onMount, afterUpdate } from "svelte";
     import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
@@ -16,9 +16,9 @@
     import * as mtda from '../utils/Metadata'
     import { decodeMetadata } from '../utils/MetadataUtils'
     import * as token from '@solana/spl-token';
-    import Popover from 'svelte-popover'
+    import Popover from 'svelte-popover';
 
-
+    import { themeChange } from 'theme-change'
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -31,6 +31,8 @@
    
     let fetchLimit = 250
     let loading = false;
+    let darkMode = false;
+    let firstUpdate = false;
 
     //let start = dayjs(new Date(2021,1,1))
     let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
@@ -69,11 +71,32 @@
     //const metap = new Metaplex($connection)
     //const mx = Metaplex.make($cnx);
     //let mx
+    afterUpdate(() => {
+		// secondary CSS variable gives you HSL values
+		if (!firstUpdate) {
+            if (getComputedStyle(document.querySelector(':root')).getPropertyValue('--s') == "0 2% 20%") {
+            //console.log("FOUND THEME")
+            if (!darkMode) {
+                darkMode = true
+            }
+                
+        }
+        else if (getComputedStyle(document.querySelector(':root')).getPropertyValue('--s') == "338 71% 78%") {
+            //console.log("FOUND THEME")
+            if (darkMode) {
+                darkMode = false
+            }
+                
+        }
+        firstUpdate = true
+        }
+        
+	});
 
     onMount(async () => {
        //await fetchAll()
         console.log("START - starting logs")
-    
+        themeChange(false)
         let latestBlockhash 
         while(latestBlockhash == null) {
 
@@ -893,34 +916,28 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 
 
 <div class="flex justify-center">
-    
-    
     <div class="pt-2 text-center ">
-        <div class="grid grid-flow-col place-items-end ">
-                  
-                    <div class="md:tooltip md:tooltip-bottom z-50" data-tip="{metadataText}">                    
-                        {#if loading}
+        <div class="grid grid-flow-col">
+            <div class="grid place-items-start ">
+                <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Toggle Dark Mode">  
+                    <button data-toggle-theme="light,black" on:click={()=> darkMode = !darkMode} class="btn btn-xs btn-ghost normal-case " >
+                    {#if darkMode}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                    {:else if !darkMode}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>                                  
+                    {/if}
+                </button> 
+                </div>
+            </div>
+            <div class="grid place-items-end ">
+                      
+                        <div class="md:tooltip md:tooltip-bottom z-50" data-tip="{metadataText}">                    
+                            {#if loading}
                             <button on:click={metadataHandler} disabled class="btn btn-xs btn-ghost normal-case ">
-                            {#if $showMetadata}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            {:else}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-                            </svg>
-                            {/if}
-                            
-                        </button>
-                        {:else if metadataAnimation}
-                        <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
-                            <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
-                                <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg><span class = "pl-2">{metadataAnimText} </span>
-                        </button>
-                        {:else}
-                            <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
                                 {#if $showMetadata}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -932,14 +949,37 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                 {/if}
                                 
                             </button>
-                        {/if}
-                        
-                        
-                    </div>
-        
+                            {:else if metadataAnimation}
+                            <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
+                                <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
+                                    <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg><span class = "pl-2">{metadataAnimText} </span>
+                            </button>
+                            {:else}
+                                <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
+                                    {#if $showMetadata}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    {:else}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                    </svg>
+                                    {/if}
+                                    
+                                </button>
+                            {/if}
+                            
+                            
+                        </div>
+            
+            </div>
+
         </div>
+        
         <div class="indicator z-5">
-            <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">alpha</span>
+            <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">beta</span>
             <h1 class="pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         </div>
         
