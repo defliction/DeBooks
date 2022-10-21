@@ -1331,7 +1331,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 {/if}
 
 <svelte:head>
-    <title>DeBooks - Wallet Statements</title>
+    <title>DeBooks - Transaction Statements</title>
 </svelte:head>
 
 
