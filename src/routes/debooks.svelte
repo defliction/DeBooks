@@ -893,6 +893,14 @@
             $currentPage = 1
         }
     }
+    function onKeyDown(e) {
+		 switch(e.keyCode) {
+			 case 13:
+				 checkKey()
+				 break;
+			 
+		 }
+	}
 
 //$: $keyInput != "" && $keyInput != $loadedAddress ? checkKey() : null
 $: $showfailed, sliceDisplayArray()
@@ -1056,7 +1064,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         {#if loading == false && rpcConnection == true}
         
         <div class="input-group justify-center">
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
             {#if $keyInput != ""}
             <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
                 GO
