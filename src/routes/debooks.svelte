@@ -68,8 +68,10 @@
     let showInfoTip = false
     let invalidKey = false;
 
+    let blockcnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
     //https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
+    //$cnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
     $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
     //const mx = Metaplex.make($cnx);
@@ -165,7 +167,7 @@
  
     async function interpolateBlockSignatures() {
         
-        let latestBlockhash =  await $cnx.getLatestBlockhashAndContext()
+        let latestBlockhash =  await blockcnx.getLatestBlockhashAndContext()
         console.log("slot", latestBlockhash.context.slot)
 
         let slotIncrements = 500000
@@ -174,11 +176,11 @@
         let endBlockTime;
         try {
             topSlot = latestBlockhash.context.slot
-            endBlockTime =  await $cnx.getBlockTime(topSlot)
+            endBlockTime =  await blockcnx.getBlockTime(topSlot)
         }
         catch (e) {
             topSlot = latestBlockhash.context.slot-50
-            endBlockTime =  await $cnx.getBlockTime(topSlot)
+            endBlockTime =  await blockcnx.getBlockTime(topSlot)
             console.log("failed to get block time")
         }
         let endSignature;
@@ -205,7 +207,7 @@
                     topSlot -= smallerIncrements
                 }
                 topSlot = Math.max(topSlot, 1)
-                endBlockTime = await $cnx.getBlockTime(topSlot)
+                endBlockTime = await blockcnx.getBlockTime(topSlot)
                 //loadingText = "optimizing retrieval..." + (1-(dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff)
                 //console.log("a1 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')))
                 loadingText = "optimizing retrieval 1/2..." //+ Math.round((1-((dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff))*100)+"%"
@@ -221,7 +223,7 @@
                                 topSlot += smallerIncrements
                             }
                             topSlot = Math.max(topSlot, 1)
-                            endBlockTime = await $cnx.getBlockTime(topSlot)
+                            endBlockTime = await blockcnx.getBlockTime(topSlot)
                             loadingText = "optimizing retrieval 1/2..." //+ Math.round((1-((dayjs.unix(endBlockTime).diff(endday, 'hours'))/endTimeDiff))*100)+"%"
                             //console.log("a2 ", dayjs.unix(endBlockTime).format("DD-MM-YYYY"), endday.format("DD-MM-YYYY"), (dayjs.unix(endBlockTime).diff(endday, 'hours')), (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0)
                         }
@@ -229,14 +231,14 @@
                             console.log("error in interpolate 1b", e)
                         }
                     }
-                    let sigs = await $cnx.getBlockSignatures(topSlot)
+                    let sigs = await blockcnx.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
                     
                 }
                 else if ((dayjs.unix(endBlockTime).diff(endday, 'hours')) < 6 && (dayjs.unix(endBlockTime).diff(endday, 'hours')) > 0) {
-                    let sigs = await $cnx.getBlockSignatures(topSlot)
+                    let sigs = await blockcnx.getBlockSignatures(topSlot)
                     endSignature = sigs.signatures[0]
                     console.log("END BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(endBlockTime))
                     break end_loop
@@ -267,7 +269,7 @@
                     startSlot -=  Math.floor(smallerIncrements)
                 }
                 startSlot = Math.max(startSlot, 38669748)
-                startBlocktime = await $cnx.getBlockTime(startSlot)
+                startBlocktime = await blockcnx.getBlockTime(startSlot)
                 loadingText = "optimizing retrieval 2/2..." //+ Math.round((1-(-(dayjs.unix(startBlocktime).diff(endday, 'hours'))/startTimeDiff-1))*100)+"%"
                 //console.log(-(dayjs.unix(startBlocktime).diff(endday, 'hours')), startTimeDiff)
                 if (dayjs.unix(startBlocktime).diff(startday, 'hours') <= -8 && startBlocktime != null) {
@@ -283,7 +285,7 @@
 
                         try {
                             //console.log("b2b ", dayjs.unix(startBlocktime).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startBlocktime).diff(startday, 'hours')), startSlot)
-                            startBlocktime = await $cnx.getBlockTime(startSlot)
+                            startBlocktime = await blockcnx.getBlockTime(startSlot)
                             //console.log(-(dayjs.unix(startBlocktime).diff(endday, 'hours')), startTimeDiff)
                             loadingText = "optimizing retrieval 2/2..." //+ Math.round((1-(-(dayjs.unix(startBlocktime).diff(endday, 'hours'))/startTimeDiff-1))*100)+"%"
                         }
@@ -292,14 +294,14 @@
                         }
                        
                     }
-                    let sigs = await $cnx.getBlockSignatures(startSlot)
+                    let sigs = await blockcnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG1 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     //break start_loop
 
                 }
                 else if ((dayjs.unix(startBlocktime).diff(startday, 'hours')) < 0 && (dayjs.unix(startBlocktime).diff(startday, 'hours')) > -8 && startBlocktime != null) {
-                    let sigs = await $cnx.getBlockSignatures(startSlot)
+                    let sigs = await blockcnx.getBlockSignatures(startSlot)
                     startSignature = sigs.signatures[0]
                     console.log("START BLOCK SIG2 ", sigs.signatures[0], dayjs.unix(startBlocktime))
                     break start_loop
