@@ -1050,7 +1050,8 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         </div>
         
         <div class="indicator z-5">
-            <span class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1">beta</span>
+            
+            <label class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1 modal-button normal-case hover:cursor-pointer hover:btn-primary" for="my-modal-6">beta</label>
             <h1 class="sm:pt-1 pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
         </div>
         
@@ -1401,8 +1402,33 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 </div>
 {/if}
 
+<input type="checkbox" id="my-modal-6" class="modal-toggle" />
+<div class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box prose">
+    <h3 class="font-bold text-lg">DeBooks Roadmap SS23</h3>
+    <em class="text-sm pb-2">last updated: October 2022</em>
+    <h4>Feature priority roadmap:</h4>
+    <ul>
+        <li>Richer AMM and DeFi integrations</li> 
+        <li>xNFT integration</li> 
+        <li>Solana Mobile Stack / Saga native app</li>
+        <li>Support for multiple wallets</li>
+        <li>Reporting</li>
+        <li>Insights</li>
+        <li>Automated audit reporting - transparent completion and accuracy checks</li>
+        <li>Multi chain</li>
+        <li>(Ongoing) UI & UX improvements</li>
+    </ul>
+    <blockquote><p>It always seems impossible until it’s done.</p>Nelson Mandela </blockquote>
+    <span>Contact <a href="https://twitter.com/defliction" target="_blank">@defliction</a> on Twitter or mail <a href="mailto:hello@defliction.com?subject=DeBooks">hello@defliction.com</a> to submit feature requests or just say hello</span>
+    <div class="modal-action">
+      <label for="my-modal-6" class="btn">Close</label>
+    </div>
+  </div>
+</div>
+
 <svelte:head>
-    <title>DeBooks - Transaction Statements</title>
+    <title>DeBooks - Dynamic Transaction Statements</title>
 </svelte:head>
 
 
