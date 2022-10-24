@@ -50,6 +50,7 @@
 		"@solana/web3.js": "^1.48.0",
 		"@solflare-wallet/utl-sdk": "^1.1.2",
 		"@tailwindcss/typography": "^0.5.4",
+		"aptos": "^1.3.16",
 		"bn": "^1.0.5",
 		"bn.js": "^5.2.1",
 		"daisyui": "^2.19.0",
