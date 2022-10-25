@@ -1422,7 +1422,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <li>(Ongoing) UI & UX improvements</li>
         </ul>
         <blockquote><p>It always seems impossible until it’s done.</p>Nelson Mandela </blockquote>
-        <span>Contact <a href="https://twitter.com/defliction" target="_blank">@defliction</a> on Twitter or mail <a href="mailto:hello@defliction.com?subject=DeBooks">hello@defliction.com</a> to submit feature requests or just say hello</span>
+        <span>Contact <a href="https://twitter.com/defliction" target="_blank">@defliction</a> on Twitter or mail <a href="mailto:hello@riparian.one?subject=DeBooks">hello@riparian.one</a> to submit feature requests or just say hello</span>
     </div>
     
   </div>
