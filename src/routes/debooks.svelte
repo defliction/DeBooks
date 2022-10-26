@@ -10,7 +10,7 @@
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
   
-    import * as classif from "../utils/classif";
+    import * as classif from "../utils/solana_classifier";
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
@@ -73,7 +73,7 @@
     //https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     //$cnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
-    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
     //const mx = Metaplex.make($cnx);
     //let mx
@@ -119,8 +119,10 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        //let trans1 = await $cnx.getParsedTransaction("ktxAdyQU7dzAnJy7RboBbDfSsuF6uFGdEmvU5SwLtndDzEahcegZnWc7ymLLUNoQgdV1QugTrMUqDVyvY1f7vv6")
-        //console.log(trans1)
+        let trans1 = await $cnx.getParsedTransaction("2WWmCi4DeQZ6q6eqnBFZvFwQZda4DjpfTZCYZdqmfnCSbZnZKMK1wyJNPoGte33cY2hBoT7czdfQTLEHYkSiL9sk")
+        
+        
+        console.log (trans1)
         //let block = 38669748
         //let startB = await $cnx.getBlockTime(block)
         //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
@@ -474,42 +476,13 @@
                 programIDs.push(program.programId.toBase58())
             })
             
-
-            //new fee item
-            let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
-            if (feePayer == keyIn) {
-                let failed_text = item.meta.err != null? ": Failed txn" : ""
-                
-                var fee_expense = 
-                {
-                    "signature": item.transaction.signatures[0],
-                    "timestamp": item.blockTime, 
-                    "slot": item.slot,
-                    "success": true,
-                    "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                    "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                    "usd_amount": null,
-                    "mint": "So11111111111111111111111111111111111111112",
-                    "token_name": "SOL",
-                    "uri": "",
-                    "type": "Fees",
-                    "account_keys": item.transaction.message.accountKeys,
-                    "pre_balances": item.meta? item.meta.preBalances : null,
-                    "post_balances": item.meta? item.meta.postBalances : null,
-                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                    "description": "Txn fees " + failed_text
-                }
-                $workingArray.push(fee_expense)
-                //console.log("fee paid by user", fee_expense)
-            }
             if (item.meta.err == null) {
                 //console.log("programIDs ", programIDs, item)
                 //only classify successful transactions!
                 //MAGIC EDEN TRANSACTIONS >>
                 if (item != null || item != undefined) {
                     try {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content)
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
                     }
                     catch (e)
                     {
@@ -705,41 +678,14 @@
                 })
                 
 
-                //new fee item
-                let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
-                if (feePayer == keyIn) {
-                    let failed_text = item.meta.err != null? ": Failed txn" : ""
-                    
-                    var fee_expense = 
-                    {
-                        "signature": item.transaction.signatures[0],
-                        "timestamp": item.blockTime, 
-                        "slot": item.slot,
-                        "success": true,
-                        "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                        "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                        "usd_amount": null,
-                        "mint": "So11111111111111111111111111111111111111112",
-                        "token_name": "SOL",
-                        "uri": "",
-                        "type": "Fees",
-                        "account_keys": item.transaction.message.accountKeys,
-                        "pre_balances": item.meta? item.meta.preBalances : null,
-                        "post_balances": item.meta? item.meta.postBalances : null,
-                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Txn fees " + failed_text
-                    }
-                    $workingArray.push(fee_expense)
-                    //console.log("fee paid by user", fee_expense)
-                }
+
                 if (item.meta.err == null) {
                     //console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
                         try {
-                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content, account_list)
+                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
                         }
                         catch (e)
                         {
