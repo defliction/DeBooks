@@ -16,8 +16,12 @@
 		let txn_type = "Generic"
 		if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 			customDescripton = "Jup.ag"
+			txn_type = "Swap"
 		}
+		// Magic Eden V2
 		else if (programIDs.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
+			// Search for NFT names upfront becasue we know its Magic Eden
+			txn_type = "Marketplace"
 			if (item.meta?.logMessages[1].includes(" Buy") && item.transaction.message.instructions.length == 1) {
 				if (item.meta?.innerInstructions.length > 0) {
 					fee_context = " Make Offer"
@@ -37,8 +41,203 @@
 				txn_context = " Sale "
 				fee_context = " Sale "
 			}
+			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
+				txn_context = " Delisted "
+				fee_context = " Delisted "
+			}
+			else if (item.meta?.logMessages[1].includes(" CancelBuy") ) {
+				txn_context = " CancelBuy "
+				fee_context = " CancelBuy "
+			}
+			else if (item.meta?.logMessages[1].includes(" Withdraw") ) {
+				txn_context = " Withdraw "
+				fee_context = " Withdraw "
+			}
+			else if (item.meta?.logMessages[1].includes(" Deposit") ) {
+				txn_context = " Deposit "
+				fee_context = " Deposit "
+			}
 			customDescripton = "Magic Eden"
 		}
+		//Foxy Swap
+		else if (programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
+			customDescripton = "FoxySwap"
+			txn_type = "Swap"
+			for (let value of item.meta?.logMessages){
+				if(value.includes('InitSwap')) {
+					try{
+						txn_context = " Initiate Swap " + item.transaction.message.accountKeys[1].pubkey.toBase58().substring(0,4) + " - "
+						fee_context = ""
+						
+						break
+					}
+					catch (e) {
+						console.log("Error init swap",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('CompleteSwap')) {
+					try{
+						txn_context = " Complete Swap " + item.transaction.message.instructions[0].accounts[0].toBase58().substring(0,4) + " - "
+						fee_context = ""
+						break
+					}
+					catch (e) {
+						console.log("Error complete swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+				else if(value.includes('CancelSwap')) {
+					try{
+						txn_context = " Cancel Swap " + item.transaction.message.instructions[0].accounts[0].toBase58().substring(0,4) + " - "
+						fee_context = ""
+						break
+					}
+					catch (e) {
+						console.log("Error complete swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+			
+			}
+		}
+		//YAWWW Swap
+		else if(programIDs.includes("1RzgwLNLcLXCnK6eiev5jPmEP6TyJbmkTtvN6NShvXy")) {
+			customDescripton = "YAWWW"
+			txn_type = "Swap"
+			for (let value of item.meta?.logMessages){
+						
+				if(value.includes('Initialize swap')) {
+					try{
+						txn_context = "Initiate Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " -"
+						break
+					}
+					catch (e) {
+						console.log("Error init yaw swap",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('Send swap item to counterparty')) {
+					try{
+						txn_context = "Complete Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " - "
+						break
+					}
+					catch (e) {
+						console.log("Error complete  ywaee swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+				else if(value.includes('Cancel swap')) {
+					try{
+						txn_context = "Cancel Swap " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " - "
+						break
+					}
+					catch (e) {
+						console.log("Error cancel yaww swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+			
+			}
+		}
+		//YAWWW Loan
+		else if(programIDs.includes("76f9QiXhCc8YLJc2LEE4Uae4Xu3itc3JCGLmup3VQwRH")) {
+			customDescripton = "YAWWW Loan"
+			txn_type = "Loan"
+			for (let value of item.meta?.logMessages){
+				if(value.includes('Create loan request')) {
+					try{
+						txn_context = "Initiate Loan request " + item.transaction.message.instructions[5].accounts[5].toBase58().substring(0,4) + " -"
+						break
+					}
+					catch (e) {
+						console.log("Error init loan",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('Cancel loan request')) {
+					try{
+						txn_context = "Cancel Loan request " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+						break
+					}
+					catch (e) {
+						console.log("Error cancel loan",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('Create loan offer')) {
+					try{
+						txn_context = "Create Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						break
+					}
+					catch (e) {
+						console.log("Error cancel loan",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('Cancel loan offer')) {
+					try{
+						txn_context = "Cancel Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						break
+					}
+					catch (e) {
+						console.log("Error cancel loan",item.transaction.signatures)
+						console.log(e)
+					}
+					
+				}
+				else if(value.includes('Pay loan back')) {
+					try{
+						txn_context = "Loan Repaid " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+						break
+						
+					}
+					catch (e) {
+						console.log("Error repay loan",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+				else if(value.includes('Accept loan request')) {
+					try{
+						if (feePayer != keyIn) {
+							txn_context = "Receive Loan " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+							break
+						}
+						else if (feePayer == keyIn) {
+							txn_context = "Lend Out " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+							break
+						}
+						
+						
+					}
+					catch (e) {
+						console.log("Error complete swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+				else if(value.includes('Claim loan collateral')) {
+					try{
+						
+						customDescripton = "YAWWW Collateral Claimed " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						break
+						
+						
+						
+						
+					}
+					catch (e) {
+						console.log("Error complete swap",item.transaction.signatures)
+						console.log(e)
+					}
+				}
+			}
+		}
+		//other generic searching
 		else {
 			for (let value of item.meta?.logMessages){
 				try {
@@ -124,7 +323,7 @@
 		const uniqueTokens =  [...new Set(combined)]
 		//console.log("Unique tokens ", combined,  uniqueTokens)
 		//token balance loop
-		let tokenName
+		
 		for await (const uniqueToken of uniqueTokens) {
 
 			let decimals = preTokens.filter(line => line.mint == uniqueToken)[0]?.uiTokenAmount.decimals
@@ -196,7 +395,7 @@
 				//console.log("--> unique token ", uniqueToken)
 				let direction = tokenChange < 0? "Out: " : "In: "
 				//console.log("--> unique token ", tokenName.symbol? )
-				tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
+				let tokenName = await fetchTokenData([uniqueToken], utl, showMetadata)
 				var new_line = 
 				{
 					"signature": item.transaction.signatures[0],
@@ -236,14 +435,7 @@
 
 			if (amount != 0 ) {
 				let direction = amount < 0? "Out: " : "In: "
-				let test
-				//this is only testing the last token as an NFT
-				if (tokenName?.nft) {
-					test = tokenName.name
-				}
-				else {
-					test = ""
-				}
+	
 				var new_line = 
 				{
 					"signature": item.transaction.signatures[0],
@@ -262,7 +454,7 @@
 					"post_balances": item.meta? item.meta.postBalances : null,
 					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-					"description": customDescripton + txn_context + direction + test
+					"description": customDescripton + txn_context + direction + " SOL"
 				}
 				workingArray.push(new_line)
 				
@@ -274,6 +466,7 @@
 				
 		//find balances of key in? 
 		//let account_index = item.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+		//fee expense
 		if (feePayer == keyIn) {
 			let failed_text = item.meta.err != null? " Failed txn" : ""
 			
