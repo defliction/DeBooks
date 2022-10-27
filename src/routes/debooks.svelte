@@ -119,7 +119,7 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("2WWmCi4DeQZ6q6eqnBFZvFwQZda4DjpfTZCYZdqmfnCSbZnZKMK1wyJNPoGte33cY2hBoT7czdfQTLEHYkSiL9sk")
+        let trans1 = await $cnx.getParsedTransaction("4kZfLEX7jfLMPwL4KK7zLiS2obCmN8RMSJtWNUdemEXSqvdfvc8HcgMn5vMyxmmptUYhvWesLwXo3eZQFxiZKskM")
         
         
         console.log (trans1)
@@ -768,7 +768,8 @@
                     validKey = true
                     invalidKey = false
                     $currentPage = 1
-                    loadingText = "initializing..."
+                    loadingText = "checking address..."
+                    loading = true
                     fetchForAddress(new web3.PublicKey($keyInput))
                  
                     return true
@@ -781,6 +782,7 @@
                 $loadedAddress = ""
                 validKey = false
                 invalidKey = true
+                loading = false
                 return false
           
             }

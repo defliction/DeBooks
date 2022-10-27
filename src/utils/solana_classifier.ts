@@ -333,7 +333,7 @@
 			let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 			let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
 
-			let preBal =  preFil? preFil : 0
+			let preBal = preFil? preFil : 0
 			let postBal = postFil? postFil : 0
 			let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 			
@@ -381,7 +381,7 @@
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton + txn_context + direction + " SOL"
+						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account)"
 					}
 					workingArray.push(new_line)
 					
