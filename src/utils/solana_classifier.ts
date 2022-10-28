@@ -355,11 +355,14 @@
 			else {
 				//recognise sol balance change in a sub-account
 				let amount = 0
+				let accountSuffix = ""
 				if (postIndex) {
-					amount = item.meta? (item.meta.postBalances[postIndex] - item.meta.preBalances[postIndex])/web3.LAMPORTS_PER_SOL : 0	
+					amount = item.meta? (item.meta.postBalances[postIndex] - item.meta.preBalances[postIndex])/web3.LAMPORTS_PER_SOL : 0
+					accountSuffix = item.transaction.message.accountKeys[postIndex]?.pubkey.toBase58()
 				}
 				else if (preIndex) {
 					amount = item.meta? (item.meta.postBalances[preIndex] - item.meta.preBalances[preIndex])/web3.LAMPORTS_PER_SOL : 0
+					accountSuffix = item.transaction.message.accountKeys[preIndex]?.pubkey.toBase58()
 					//console.log("NaN? ", amount, account_index)
 				}
 
@@ -383,7 +386,7 @@
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account " + preIndex + " "+ postIndex + ")"
+						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account " + accountSuffix.substring(0,4) + ")"
 					}
 					workingArray.push(new_line)
 					
