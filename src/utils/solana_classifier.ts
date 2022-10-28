@@ -319,6 +319,7 @@
 
 		let preFiltered = preTokens.filter(token => token.owner == keyIn)
 		let postFiltered = postTokens.filter(token => token.owner == keyIn)
+		
 		const combined = [...preFiltered.flatMap(s => s.mint), ...postFiltered.flatMap(s => s.mint)];
 		const uniqueTokens =  [...new Set(combined)]
 		//console.log("Unique tokens ", combined,  uniqueTokens)
@@ -332,9 +333,10 @@
 			}
 			let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 			let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-
+			
 			let preBal = preFil? preFil : 0
 			let postBal = postFil? postFil : 0
+			
 			let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 			
 			let preIndex = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.accountIndex
@@ -381,7 +383,7 @@
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account)"
+						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account " + preIndex + " "+ postIndex + ")"
 					}
 					workingArray.push(new_line)
 					
@@ -391,7 +393,7 @@
 				}
 			}
 			//not sure this has to be a feepayer token?
-			if (tokenChange != 0 && feePayer == keyIn) {
+			if (tokenChange != 0) {
 				//console.log("--> unique token ", uniqueToken)
 				let direction = tokenChange < 0? "Out: " : "In: "
 				//console.log("--> unique token ", tokenName.symbol? )

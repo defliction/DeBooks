@@ -119,7 +119,7 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("4kZfLEX7jfLMPwL4KK7zLiS2obCmN8RMSJtWNUdemEXSqvdfvc8HcgMn5vMyxmmptUYhvWesLwXo3eZQFxiZKskM")
+        let trans1 = await $cnx.getParsedTransaction("3PJ4ZyZ2e45asLKuQi7Hx3t3j5gfJmkf4s78sV9W8CPoeHauCF7PND17BZuJqNutfeS9ADVcKP76Yrrdux9GgwCk")
         
         
         console.log (trans1)
@@ -1171,7 +1171,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     <!-- show everything -->
                     <tr class="">
                         {#if !smallScreenCondition}
-                            <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                            <td class=" min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
