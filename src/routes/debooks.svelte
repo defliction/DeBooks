@@ -1213,7 +1213,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                        
                         {#if !smallScreenCondition}
                         <td class="min-w-[4rem] text-left">
-                            <a class="hover:underline hover:decoration-primary" href="https://solscan.io/tx/{transaction.signature}">{transaction.signature.substring(0,4)}...</a>
+                            <a class="hover:underline hover:decoration-primary" href="https://solscan.io/tx/{transaction.signature}" target="_blank">{transaction.signature.substring(0,4)}...</a>
                         </td>
                             
                         {/if}

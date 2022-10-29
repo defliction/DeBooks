@@ -22,20 +22,24 @@
 		else if (programIDs.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			// Search for NFT names upfront becasue we know its Magic Eden
 			txn_type = "Marketplace"
-			if (item.meta?.logMessages[1].includes(" Buy") && item.transaction.message.instructions.length == 1) {
+			if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
+				//fee_context = " Make Offer"
+				fee_context = " Sale via Offer "
+				txn_context = " Sale via Offer "
+			}
+			else if (item.meta?.logMessages[1].includes(" Buy")) {
 				if (item.meta?.innerInstructions.length > 0) {
-					fee_context = " Make Offer"
-					txn_context = " Make Offer"
+					fee_context = " Make Offer "
+					txn_context = " Make Offer "
 				}
 				else {
-					fee_context = " Adjust Offer"
+					fee_context = " Adjust Offer "
 				}
 				
 			}
-			else if (item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[6]?.includes(" ExecuteSale") || item.meta?.logMessages[1].includes(" Sell") && item.meta?.logMessages[12]?.includes(" ExecuteSale")  ) {
-				//fee_context = " Make Offer"
-				fee_context = " Sale via Offer"
-				txn_context = " Sale via Offer"
+			else if (item.meta?.logMessages[1].includes(" Sell") ) {
+				txn_context = " Listed "
+				fee_context = " Listed "
 			}
 			else if (item.meta.logMessages[12]?.includes(" ExecuteSale") || item.meta.logMessages[14]?.includes(" ExecuteSale") ) {
 				txn_context = " Sale "
@@ -46,8 +50,8 @@
 				fee_context = " Delisted "
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelBuy") ) {
-				txn_context = " CancelBuy "
-				fee_context = " CancelBuy "
+				txn_context = " Cancel Offer "
+				fee_context = " Cancel Offer "
 			}
 			else if (item.meta?.logMessages[1].includes(" Withdraw") ) {
 				txn_context = " Withdraw "
@@ -333,9 +337,30 @@
 			}
 			let preFil = preTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount					
 			let postFil = postTokens.filter(token => token.owner == keyIn && token.mint == uniqueToken)[0]?.uiTokenAmount.uiAmount
-			
-			let preBal = preFil? preFil : 0
-			let postBal = postFil? postFil : 0
+			let created = false;
+			let closed = false;
+			let preBal
+			let postBal
+
+			if (preFil) {
+				preBal = preFil
+				
+			}
+			else {
+				preBal = 0
+				created = true
+			}
+
+			if (postFil) {
+				postBal = postFil
+				
+			}
+			else {
+				postBal = 0
+				closed = true
+			}
+			// = preFil? preFil : 0 
+			// = postFil? postFil : 0
 			
 			let tokenChange = parseFloat((postBal-preBal).toFixed(decimals)) 
 			
@@ -365,7 +390,7 @@
 					accountSuffix = item.transaction.message.accountKeys[preIndex]?.pubkey.toBase58()
 					//console.log("NaN? ", amount, account_index)
 				}
-
+				let subacccontext = created? "created " :"" + closed? "closed " :"" 
 				if (amount != 0 ) {
 					let direction = amount < 0? "Out: " : "In: "
 					var new_line = 
@@ -386,7 +411,7 @@
 						"post_balances": item.meta? item.meta.postBalances : null,
 						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
 						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
-						"description": customDescripton + txn_context + direction + " SOL" +  " (sub-account " + accountSuffix.substring(0,4) + ")"
+						"description": customDescripton + txn_context + direction + " SOL" +  " (" + subacccontext+ "sub-account " + accountSuffix.substring(0,4) + ")"
 					}
 					workingArray.push(new_line)
 					
