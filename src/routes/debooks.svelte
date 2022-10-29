@@ -10,7 +10,7 @@
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
   
-    import * as classif from "../utils/classif";
+    import * as classif from "../utils/solana_classifier";
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
     import { csvGenerator } from "../utils/csvGenerator";   
     import * as mtda from '../utils/Metadata'
@@ -73,7 +73,7 @@
     //https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     //$cnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
-    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
     //const metap = new Metaplex($connection)
     //const mx = Metaplex.make($cnx);
     //let mx
@@ -119,8 +119,10 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        //let trans1 = await $cnx.getParsedTransaction("ktxAdyQU7dzAnJy7RboBbDfSsuF6uFGdEmvU5SwLtndDzEahcegZnWc7ymLLUNoQgdV1QugTrMUqDVyvY1f7vv6")
-        //console.log(trans1)
+        let trans1 = await $cnx.getParsedTransaction("3PJ4ZyZ2e45asLKuQi7Hx3t3j5gfJmkf4s78sV9W8CPoeHauCF7PND17BZuJqNutfeS9ADVcKP76Yrrdux9GgwCk")
+        
+        
+        console.log (trans1)
         //let block = 38669748
         //let startB = await $cnx.getBlockTime(block)
         //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
@@ -474,42 +476,13 @@
                 programIDs.push(program.programId.toBase58())
             })
             
-
-            //new fee item
-            let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
-            if (feePayer == keyIn) {
-                let failed_text = item.meta.err != null? ": Failed txn" : ""
-                
-                var fee_expense = 
-                {
-                    "signature": item.transaction.signatures[0],
-                    "timestamp": item.blockTime, 
-                    "slot": item.slot,
-                    "success": true,
-                    "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                    "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                    "usd_amount": null,
-                    "mint": "So11111111111111111111111111111111111111112",
-                    "token_name": "SOL",
-                    "uri": "",
-                    "type": "Fees",
-                    "account_keys": item.transaction.message.accountKeys,
-                    "pre_balances": item.meta? item.meta.preBalances : null,
-                    "post_balances": item.meta? item.meta.postBalances : null,
-                    "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                    "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                    "description": "Txn fees " + failed_text
-                }
-                $workingArray.push(fee_expense)
-                //console.log("fee paid by user", fee_expense)
-            }
             if (item.meta.err == null) {
                 //console.log("programIDs ", programIDs, item)
                 //only classify successful transactions!
                 //MAGIC EDEN TRANSACTIONS >>
                 if (item != null || item != undefined) {
                     try {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content)
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
                     }
                     catch (e)
                     {
@@ -705,41 +678,14 @@
                 })
                 
 
-                //new fee item
-                let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
-                if (feePayer == keyIn) {
-                    let failed_text = item.meta.err != null? ": Failed txn" : ""
-                    
-                    var fee_expense = 
-                    {
-                        "signature": item.transaction.signatures[0],
-                        "timestamp": item.blockTime, 
-                        "slot": item.slot,
-                        "success": true,
-                        "fee": item.meta? item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                        "amount": item.meta? -item.meta.fee/web3.LAMPORTS_PER_SOL : null,
-                        "usd_amount": null,
-                        "mint": "So11111111111111111111111111111111111111112",
-                        "token_name": "SOL",
-                        "uri": "",
-                        "type": "Fees",
-                        "account_keys": item.transaction.message.accountKeys,
-                        "pre_balances": item.meta? item.meta.preBalances : null,
-                        "post_balances": item.meta? item.meta.postBalances : null,
-                        "pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-                        "post_token_balances": item.meta? item.meta.postTokenBalances : null,
-                        "description": "Txn fees " + failed_text
-                    }
-                    $workingArray.push(fee_expense)
-                    //console.log("fee paid by user", fee_expense)
-                }
+
                 if (item.meta.err == null) {
                     //console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
                         try {
-                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, feePayer, utl_api.content, account_list)
+                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
                         }
                         catch (e)
                         {
@@ -791,15 +737,24 @@
         }
         else if ($showfees && !$showfailed) {
             //default
-            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            
+            let testArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+           
+
+            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature))
+            //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             //console.log("showfees && !showfailed")
         }
         else if (!$showfees && $showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            //$displayArray = $workingArray.filter(transaction => transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            let testArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
             //console.log("!showfees && showfailed")
         }
         else if (!$showfees && !$showfailed) {
-            $displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            let testArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
             //console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray.sort(function sortDates(a, b) { // non-anonymous as you ordered...
@@ -822,7 +777,8 @@
                     validKey = true
                     invalidKey = false
                     $currentPage = 1
-                    loadingText = "initializing..."
+                    loadingText = "checking address..."
+                    loading = true
                     fetchForAddress(new web3.PublicKey($keyInput))
                  
                     return true
@@ -835,6 +791,7 @@
                 $loadedAddress = ""
                 validKey = false
                 invalidKey = true
+                loading = false
                 return false
           
             }
@@ -1060,12 +1017,14 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         {#if loading == false && rpcConnection == true}
         
         <div class="input-group justify-center">
+        
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
             {#if $keyInput != ""}
             <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
                 GO
                 </button>
             {:else}
+            
             <button disabled class="btn btn-sm btn-square">
                 GO
                 </button>
@@ -1213,7 +1172,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     {:else}
                         <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                     {/if}
+                    {#if smallScreenCondition}
                     <th class="min-w-[2rem]"></th>
+                    {/if}
                 </tr>
             </thead>          
         
@@ -1223,7 +1184,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     <!-- show everything -->
                     <tr class="">
                         {#if !smallScreenCondition}
-                            <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
+                            <td class=" min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
                         {/if}
@@ -1262,7 +1223,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {/if}
                        
                         {#if !smallScreenCondition}
-                            <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
+                        <td class="min-w-[4rem] text-left">
+                            <a class="hover:underline hover:decoration-primary" href="https://solscan.io/tx/{transaction.signature}" target="_blank">{transaction.signature.substring(0,4)}...</a>
+                        </td>
+                            
                         {/if}
                         {#if !showConversion && !smallScreenCondition}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
@@ -1282,10 +1246,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {:else}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                         {/if}
-                        
+                        {#if smallScreenCondition}
                         <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg></a></td>
+                        {/if}
                     </tr>
                 {/each}
             </tbody>
@@ -1330,17 +1295,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <div class="pt-10">
             <div class="alert shadow-lg font-serif">
                 <div> 
-                   
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                   
-                        <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>
-
-                        
+                        <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>      
                 </div>
             </div>
-        
         </div>
-    
     </div>
     {/if}
     {#if !loading && $fetchedTransactions.length == 0}
@@ -1411,7 +1370,8 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <em class="text-sm pb-2">last updated: October 2022</em>
         <h4>Feature priority roadmap:</h4>
         <ul class="list-disc leading-4">
-            <li>Richer AMM and DeFi integrations</li> 
+            <li>Classification engine V2</li> 
+            <li>(Ongoing) Wider protocol integrations</li> 
             <li>xNFT integration</li> 
             <li>Solana Mobile Stack / Saga native app</li>
             <li>Support for multiple wallets</li>
