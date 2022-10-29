@@ -1161,7 +1161,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     {:else}
                         <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                     {/if}
+                    {#if smallScreenCondition}
                     <th class="min-w-[2rem]"></th>
+                    {/if}
                 </tr>
             </thead>          
         
@@ -1210,7 +1212,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {/if}
                        
                         {#if !smallScreenCondition}
-                            <td class="min-w-[4rem] text-left">{transaction.signature.substring(0,4)}...</td>
+                        <td class="min-w-[4rem] text-left">
+                            <a class="hover:underline hover:decoration-primary" href="https://solscan.io/tx/{transaction.signature}">{transaction.signature.substring(0,4)}...</a>
+                        </td>
+                            
                         {/if}
                         {#if !showConversion && !smallScreenCondition}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
@@ -1230,10 +1235,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {:else}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                         {/if}
-                        
+                        {#if smallScreenCondition}
                         <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg></a></td>
+                        {/if}
                     </tr>
                 {/each}
             </tbody>
