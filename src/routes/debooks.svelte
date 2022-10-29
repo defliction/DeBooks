@@ -119,7 +119,7 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("3PJ4ZyZ2e45asLKuQi7Hx3t3j5gfJmkf4s78sV9W8CPoeHauCF7PND17BZuJqNutfeS9ADVcKP76Yrrdux9GgwCk")
+        let trans1 = await $cnx.getParsedTransaction("4MrnhLyb2ZLcfjQwy6cywhmcCH12kEcPTnwPc8hoK9x9kJnUXegeSdry9fZZetKFa6pp14J7XbbYnmRd6sAz56oL")
         
         
         console.log (trans1)
@@ -1367,7 +1367,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
     <label for="my-modal-6" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     <h3 class="font-bold text-lg">DeBooks Roadmap SS23</h3>
     <div class="prose">
-        <em class="text-sm pb-2">last updated: October 2022</em>
+        <em class="text-sm pb-2">last updated: November 2022</em>
         <h4>Feature priority roadmap:</h4>
         <ul class="list-disc leading-4">
             <li>Classification engine V2</li> 

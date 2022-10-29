@@ -63,6 +63,51 @@
 			}
 			customDescripton = "Magic Eden"
 		}
+		else if(programIDs.includes("hadeK9DLv9eA7ya5KCTqSvSvRZeJC3JgD5a9Y3CNbvu")) {
+			customDescripton = "Hadeswap"
+			txn_type = "AMM"
+
+			if(item.meta?.logMessages[1].includes('BuyNftFromPair')) {
+				txn_context = " Purchase "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('SellNftToLiquidityPair')) {
+				txn_context = " Sell "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('DepositLiquidityToPair')) {
+				txn_context = " Deposit Liquidity "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('WithdrawLiquidityFromBuyOrdersPair')) {
+				txn_context = " Withdraw Liquidity "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('WithdrawLiquidityFromBalancedPair')) {
+				txn_context = " Withdraw Liquidity "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('WithdrawLiquidityOrderVirtualFees')) {
+				txn_context = " Withdraw Fees "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[1].includes('InitializePair')) {
+				txn_context = " Initialize Pair "
+				fee_context = ""
+				
+			}
+			else if (item.meta?.logMessages[5].includes('ModifyPair')) {
+				txn_context = " Modify Pair "
+				fee_context = ""
+				
+			}
+		}
 		//Foxy Swap
 		else if (programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {
 			customDescripton = "FoxySwap"
