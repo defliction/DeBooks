@@ -1213,6 +1213,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                         {#if value != null}
                                             <img class='shadow-xl border-8 border-neutral rounded-[3rem] scale-50 -translate-y-[1rem] lg:-translate-y-[4rem]' src={value} /> 
                                         {/if}
+                                    {:catch}
+                                        <span class="font-serif font-medium badge badge-lg ">
+                                            ! failed to load image
+                                        </span>    
                                     {/await}
                                 </div>                            
                                

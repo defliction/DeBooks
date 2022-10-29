@@ -159,7 +159,7 @@
 						
 				if(value.includes('Initialize swap')) {
 					try{
-						txn_context = "Initiate Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " -"
+						txn_context = " Initiate Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " -"
 						break
 					}
 					catch (e) {
@@ -170,7 +170,7 @@
 				}
 				else if(value.includes('Send swap item to counterparty')) {
 					try{
-						txn_context = "Complete Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " - "
+						txn_context = " Complete Swap " + item.transaction.message.instructions[1].accounts[1].toBase58().substring(0,4) + " - "
 						break
 					}
 					catch (e) {
@@ -180,7 +180,7 @@
 				}
 				else if(value.includes('Cancel swap')) {
 					try{
-						txn_context = "Cancel Swap " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " - "
+						txn_context = " Cancel Swap " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " - "
 						break
 					}
 					catch (e) {
@@ -198,7 +198,7 @@
 			for (let value of item.meta?.logMessages){
 				if(value.includes('Create loan request')) {
 					try{
-						txn_context = "Initiate Loan request " + item.transaction.message.instructions[5].accounts[5].toBase58().substring(0,4) + " -"
+						txn_context = " Initiate Loan request " + item.transaction.message.instructions[5].accounts[5].toBase58().substring(0,4) + " -"
 						break
 					}
 					catch (e) {
@@ -209,7 +209,7 @@
 				}
 				else if(value.includes('Cancel loan request')) {
 					try{
-						txn_context = "Cancel Loan request " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+						txn_context = " Cancel Loan request " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
 						break
 					}
 					catch (e) {
@@ -220,7 +220,7 @@
 				}
 				else if(value.includes('Create loan offer')) {
 					try{
-						txn_context = "Create Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						txn_context = " Create Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
 						break
 					}
 					catch (e) {
@@ -231,7 +231,7 @@
 				}
 				else if(value.includes('Cancel loan offer')) {
 					try{
-						txn_context = "Cancel Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						txn_context = " Cancel Loan offer " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
 						break
 					}
 					catch (e) {
@@ -242,7 +242,7 @@
 				}
 				else if(value.includes('Pay loan back')) {
 					try{
-						txn_context = "Loan Repaid " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
+						txn_context = " Loan Repaid " + item.transaction.message.instructions[1].accounts[3].toBase58().substring(0,4) + " -"
 						break
 						
 					}
@@ -254,11 +254,11 @@
 				else if(value.includes('Accept loan request')) {
 					try{
 						if (feePayer != keyIn) {
-							txn_context = "Receive Loan " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+							txn_context = " Receive Loan " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
 							break
 						}
 						else if (feePayer == keyIn) {
-							txn_context = "Lend Out " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
+							txn_context = " Lend Out " + item.transaction.message.instructions[0].accounts[2].toBase58().substring(0,4) + " -"
 							break
 						}
 						
@@ -272,7 +272,7 @@
 				else if(value.includes('Claim loan collateral')) {
 					try{
 						
-						customDescripton = "YAWWW Collateral Claimed " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
+						customDescripton = " YAWWW Collateral Claimed " + item.transaction.message.instructions[0].accounts[1].toBase58().substring(0,4) + " -"
 						break
 						
 						
