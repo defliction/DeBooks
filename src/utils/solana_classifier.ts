@@ -63,6 +63,7 @@
 			}
 			customDescripton = "Magic Eden"
 		}
+		//hadeswap
 		else if(programIDs.includes("hadeK9DLv9eA7ya5KCTqSvSvRZeJC3JgD5a9Y3CNbvu")) {
 			customDescripton = "Hadeswap"
 			txn_type = "AMM"
@@ -337,12 +338,10 @@
 						let uowner = decoded.owner.toBase58()
 						token.owner = uowner
 					}
-				
 				}
 				catch (e) {
 					console.log(e, )
 				}
-				
 			}
 		}
 		for await (var token of postTokens) {
@@ -358,7 +357,6 @@
 						let uowner = decoded.owner.toBase58()
 						token.owner = uowner
 					}
-					
 				}
 				catch (e) {
 					console.log(e, )
