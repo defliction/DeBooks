@@ -1,7 +1,9 @@
 <script lang='ts'>
-    import loadingText from "./debooks.svelte"
+    let loadingText = ""
+    let loading = true
+    let currentPercentage = "0%"
 
-
+    import {showFeesHandler} from "./debooks.svelte"
     import { onMount, afterUpdate } from "svelte";
     import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
     import * as web3 from '@solana/web3.js';
@@ -15,9 +17,15 @@
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
 
-</script>
 
-{#if validKey == true}
+    function showFeesHandler() {
+        $showfees = !$showfees
+        if ($displayArray.length <1 && $showfees) {
+            $currentPage = 1
+        }
+    }
+
+</script>
 
 <div class="flex justify-center font-serif place-content-center   ">
     
@@ -59,8 +67,6 @@
                                 </button>
                                 
                             </div>
-
-                    
                    
                             <div class="md:tooltip " data-tip="Convert transactions to USD (daily close)">
                                 
@@ -245,60 +251,7 @@
     </div>
     
 </div>
-    {#if $showMetadata && showInfoTip && false }
-        <div class="flex justify-center flex-row">
-            <div class="pt-10">
-                <div class="alert shadow-lg font-serif">
-                    <div> 
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>      
-                    </div>
-                </div>
-            </div>
-        </div>
-    {/if}
-    {#if !loading && $fetchedTransactions.length == 0}
-        <div class="flex justify-center flex-row">
-            <div class="pt-10">
-                <div class="alert shadow-lg font-serif">
-                    <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>No records for this period.</span>
-                    </div>
-                </div>
-            
-            </div>
+ 
 
-        </div>
-    {/if}
-{:else}
 
-<div class="flex justify-center flex-row">
-    <div class="pt-10">
-        <div class="alert shadow-lg font-serif">
-            <div> 
-                {#if rpcConnection == true}
-                    
-                    {#if invalidKey == false}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <div>Enter a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address to display records</div>
-                  
-                        
-                    {:else}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-warning flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Invalid key entered - Try again with a <span class="font-bold">Solana wallet</span> or <span class="font-bold">.sol</span> address</span>
-                    {/if}
-                {:else}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-primary-focus" fill="none" viewBox="0 0 24 24"  stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                      </svg>
-                        <span>Establishing connection to network...</span>
-                {/if}
-            </div>
-        </div>
-    
-    </div>
 
-</div>
-
-{/if}
