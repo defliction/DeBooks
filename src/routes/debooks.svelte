@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount, afterUpdate } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx } from '../stores.js';
+    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -868,7 +868,7 @@ $: $showfees, sliceDisplayArray(), !$showfees? $currentPage > totalPages? $curre
 $: $displayArray, sortArray($displayArray)
 $: $textFilter, sliceDisplayArray(), $currentPage = 1
 $: currentTransaction != 0? currentPercentage = "" + Math.round(currentTransaction/$fetchedTransactions.length*100) + "%" : ""
-$: smallScreenCondition = innerWidth < 755
+$: $smallScreenCondition = innerWidth < 755
 
 $: startTime? $time.getSeconds() - startTime > 15? showInfoTip = true : null : null
 $: !validKey? $currentPage = 1 : $currentPage=$currentPage
