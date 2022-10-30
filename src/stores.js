@@ -15,7 +15,7 @@ export let reportingCurrency = writable("USD")
 export let showMetadata = writable(true)
 export let cnx = writable ()
 export let smallScreenCondition = writable(false)
-
+export let keyList = writable([]);
 
 export const time = readable(new Date(), set => {
     const interval = setInterval(() => {

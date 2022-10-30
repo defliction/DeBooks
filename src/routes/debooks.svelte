@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount, afterUpdate } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition } from '../stores.js';
+    import { apiData, keyList, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -16,6 +16,7 @@
 
     import { themeChange } from 'theme-change'
 	import Statement from "./statement.svelte";
+    import Wallets from "./wallets.svelte"
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -623,6 +624,8 @@
                  
                     return true
                 }
+                multi? $keyList.push($keyInput) : null
+                $keyList = $keyList
                 return true
             } else {
                 console.log("Key not on curve ")
@@ -658,6 +661,8 @@
                             
                                 return true
                             }
+                            multi? $keyList.push($keyInput) : null
+                            $keyList = $keyList
                             return true
                         } else {
                             console.log("SNS Key not on curve " )
@@ -868,7 +873,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         </div>
         {/if}
-        
+        <Wallets />
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif justify-center">
