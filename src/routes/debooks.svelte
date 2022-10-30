@@ -60,7 +60,7 @@
     let showConversion = false
     let convertingToReporting = false
     let storedCoinGeckoData: [] = []
-    let loadingText = "initializing..."
+    export let loadingText = "initializing..."
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
     let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -1295,30 +1295,30 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
     
 </div>
     {#if $showMetadata && showInfoTip && false }
-    <div class="flex justify-center flex-row">
-        <div class="pt-10">
-            <div class="alert shadow-lg font-serif">
-                <div> 
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>      
+        <div class="flex justify-center flex-row">
+            <div class="pt-10">
+                <div class="alert shadow-lg font-serif">
+                    <div> 
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-primary-focus flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>We're working on it - fetching metadata, particularly lots of NFTs data can feel slow</span>      
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     {/if}
     {#if !loading && $fetchedTransactions.length == 0}
-    <div class="flex justify-center flex-row">
-        <div class="pt-10">
-            <div class="alert shadow-lg font-serif">
-                <div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>No records for this period.</span>
+        <div class="flex justify-center flex-row">
+            <div class="pt-10">
+                <div class="alert shadow-lg font-serif">
+                    <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>No records for this period.</span>
+                    </div>
                 </div>
+            
             </div>
-        
-        </div>
 
-    </div>
+        </div>
     {/if}
 {:else}
 
