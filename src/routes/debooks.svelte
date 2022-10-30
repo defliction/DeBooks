@@ -1005,13 +1005,12 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <em class="text-sm pb-2">last updated: November 2022</em>
         <h4>Feature priority roadmap:</h4>
         <ul class="list-disc leading-4">
-            <li>Classification engine V2</li> 
-            <li>(Ongoing) Wider protocol integrations</li> 
-            <li>xNFT integration</li> 
+            <li class="line-through">Classification engine V2</li>
+            <li>(Ongoing) Additional protocol integrations</li> 
             <li>Solana Mobile Stack / Saga native app</li>
-            <li>Support for multiple wallets</li>
-            <li>Reporting</li>
-            <li>Insights</li>
+            <li>Support for multiple addresses</li>
+            <li>xNFT integration</li> 
+            <li>Insights & Reporting</li>
             <li>Automated audit reporting</li>
             <li>Multi chain</li>
             <li>(Ongoing) UI & UX improvements</li>
