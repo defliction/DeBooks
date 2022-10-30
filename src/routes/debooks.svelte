@@ -303,7 +303,6 @@
 
     async function metadataHandler() {
         $showMetadata = !$showMetadata
-        //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
         if (showMetadata && !loading && $fetchedTransactions.length > 0 && $loadedAddress == $keyInput) {
             metadataAnimation = true
             metadataAnimText = ""
@@ -607,26 +606,25 @@
         //console.log("display array length: ", $displayArray.length)
     }
 
-    async function checkKey () {
+    async function checkKey (multi:boolean) {
         try {
             $keyInput = $keyInput.trim()
            
             if (web3.PublicKey.isOnCurve($keyInput) == true) {
-                if (!loading) {
+                validKey = true
+                invalidKey = false
+                $currentPage = 1
+                if (!loading && !multi) {
                     
-                    validKey = true
-                    invalidKey = false
-                    $currentPage = 1
+                    
                     loadingText = "checking address..."
                     loading = true
-                    fetchForAddress(new web3.PublicKey($keyInput))
+                    !multi? fetchForAddress(new web3.PublicKey($keyInput)) : null
                  
                     return true
                 }
-                
+                return true
             } else {
-                
-
                 console.log("Key not on curve ")
                 $loadedAddress = ""
                 validKey = false
@@ -647,19 +645,20 @@
                         const { registry, nftOwner } = await NameRegistryState.retrieve($cnx, pubkey);
                         $keyInput = nftOwner? nftOwner.toBase58() : registry.owner.toBase58()
                         if (web3.PublicKey.isOnCurve($keyInput) == true) {
-                
-                            if (!loading) {
+                            validKey = true
+                            invalidKey = false
+                            if (!loading && !multi) {
                                 
-                                validKey = true
-                                invalidKey = false
+                                
                                 $currentPage = 1
+                                
                                 loadingText = "initializing..."
                                 loading = true
-                                fetchForAddress(new web3.PublicKey($keyInput))
+                                !multi? fetchForAddress(new web3.PublicKey($keyInput)) : null
                             
                                 return true
                             }
-                            
+                            return true
                         } else {
                             console.log("SNS Key not on curve " )
                             $loadedAddress = ""
@@ -692,7 +691,7 @@
     function onKeyDown(e) {
 		 switch(e.keyCode) {
 			 case 13:
-				 checkKey()
+				 checkKey(false)
 				 break;
 			 
 		 }
@@ -853,17 +852,14 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         {#if loading == false && rpcConnection == true}
         
         <div class="input-group justify-center">
-        
+            {#if $keyInput != ""}
+            <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(true)}>+</button>
+            {/if}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
             {#if $keyInput != ""}
-            <button class="btn btn-primary btn-sm btn-square" on:click={checkKey}>
-                GO
-                </button>
+            <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(false)}>GO</button>
             {:else}
-            
-            <button disabled class="btn btn-sm btn-square">
-                GO
-                </button>
+            <button disabled class="btn btn-sm btn-square">GO</button>
             {/if}
         </div>
             
