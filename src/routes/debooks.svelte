@@ -143,11 +143,6 @@
         //let teawk = await fetch("https://bafybeic6ljkikzvqjliilfqnz7sezi6ffvxkfliszntpozp3pdxko6mxlu.ipfs.nftstorage.link/2391.json")
         //let tewak = await teawk.json()
         //console.log(tewak)
-
-        let response = await fetch("https://prices.debooks.xyz/wrapped-solana.json")
-        let solanaData2 = await response.json()
-        storedCoinGeckoData.push(solanaData2)
-        storedCoinGeckoData = storedCoinGeckoData.flat()
         //console.log("latest date ", storedCoinGeckoData[0])
         //fetch historics manually
         
@@ -159,15 +154,7 @@
     const sleep = (milliseconds:number) => {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
-    async function conversionHandler() {
 
-        showConversion = showConversion? false : true
-        showConversion? convertingToReporting = true : convertingToReporting = false
-        convertingToReporting? await convertWorkingArray () : null
-        convertingToReporting = false
-        //convertingToReporting = false
-        //dayjs(item.timestamp).format("DD-MM-YYYY")
-    }
  
     async function interpolateBlockSignatures() {
         
@@ -326,124 +313,9 @@
 
 
     }
-    function getMillisToSleep (retryHeaderString) {
-        let millisToSleep = Math.round(parseFloat(retryHeaderString) * 1000)
-        if (isNaN(millisToSleep)) {
-            millisToSleep = Math.max(0, new Date(retryHeaderString) - new Date())
-        }
-        return millisToSleep
-    }
-    async function fetchAndRetryIfNecessary (callAPIFn) {
-        const response = await callAPIFn()
-        //console.log(response)
-        if (response.status == "429") {
-            
-            const retryAfter = response.headers.get('retry-after')
-            const millisToSleep = getMillisToSleep(retryAfter)
-            await sleep(10000)
-            return fetchAndRetryIfNecessary(callAPIFn)
-        }
-        return response
-    }
 
 
-    async function convertWorkingArray () {
-        let utl_api
-        try{
-            let response = await fetch("https://token-list-api.solana.cloud/v1/list");
-            let data = await response.json()
-            utl_api = data.content
-        }
-        catch (e) {
-            //failed to load utl
-         
-            try {
-               
-                let fetched = await fetch("https://cdn.jsdelivr.net/gh/solflare-wallet/token-list/solana-tokenlist.json")
-                let data = await fetched.json()
-                utl_api = data.tokens
-
-            }
-            catch (e) {
-                await sleep (450)
-                console.log("Failed to load UTL", e)
-                showConversion = false
-                return
-            }
-            
-        }
-        
-        
-        let free = true // to expand when premium sub activated
-
-        
-        for await (const item of $workingArray) {
-            let utlToken = utl_api.filter(ut => ut.address == item.mint)[0]
-            
-            if (utlToken && utlToken.extensions) {
-                //https://api.coingecko.com/api/v3/coins/wrapped-solana/history?date=30-01-2022
-                let filteredData = storedCoinGeckoData.filter(line => line.id == utlToken.extensions.coingeckoId && line.date == dayjs.unix(item.timestamp).format("DD-MM-YYYY") )
-
-                if (storedCoinGeckoData.length == 0 || filteredData.length == 0) {
-                    //console.log("CG request for ", utlToken.extensions.coingeckoId)
-                    try {
-                        //let req = "https://pro-api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY") + "&x_cg_pro_api_key=CG-F3PXm3JzJRLx48C6cvfMvvrk"
-                        let req = "https://api.coingecko.com/api/v3/coins/"+utlToken.extensions.coingeckoId+"/history?date="+dayjs.unix(item.timestamp).format("DD-MM-YYYY")
-                        let response = await fetchAndRetryIfNecessary(() => fetch(req)) ;
-                   
-                        let data = await response.json()                
-                        
-                        var stored_value = {
-                            "id": utlToken.extensions.coingeckoId,
-                            "date": dayjs.unix(item.timestamp).format("DD-MM-YYYY"),
-                            "usd": data.market_data.current_price.usd
-                        }
-                        storedCoinGeckoData.push(stored_value)
-                        item.usd_amount = (item.amount * data.market_data.current_price.usd)
-                    }
-                    catch (e) {
-                        console.log("Exception ", e)
-                        showConversion = false
-                        return
-                    }
-                    
-                }
-                else {
-                    //console.log("same day value is available ", filteredData[0])
-                    item.usd_amount = (item.amount * filteredData[0].usd)
-                }
-                    
-               
-            }
-            else {
-                item.usd_amount = 0
-            }
-            
-        }
-        //$workingArray = $workingArray
-        //$displayArray = $workingArray
-        //sliceDisplayArray()
-
-
-    }
-
-    function downloadHandler() {
-
-        let filename = "debooks_" + $keyInput + "_" + startday.format('YYYY-MM-DD') + "_" + endday.format('YYYY-MM-DD') + ".csv"
-        if (showConversion) {
-           //console.log("with USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
-            let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount", "usd_amount"], filename);
-        }
-        else {
-            //console.log("withOUT USD")
-            let result = $displayArray.map(o => Object.fromEntries(["success", "signature", "timestamp",  "description", "token_name", "type", "amount"].map(key => [key.toLowerCase(), o[key.toLowerCase()]])));
-            let tableKeys = Object.keys(result[0]); //extract key names from first Object
-            csvGenerator(result, tableKeys, ["success", "signature", "timestamp",  "description", "token_name", "type", "amount"], filename);
-        }
-        
-    }
+   
     async function metadataHandler() {
         $showMetadata = !$showMetadata
         //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
@@ -511,20 +383,7 @@
         sliceDisplayArray()
         //loading = false
     }
-    async function fetchImage(uriIn) {
-        //console.log("fetching ", uriIn)
-        try {
-            let image_url = await fetch(uriIn)
-            //console.log("fetched ", image_url)
-            let image_link = await image_url.json()
-            //transaction.uri
-            return image_link.image
-        }
-        catch (e) {
-            console.log("Failed to fetch image", e)
-        }
-        
-    }
+
 
     async function fetchForAddress (keyIn) {
         showConversion = false
@@ -849,12 +708,7 @@
         }
         return false
     }
-    function showFeesHandler() {
-        $showfees = !$showfees
-        if ($displayArray.length <1 && $showfees) {
-            $currentPage = 1
-        }
-    }
+
     function onKeyDown(e) {
 		 switch(e.keyCode) {
 			 case 13:
