@@ -314,8 +314,6 @@
 
     }
 
-
-   
     async function metadataHandler() {
         $showMetadata = !$showMetadata
         //console.log($fetchedTransactions.length, $displayArray.length, $workingArray.length)
@@ -383,7 +381,6 @@
         sliceDisplayArray()
         //loading = false
     }
-
 
     async function fetchForAddress (keyIn) {
         showConversion = false
@@ -571,12 +568,8 @@
             $currentPage = 1
             totalPages = Math.ceil($displayArray.length/pageIncrement)
             sliceDisplayArray()
-            
-            
         }
-        
         loading = false 
-            
         
         }
     function sortArray(arrayIn) {
