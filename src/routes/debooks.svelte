@@ -7,28 +7,18 @@
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
 
-    import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import { Buffer } from 'buffer';
   
     import * as classif from "../utils/solana_classifier";
     import { getDomainKey, NameRegistryState } from "@bonfida/spl-name-service";
-    import { csvGenerator } from "../utils/csvGenerator";   
-    import * as mtda from '../utils/Metadata'
-    import { decodeMetadata } from '../utils/MetadataUtils'
+
     import * as token from '@solana/spl-token';
-    import Popover from 'svelte-popover';
 
     import { themeChange } from 'theme-change'
 	import Statement from "./statement.svelte";
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
-  
-    const settings = { columnFilter: true }
-    let rows
-
-    let allData = []
-    let loopNumber = 0;
    
     let fetchLimit = 250
     let loading = false;
@@ -57,10 +47,7 @@
     $showMetadata = true
     let metadataAnimation = false
     let metadataAnimText = ""
-    let tableHeader = ["success", "signature", "timestamp",  "description", "amount"]
-    let showConversion = false
-    let convertingToReporting = false
-    let storedCoinGeckoData: [] = []
+ 
     let loadingText = "initializing..."
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
     let rpcConnection = false
@@ -321,7 +308,7 @@
             metadataAnimation = true
             metadataAnimText = ""
             await classifyArray (new web3.PublicKey($keyInput))
-            showConversion = false
+         
             metadataAnimation = false
         }
         
@@ -383,8 +370,8 @@
     }
 
     async function fetchForAddress (keyIn) {
-        showConversion = false
-        convertingToReporting = false
+    
+      
         $currentPage = 1
         $apiData =[]
         $workingArray = []
