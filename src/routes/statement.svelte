@@ -2,20 +2,19 @@
     
 
     import { onMount, afterUpdate } from "svelte";
-    import { apiData, cleanedArray, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition} from '../stores.js';
+    import { fetchedTransactions, workingArray, displayArray, keyInput, showfees, currentPage, textFilter, reportingCurrency, showMetadata, smallScreenCondition} from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
-    import { fetchImage } from "src/utils/tools.js";
+    import { fetchImage } from "../utils/tools.js";
     import {paginate, PaginationNav  } from 'svelte-paginate-ts'
     import Popover from 'svelte-popover';
     import { csvGenerator } from "../utils/csvGenerator";   
-    import Popover from 'svelte-popover';
     
-    let loadingText = ""
-    let loading = true
-    let currentPercentage = "0%"
+    //let loadingText = ""
+    //let loading = true
+    //let currentPercentage = "0%"
     let storedCoinGeckoData: [] = []
     let pageIncrement = 20;
     //these two are reset on each fetchforaddress
@@ -169,23 +168,10 @@
 
 </script>
 
-<div class="flex justify-center font-serif place-content-center   ">
-    
-    <div class=" ">
-    {#if loading}
-        <div class="flex flex-row justify-center ">
-            <p class="pt-4 justify-center">
-                <span class="font-serif font-medium badge badge-lg ">
-                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>{loadingText} {currentPercentage}</span> 
-            </p>
-        </div>
-    {/if}
-    {#if $fetchedTransactions.length > 0 && !loading}
+<div class=" ">
+    {#if $fetchedTransactions.length > 0 }
         <div class="grid grid-flow-col place-items-center md:pt-8 pt-4 pb-1 ">
-            {#if !loading } 
+             
                     <div class="col-start-auto">
                         
                         <input type="text" placeholder="Search: e.g. Magic Eden..." bind:value={$textFilter} class="input input-xs lg:min-w-[20rem] md:min-w-[16rem] min-w-[12rem]" />
@@ -242,7 +228,7 @@
                         </div>
                     </div>
                     
-            {/if}
+            
                     
                     
                     
@@ -257,20 +243,20 @@
                 
                     <th class="min-w-[1rem] text-left normal-case">Date</th>
                     <th class="lg:min-w-[32rem] max-w-[32rem] min-w-[11rem]  text-left normal-case">Description</th>
-                    {#if !smallScreenCondition}
+                    {#if !$smallScreenCondition}
                         <th class="min-w-[4rem] text-left normal-case">Ref</th>
                     {/if}
-                    {#if !showConversion && !smallScreenCondition}
+                    {#if !showConversion && !$smallScreenCondition}
                         <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
-                    {:else if showConversion && !smallScreenCondition}
+                    {:else if showConversion && !$smallScreenCondition}
                         <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                         <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
-                    {:else if showConversion && smallScreenCondition}
+                    {:else if showConversion && $smallScreenCondition}
                         <th class="min-w-[4rem] max-w-[6rem] text-right normal-case">${$reportingCurrency}</th>
                     {:else}
                         <th class="min-w-[4rem] max-w-[8rem] text-right normal-case">Base Ccy</th>
                     {/if}
-                    {#if smallScreenCondition}
+                    {#if $smallScreenCondition}
                     <th class="min-w-[2rem]"></th>
                     {/if}
                 </tr>
@@ -281,7 +267,7 @@
                 {#each $displayArray.slice(pageIncrement*($currentPage - 1), pageIncrement*($currentPage - 1) + pageIncrement) as transaction, i}
                     <!-- show everything -->
                     <tr class="">
-                        {#if !smallScreenCondition}
+                        {#if !$smallScreenCondition}
                             <td class=" min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YYYY-MM-DD')}</td>
                         {:else}
                             <td class="min-w-[1rem] text-left">{dayjs.unix(transaction.timestamp).format('YY-M-D')}</td>
@@ -325,22 +311,22 @@
                             <td class="whitespace-normal lg:min-w-[32rem] max-w-[32rem] min-w-[11rem] text-left">{transaction.description}</td>
                         {/if}
                        
-                        {#if !smallScreenCondition}
+                        {#if !$smallScreenCondition}
                         <td class="min-w-[4rem] text-left">
                             <a class="hover:underline hover:decoration-primary" href="https://solscan.io/tx/{transaction.signature}" target="_blank">{transaction.signature.substring(0,4)}...</a>
                         </td>
                             
                         {/if}
-                        {#if !showConversion && !smallScreenCondition}
+                        {#if !showConversion && !$smallScreenCondition}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
-                        {:else if showConversion && !smallScreenCondition}
+                        {:else if showConversion && !$smallScreenCondition}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                             {#if convertingToReporting} 
                                 <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                             {:else}
                                 <td class="min-w-[4rem] max-w-[6rem]  text-right">{transaction.usd_amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
                             {/if}
-                        {:else if showConversion && smallScreenCondition}
+                        {:else if showConversion && $smallScreenCondition}
                             {#if convertingToReporting} 
                                 <td class="min-w-[4rem] max-w-[6rem] text-right"><progress class="progress w-[2rem]"></progress></td>
                             {:else}
@@ -349,7 +335,7 @@
                         {:else}
                         <td class="min-w-[2rem] max-w-[8rem] text-right">{transaction.amount?.toLocaleString('en-US', { maximumFractionDigits: 10 })}</td>
                         {/if}
-                        {#if smallScreenCondition}
+                        {#if $smallScreenCondition}
                         <td class="min-w-[2rem] text-right" ><a href="https://solscan.io/tx/{transaction.signature}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg></a></td>
@@ -376,7 +362,7 @@
         
     {/if}
         
-    {#if !loading && $displayArray.length > 0}
+    {#if $displayArray.length > 0}
         <div class="custom-pagination-nav">
             <div>
                 <PaginationNav
@@ -390,10 +376,8 @@
             </div>
         </div>
     {/if}
-    </div>
-    
 </div>
- 
+
 
 
 
