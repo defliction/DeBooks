@@ -361,23 +361,52 @@
         {/if}
         
     {/if}
-        
-    {#if $displayArray.length > 0}
-        <div class="custom-pagination-nav">
-            <div>
-                <PaginationNav
-                    totalItems="{$displayArray.length}"
-                    pageSize="{pageIncrement}"
-                    currentPage="{$currentPage}"
-                    limit="{1}"
-                    showStepOptions="{true}"
-                    on:setPage="{(e) => $currentPage = e.detail.page}"
-                />
+   
+        {#if $displayArray.length > 0}
+            <div class="flex justify-end custom-pagination-nav ">
+                
+                    <PaginationNav
+                        totalItems="{$displayArray.length}"
+                        pageSize="{pageIncrement}"
+                        currentPage="{$currentPage}"
+                        limit="{1}"
+                        showStepOptions="{true}"
+                        on:setPage="{(e) => $currentPage = e.detail.page}"
+                    />
+            
             </div>
-        </div>
-    {/if}
+        {/if}
+ 
 </div>
 
-
+<style>
+    .custom-pagination-nav :global(.pagination-nav) {
+      display: flex;
+      justify-content: flex-end;
+      border-radius: 3px;
+      box-shadow: 0 1px 2px hsl(var(--b1));
+    }
+    .custom-pagination-nav :global(.option) {
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      transition: 0.2s all ease-out;
+      user-select: none;
+      color: hsl(var(--n));
+    }
+    
+    .custom-pagination-navv :global(.option.number),
+    .custom-pagination-nav :global(.option.ellipsis) {
+      padding: 5px 7px;
+    }
+    .custom-pagination-nav :global(.option:hover) {
+      background: hsl(var(--b2));
+      cursor: pointer;
+    }
+    .custom-pagination-nav :global(.option.active) {
+      color: hsl(var(--pf));
+    }
+</style>
 
 

@@ -1085,7 +1085,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         </div>
     
     {:else}
-        <Statement startday={startday} endday={endday} />
+    <Statement startday={startday} endday={endday} />
 
     {/if}
 
