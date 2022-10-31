@@ -12,7 +12,7 @@
 		let txn_context = " Transaction "
 		// does it involve my wallet? to add
 		// check all instruction accounts flatmapped
-		let customDescripton = "Generic"
+		let customDescripton = ""
 		let txn_type = "Generic"
 		if (programIDs.includes("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph") || programIDs.includes("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo") || programIDs.includes("JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk") ) {
 			customDescripton = "Jup.ag"
@@ -42,8 +42,16 @@
 				fee_context = " Listed "
 			}
 			else if (item.meta.logMessages[12]?.includes(" ExecuteSale") || item.meta.logMessages[14]?.includes(" ExecuteSale") ) {
-				txn_context = " Sale "
-				fee_context = " Sale "
+				if (account_index > 5) {
+					txn_context = " Royalty Income "
+					fee_context = " Royalty Income "
+				}
+				else {
+					txn_context = " Sale "
+					fee_context = " Sale "
+				}
+				
+				
 			}
 			else if (item.meta?.logMessages[1].includes(" CancelSell")) {
 				txn_context = " Delisted "
@@ -108,6 +116,28 @@
 				fee_context = ""
 				
 			}
+		}
+		//hadeswap
+		else if(programIDs.includes("trsMRg3GzFSNgC3tdhbuKUES8YvGtUBbzp5fjxLtVQW")) {
+			customDescripton = "Hyperspace | Cardinal"
+			txn_type = "Marketplace"
+
+			if(item.meta?.logMessages[22].includes('AcceptListing')) {
+				txn_context = " Purchase "
+				fee_context = ""
+				
+			}
+			else if(item.meta?.logMessages[1].includes('CreateListing')) {
+				txn_context = " Create Listing "
+				fee_context = ""
+				
+			}
+			else if(item.meta?.logMessages[1].includes('UpdateListing')) {
+				txn_context = " Update Listing "
+				fee_context = ""
+				
+			}
+
 		}
 		//Foxy Swap
 		else if (programIDs.includes("8guzmt92HbM7yQ69UJg564hRRX6N4nCdxWE5L6ENrA8P")) {

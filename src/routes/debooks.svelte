@@ -108,7 +108,7 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("4MrnhLyb2ZLcfjQwy6cywhmcCH12kEcPTnwPc8hoK9x9kJnUXegeSdry9fZZetKFa6pp14J7XbbYnmRd6sAz56oL")
+        let trans1 = await $cnx.getParsedTransaction("4Et21ncAbiV8uqdPoc2GSy15en3pbM9sGrEw3QpxgZViRNrGMuPsk1mLbSQVQgeuyi7BgzXcAvuhYz3wvJCfhXt1")
         
         
         console.log (trans1)
