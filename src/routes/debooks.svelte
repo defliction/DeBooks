@@ -624,7 +624,7 @@
                  
                     return true
                 }
-                multi? $keyList.push($keyInput) : null
+                multi && !$keyList.includes($keyInput) ? $keyList.push($keyInput) : null
                 $keyList = $keyList
                 return true
             } else {
@@ -661,7 +661,7 @@
                             
                                 return true
                             }
-                            multi? $keyList.push($keyInput) : null
+                            multi && !$keyList.includes($keyInput)? $keyList.push($keyInput) : null
                             $keyList = $keyList
                             return true
                         } else {
