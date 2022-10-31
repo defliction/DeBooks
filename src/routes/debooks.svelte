@@ -861,13 +861,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(true)}>+</button>
             {/if}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
-            {#if $keyList.length<1}
-                {#if $keyInput != "" }
-                <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(false)}>GO</button>
-                {:else}
-                <button disabled class="btn btn-sm btn-square">GO</button>
-                {/if}
+            
+            {#if $keyInput != "" }
+            <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(false)}>GO</button>
+            {:else}
+            <button disabled class="btn btn-sm btn-square">GO</button>
             {/if}
+            
         </div>
             
         {:else if loading == true || rpcConnection == false}
@@ -876,9 +876,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         </div>
         {/if}
         <Wallets />
-        {#if $keyList.length>0}
-            <button class="btn btn-sm btn-primary " on:click={() => checkKey(false)}>GO ALL</button>
-        {/if}
+  
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif justify-center">
