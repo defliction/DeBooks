@@ -589,9 +589,10 @@
     }
     function sliceDisplayArray () {
         $displayArray = $displayArray.flat()
+        // && $keyList.filter(k => k.active == true).flatMap(k=>k.key).includes(transaction.key)
         if ($showfees && $showfailed) {
             
-            $displayArray = $displayArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()))
+            $displayArray = $displayArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()) )
             
             
             //console.log("showfees && showfailed")
@@ -599,10 +600,10 @@
         else if ($showfees && !$showfailed) {
             //default
             
-            let testArray = $displayArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            let testArray = $displayArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase())  || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
            
 
-            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature))
+            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) )
             //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             //console.log("showfees && !showfailed")
         }
@@ -615,7 +616,7 @@
         else if (!$showfees && !$showfailed) {
             //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             let testArray = $displayArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
+            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn" )
             //console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray.sort(function sortDates(a, b) { // non-anonymous as you ordered...
@@ -883,7 +884,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                 <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
                                                 <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" bind:checked={item.active} class="checkbox checkbox-sm" /></td>
                                                 {#if item.loading}
-                                                    <td class=" min-w-[4rem] text-center text-xs">
+                                                    <td class=" min-w-[4rem] justify-center text-xs">
                                                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
