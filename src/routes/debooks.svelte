@@ -28,6 +28,7 @@
     let activeChain = "Solana"
     let enableAptos = false
     let enableSui = false
+    let fetchingMulti = false
 
     //let start = dayjs(new Date(2021,1,1))
     let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
@@ -50,6 +51,7 @@
     let metadataAnimText = ""
  
     let loadingText = "initializing..."
+    let multiText = ""
     let metadataText = "Metadata On - Toggle off for faster loading without fetching NFT names etc..."
     let rpcConnection = false
     //let deDaoKey = new web3.PublicKey('DeDaoX2A3oUFMddqkvMAU2bBujo3juVDnmowg4Tyuw2r')
@@ -368,7 +370,20 @@
         sliceDisplayArray()
         //loading = false
     }
-
+    export async function fetchForAllAddresses () {
+        console.log("TEST")
+        let iterator = 0
+        fetchingMulti = true
+        for await (const key_item of $keyList) {
+            iterator ++
+           
+            multiText = "Wallet " + iterator + "/" + $keyList.length + " "
+            console.log("Fetching key ", key_item.key)
+            await fetchForAddress(new web3.PublicKey(key_item.key))
+            
+        }
+        fetchingMulti = false
+    }
     async function fetchForAddress (keyIn) {
     
       
@@ -628,6 +643,7 @@
 			    {
                     "key": $keyInput,
 				    "active": "true", 
+                    "loading": false,
                 }
                 multi && !$keyList.flatMap(item => item.key).includes(key_item.key) ? $keyList.push(key_item) : null
                 console.log($keyList)
@@ -671,6 +687,7 @@
                             {
                                 "key": $keyInput,
                                 "active": "true", 
+                                "loading": false,
                             }
                             multi && !$keyList.flatMap(item => item.key).includes(key_item.key)? $keyList.push(key_item) : null
                             console.log($keyList)
@@ -835,7 +852,49 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                             </svg></label>
                             <div tabindex="0" class="dropdown-content ">
-                                <Wallets />
+                                <div class="card card-compact ">
+                                    {#if $keyList.length > 0 }
+                                    <table class="table table-compact normal-case">
+                                        <thead >
+                                            <tr class=" ">
+                                                <th class="min-w-[8rem] text-left text-sm normal-case">Address</th>
+                                                <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
+                                                <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
+                                                {#if fetchingMulti && loading}
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" >MGO</button></th>
+                                                {:else}
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1" on:click={fetchForAllAddresses}>MGO</button></th>
+                                                {/if}  
+                                                
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                            {#each $keyList as item, i}
+                                            <tr class="">
+                                                <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
+                                                <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" bind:checked={item.active} class="checkbox checkbox-sm" /></td>
+                                                <td class=" min-w-[4rem] text-center text-xs">ready</td>
+                                                <td class=" min-w-[4rem] text-right text-xs"><button class="btn btn-ghost btn-xs min-w-[2rem]" on:click={()=> ($keyList.splice(i,1), $keyList=$keyList)}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-4 h-4 stroke-primary">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                      </svg>
+                                                    </button></td>
+                                            </tr>
+                                            {/each}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="">
+                                                <th class="text-left text-sm normal-case">loading...</th>
+                                                <th class="text-left text-sm normal-case"></th>
+                                                <th class="text-left text-sm normal-case"></th>
+                                                <th class="text-left text-sm normal-case"></th>
+                                            </tr>
+                                          </tfoot>
+                                      
+                                    </table>
+                                    {/if}
+                                </div>
                             </div>
                         </div>
 
@@ -949,19 +1008,18 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 </div>
 
 {#if validKey == true}
-<div class="flex justify-center font-serif place-content-center   ">
+<div class="flex justify-center font-serif  ">
     
-   
     {#if loading}
-        <div class="flex flex-row justify-center ">
-            <p class="pt-4 justify-center">
-                <span class="font-serif font-medium badge badge-lg ">
-                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>{loadingText} {currentPercentage}</span> 
-            </p>
-        </div>
+    <div class="flex justify-center flex-row">
+        <p class="pt-4 justify-center">
+            <span class="font-serif font-medium badge badge-lg ">
+                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>{multiText}{loadingText} {currentPercentage}</span> 
+        </p>
+    </div>
     
     {:else}
     <Statement startday={startday} endday={endday} />
