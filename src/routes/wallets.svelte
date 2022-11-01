@@ -1,5 +1,5 @@
 <script lang='ts'>
-    let expand = true
+   
     import { keyList } from '../stores.js';
 
 </script>
@@ -9,19 +9,21 @@
     <table class="table table-compact normal-case">
         <thead >
             <tr class=" ">
-                <th class="min-w-[12rem] text-left text-sm normal-case">Wallet addresses ({$keyList.length})</th>
-                <th class="min-w-[4rem] text-left text-sm normal-case">{#if expand}Status{/if}</th>
+                <th class="min-w-[8rem] text-left text-sm normal-case">Address</th>
+                <th class="min-w-[4rem] text-left text-sm normal-case">Active</th>
+                <th class="min-w-[4rem] text-left text-sm normal-case">Status</th>
             
-                <th></th>
+                <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1" >MGO</button></th>
                     
                 
             </tr>
         </thead>
-        {#if expand}
+        
         <tbody>
             {#each $keyList as item, i}
             <tr class="">
-                <td class=" min-w-[12rem] text-left text-xs">{item.substring(0,4)}...{item.substring(item.length-4,item.length)}</td>
+                <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
+                <td class=" min-w-[4rem] text-left text-xs"><input bind:value={item.active} type="checkbox" checked={item.active} class="checkbox checkbox-sm" /></td>
                 <td class=" min-w-[4rem] text-left text-xs">ready</td>
                 <td><button class="btn btn-ghost btn-xs min-w-[2rem]" on:click={()=> ($keyList.splice(i,1), $keyList=$keyList)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-4 h-4 stroke-primary">
@@ -31,7 +33,14 @@
             </tr>
             {/each}
         </tbody>
-        {/if}
+        <tfoot>
+            <tr class="">
+                <th class="text-left text-sm normal-case">loading...</th>
+                <th class="text-left text-sm normal-case"></th>
+                <th class="text-left text-sm normal-case"></th>
+            </tr>
+          </tfoot>
+      
     </table>
     {/if}
 </div>

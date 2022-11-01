@@ -624,7 +624,13 @@
                  
                     return true
                 }
-                multi && !$keyList.includes($keyInput) ? $keyList.push($keyInput) : null
+                var key_item = 
+			    {
+                    "key": $keyInput,
+				    "active": "true", 
+                }
+                multi && !$keyList.flatMap(item => item.key).includes(key_item.key) ? $keyList.push(key_item) : null
+                console.log($keyList)
                 $keyList = $keyList
                 return true
             } else {
@@ -661,7 +667,13 @@
                             
                                 return true
                             }
-                            multi && !$keyList.includes($keyInput)? $keyList.push($keyInput) : null
+                            var key_item = 
+                            {
+                                "key": $keyInput,
+                                "active": "true", 
+                            }
+                            multi && !$keyList.flatMap(item => item.key).includes(key_item.key)? $keyList.push(key_item) : null
+                            console.log($keyList)
                             $keyList = $keyList
                             return true
                         } else {
@@ -805,9 +817,11 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 </div>
             </div>
             <div class="col-end-8 col-span-1">  
-                <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Multi wallet list">                    
+                <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Multi wallet list">
+                    <div class="indicator">                
+                        
                     {#if $keyList.length > 0 }
-              
+                    <span class="indicator-item indicator-top badge badge-sm badge-primary">{$keyList.length}</span> 
                         {#if metadataAnimation}
                         <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
                             <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -828,7 +842,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         {/if}
                     {/if}
                     
-                    
+                </div>    
                 </div>
             </div>
             <div class="col-end-9 col-span-1">  
