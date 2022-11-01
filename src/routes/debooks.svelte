@@ -16,7 +16,7 @@
 
     import { themeChange } from 'theme-change'
 	import Statement from "./statement.svelte";
-    import Wallets from "./wallets.svelte"
+ 
 
     dayjs.extend(localizedFormat)
     dayjs.extend(relativeTime)
@@ -374,12 +374,16 @@
         console.log("TEST")
         let iterator = 0
         fetchingMulti = true
+        $displayArray = []
         for await (const key_item of $keyList) {
             iterator ++
-           
+            key_item.loading = true
+            $keyList = $keyList
             multiText = "Wallet " + iterator + "/" + $keyList.length + " "
             console.log("Fetching key ", key_item.key)
             await fetchForAddress(new web3.PublicKey(key_item.key))
+            key_item.loading = false
+            $keyList = $keyList
             
         }
         fetchingMulti = false
@@ -390,7 +394,7 @@
         $currentPage = 1
         $apiData =[]
         $workingArray = []
-        $displayArray = []
+        //$displayArray = []
         $fetchedTransactions = []
         currentTransaction = 0
         currentPercentage = ""
@@ -566,7 +570,8 @@
             showInfoTip = false
             $workingArray = $workingArray
             sortArray($workingArray)
-            $displayArray = $workingArray
+            $displayArray.push($workingArray)
+            console.log( $displayArray)
             $currentPage = 1
             totalPages = Math.ceil($displayArray.length/pageIncrement)
             sliceDisplayArray()
@@ -583,9 +588,10 @@
         arrayIn = arrayIn
     }
     function sliceDisplayArray () {
+        $displayArray = $displayArray.flat()
         if ($showfees && $showfailed) {
             
-            $displayArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()))
+            $displayArray = $displayArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()))
             
             
             //console.log("showfees && showfailed")
@@ -593,23 +599,23 @@
         else if ($showfees && !$showfailed) {
             //default
             
-            let testArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            let testArray = $displayArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
            
 
-            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature))
+            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature))
             //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
             //console.log("showfees && !showfailed")
         }
         else if (!$showfees && $showfailed) {
             //$displayArray = $workingArray.filter(transaction => transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            let testArray = $workingArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
+            let testArray = $displayArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
             //console.log("!showfees && showfailed")
         }
         else if (!$showfees && !$showfailed) {
             //$displayArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.description.substring(0,3) != "Txn" && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            let testArray = $workingArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
-            $displayArray = $workingArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
+            let testArray = $displayArray.filter(transaction => transaction.success == true && transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.success == true && transaction.signature.toLowerCase().includes($textFilter.toLowerCase()));
+            $displayArray = $displayArray.filter(transaction => testArray.flatMap(txn => txn.signature).includes(transaction.signature) && transaction.description.substring(0,3) != "Txn")
             //console.log("!showfees && !showfailed")
         }
         $displayArray = $displayArray.sort(function sortDates(a, b) { // non-anonymous as you ordered...
@@ -635,6 +641,7 @@
                     
                     loadingText = "checking address..."
                     loading = true
+                    $displayArray = []
                     !multi? fetchForAddress(new web3.PublicKey($keyInput)) : null
                  
                     return true
@@ -679,6 +686,7 @@
                                 
                                 loadingText = "initializing..."
                                 loading = true
+                                $displayArray = []
                                 !multi? fetchForAddress(new web3.PublicKey($keyInput)) : null
                             
                                 return true
@@ -874,7 +882,17 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                             <tr class="">
                                                 <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
                                                 <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" bind:checked={item.active} class="checkbox checkbox-sm" /></td>
-                                                <td class=" min-w-[4rem] text-center text-xs">ready</td>
+                                                {#if item.loading}
+                                                    <td class=" min-w-[4rem] text-center text-xs">
+                                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </td>
+                                                {:else}
+                                                    <td class=" min-w-[4rem] text-center text-xs">ready</td>
+                                                {/if}
+                                                
                                                 <td class=" min-w-[4rem] text-right text-xs"><button class="btn btn-ghost btn-xs min-w-[2rem]" on:click={()=> ($keyList.splice(i,1), $keyList=$keyList)}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-4 h-4 stroke-primary">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -884,11 +902,20 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                             {/each}
                                         </tbody>
                                         <tfoot>
-                                            <tr class="">
-                                                <th class="text-left text-sm normal-case">loading...</th>
+                                            <tr class="e">
+                                                {#if loading}
+                                                    <th class="min-w-[8rem] text-left text-sm normal-case">{multiText}{loadingText}{currentPercentage}</th>
+                                                    <th class="  text-left text-sm normal-case"></th>
+                                                <th class=" text-left text-sm normal-case"></th>
                                                 <th class="text-left text-sm normal-case"></th>
+                                                {:else}
+                                                <th class="min-w-[8rem] text-left text-sm normal-case"></th>
+                                                <th class="min-w-[4rem] text-left text-sm normal-case"></th>
+                                                <th class="min-w-[4rem] text-left text-sm normal-case"></th>
                                                 <th class="text-left text-sm normal-case"></th>
-                                                <th class="text-left text-sm normal-case"></th>
+                                                {/if}
+                                                
+                                                
                                             </tr>
                                           </tfoot>
                                       
