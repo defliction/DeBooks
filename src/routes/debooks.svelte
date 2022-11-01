@@ -366,7 +366,7 @@
         //$currentPage = 1
         //totalPages = Math.ceil($displayArray.length/pageIncrement)
         sliceDisplayArray()
-        //loading = false
+        loading = false
     }
 
     async function fetchForAddress (keyIn) {
