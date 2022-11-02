@@ -1,7 +1,7 @@
 import { writable, readable } from 'svelte/store';
 
 export let apiData = writable([]);
-export let cleanedArray = writable([]);
+export let fullArray = writable([]);
 export let workingArray = writable([]);
 export let displayArray = writable([]);
 export let multiArray = writable([]);

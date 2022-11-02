@@ -1,7 +1,7 @@
 <script lang='ts'>
 
     import { onMount, afterUpdate } from "svelte";
-    import { apiData, keyList, fetchedTransactions, workingArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition } from '../stores.js';
+    import { apiData, keyList, fetchedTransactions, workingArray, fullArray, displayArray, keyInput, loadedAddress, showfailed, showfees, currentPage, textFilter, reportingCurrency, showMetadata, time, cnx, smallScreenCondition } from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -570,8 +570,8 @@
             showInfoTip = false
             $workingArray = $workingArray
             sortArray($workingArray)
-            $displayArray.push($workingArray)
-            console.log( $displayArray)
+            $fullArray.push($workingArray)
+            
             $currentPage = 1
             totalPages = Math.ceil($displayArray.length/pageIncrement)
             sliceDisplayArray()
@@ -588,7 +588,14 @@
         arrayIn = arrayIn
     }
     function sliceDisplayArray () {
-        $displayArray = $displayArray.flat()
+        //$displayArray = $workingArray
+        console.log($fullArray.flat())
+        $displayArray = $fullArray.flat()
+        let activeKeys = $keyList.filter(k => k.active).flatMap(k=>k.key)
+        console.log("activ ekeys ", activeKeys)
+        $displayArray = $displayArray.filter(transaction => activeKeys.includes(transaction.key))
+        //$keyList.filter(k => k.active).flatMap(k=>k.key).includes(transaction.key)
+        //$keyList.filter(k => k.active).flatMap(k=>k.key)
         // && $keyList.filter(k => k.active == true).flatMap(k=>k.key).includes(transaction.key)
         if ($showfees && $showfailed) {
             
@@ -655,6 +662,7 @@
                 }
                 multi && !$keyList.flatMap(item => item.key).includes(key_item.key) ? $keyList.push(key_item) : null
                 console.log($keyList)
+                console.log($keyList.filter(k => k.active).flatMap(k=>k.key))
                 $keyList = $keyList
                 return true
             } else {
@@ -700,6 +708,7 @@
                             }
                             multi && !$keyList.flatMap(item => item.key).includes(key_item.key)? $keyList.push(key_item) : null
                             console.log($keyList)
+                            console.log($keyList.filter(k => k.active).flatMap(k=>k.key))
                             $keyList = $keyList
                             return true
                         } else {
@@ -766,7 +775,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 
 <div class="flex justify-center">
     <div class="pt-2 text-center ">
-        <div class="grid grid-cols-8 gap-1">
+        <div class="grid grid-cols-8 gap-1 pt-1">
             <div class="col-start-1 col-span-1">
                 <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Toggle Dark Mode">  
                     <button data-toggle-theme="light,black" on:click={()=> darkMode = !darkMode} class="btn btn-xs btn-ghost normal-case " >
@@ -844,7 +853,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             </div>
             <div class="col-end-8 col-span-1">  
                 <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Multi wallet list">
-                    <div class="indicator">                
+                    <div class="indicator ">                
                         
                     {#if $keyList.length > 0 }
                     <span class="indicator-item indicator-top badge badge-sm badge-primary">{$keyList.length}</span> 

@@ -469,7 +469,7 @@
 					var new_line = 
 					{
 						"signature": item.transaction.signatures[0],
-						"key": keyIn,
+						"key": keyIn.toBase58(),
 						"timestamp": item.blockTime, 
 						"slot": item.slot,
 						"success": item.meta?.err == null? true : false,
@@ -503,7 +503,7 @@
 				var new_line = 
 				{
 					"signature": item.transaction.signatures[0],
-					"key": keyIn,
+					"key": keyIn.toBase58(),
 					"timestamp": item.blockTime, 
 					"slot": item.slot,
 					"success": item.meta?.err == null? true : false,
@@ -544,7 +544,7 @@
 				var new_line = 
 				{
 					"signature": item.transaction.signatures[0],
-					"key": keyIn,
+					"key": keyIn.toBase58(),
 					"timestamp": item.blockTime, 
 					"slot": item.slot,
 					"success": item.meta?.err == null? true : false,
@@ -579,7 +579,7 @@
 			var fee_expense = 
 			{
 				"signature": item.transaction.signatures[0],
-				"key": keyIn,
+				"key": keyIn.toBase58(),
 				"timestamp": item.blockTime, 
 				"slot": item.slot,
 				"success": true,
