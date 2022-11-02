@@ -354,8 +354,7 @@
             }
             metadataAnimText = "" + Math.min(99,Math.round(txn/$fetchedTransactions.length*100))+"%"
             
-        }
-        
+        }  
         //console.log("printing cleaned array")
         //console.log($cleanedArray)
         //console.log("printing working array")
@@ -368,7 +367,7 @@
         //$currentPage = 1
         //totalPages = Math.ceil($displayArray.length/pageIncrement)
         sliceDisplayArray()
-        //loading = false
+        loading = false
     }
     export async function fetchForAllAddresses () {
         console.log("TEST")
@@ -560,8 +559,6 @@
                 }
             }
 
-
-            
             //console.log("printing cleaned array")
             //console.log($cleanedArray)
             //console.log("printing working array")
@@ -592,7 +589,7 @@
         console.log($fullArray.flat())
         $displayArray = $fullArray.flat()
         let activeKeys = $keyList.filter(k => k.active).flatMap(k=>k.key)
-        console.log("activ ekeys ", activeKeys)
+        console.log("active keys ", activeKeys)
         $displayArray = $displayArray.filter(transaction => activeKeys.includes(transaction.key))
         //$keyList.filter(k => k.active).flatMap(k=>k.key).includes(transaction.key)
         //$keyList.filter(k => k.active).flatMap(k=>k.key)
@@ -600,8 +597,6 @@
         if ($showfees && $showfailed) {
             
             $displayArray = $displayArray.filter(transaction => transaction.description.toLowerCase().includes($textFilter.toLowerCase()) || transaction.signature.toLowerCase().includes($textFilter.toLowerCase()) )
-            
-            
             //console.log("showfees && showfailed")
         }
         else if ($showfees && !$showfailed) {
@@ -869,19 +864,20 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             <label tabindex="0" class="btn btn-xs btn-ghost normal-case "> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-current fill-transparent">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                             </svg></label>
-                            <div tabindex="0" class="dropdown-content ">
-                                <div class="card card-compact ">
+                            <div tabindex="0" class="dropdown-content">
+                                <div class="card card-compact z-55 ">
                                     {#if $keyList.length > 0 }
                                     <table class="table table-compact normal-case">
                                         <thead >
                                             <tr class=" ">
+                                                <th class="min-w-[2rem] text-left text-sm normal-case">#</th>
                                                 <th class="min-w-[8rem] text-left text-sm normal-case">Address</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
                                                 {#if fetchingMulti && loading}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" >MGO</button></th>
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" >>></button></th>
                                                 {:else}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1" on:click={fetchForAllAddresses}>MGO</button></th>
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 normal-case" on:click={fetchForAllAddresses}>>></button></th>
                                                 {/if}  
                                                 
                                             </tr>
@@ -890,8 +886,9 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                         <tbody>
                                             {#each $keyList as item, i}
                                             <tr class="">
+                                                <td class="min-w-[2rem] text-left text-xs normal-case">{i+1}</td>
                                                 <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
-                                                <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" bind:checked={item.active} class="checkbox checkbox-sm" /></td>
+                                                <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" on:click={sliceDisplayArray} bind:checked={item.active} on:change={sliceDisplayArray} class="checkbox checkbox-sm" /></td>
                                                 {#if item.loading}
                                                     <td class=" min-w-[4rem] justify-center text-xs">
                                                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -913,12 +910,14 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                         </tbody>
                                         <tfoot>
                                             <tr class="e">
+                                                <th class=" text-left text-sm normal-case"></th>
                                                 {#if loading}
                                                     <th class="min-w-[8rem] text-left text-sm normal-case">{multiText}{loadingText}{currentPercentage}</th>
                                                     <th class="  text-left text-sm normal-case"></th>
                                                 <th class=" text-left text-sm normal-case"></th>
                                                 <th class="text-left text-sm normal-case"></th>
                                                 {:else}
+                                                <th class=" text-left text-sm normal-case"></th>
                                                 <th class="min-w-[8rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
@@ -995,14 +994,16 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         
         <div class="input-group justify-center">
             {#if $keyInput != ""}
-            <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(true)}>+</button>
+           
+            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Add address to list" on:click={() => checkKey(true)}>+</button>
+            
             {/if}
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
             
             {#if $keyInput != "" }
-            <button class="btn btn-primary btn-sm btn-square" on:click={() => checkKey(false)}>GO</button>
+            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={() => checkKey(false)}>></button>
             {:else}
-            <button disabled class="btn btn-sm btn-square">GO</button>
+            <button disabled class="btn btn-sm btn-square">></button>
             {/if}
             
         </div>
