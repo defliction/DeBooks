@@ -111,7 +111,7 @@
         }
         //console.log("first date", firstDate)
         //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("4Et21ncAbiV8uqdPoc2GSy15en3pbM9sGrEw3QpxgZViRNrGMuPsk1mLbSQVQgeuyi7BgzXcAvuhYz3wvJCfhXt1")
+        let trans1 = await $cnx.getParsedTransaction("5GkGQBbWgfgFwZD8mhYaVMrNGEkX39Vqvc2w1CnpvA1gy7V6TzP1fpUVf88Cku8CJe9JXrxsBHGKSYXWoPniw9wJ")
         
         
         console.log (trans1)
@@ -347,7 +347,7 @@
                 programIDs.push(program.programId.toBase58())
             })
             
-            if (item.meta.err == null) {
+            if (true) {
                 //console.log("programIDs ", programIDs, item)
                 //only classify successful transactions!
                 //MAGIC EDEN TRANSACTIONS >>
@@ -554,7 +554,7 @@
                 
 
 
-                if (item.meta.err == null) {
+                if (true) {
                     //console.log("programIDs ", programIDs, item)
                     //only classify successful transactions!
                     //MAGIC EDEN TRANSACTIONS >>
@@ -947,7 +947,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                 </div>
                             </div>
                         </div>
-
+                        
                      
                     {/if}
                     
