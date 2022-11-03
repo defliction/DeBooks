@@ -29,6 +29,7 @@
     let enableAptos = false
     let enableSui = false
     let fetchingMulti = false
+    let fetchedTransDicts = []
 
     //let start = dayjs(new Date(2021,1,1))
     let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
@@ -306,17 +307,25 @@
 
     async function metadataHandler() {
         $showMetadata = !$showMetadata
-        if (showMetadata && !loading && $fetchedTransactions.length > 0 && $loadedAddress == $keyInput) {
+        if (showMetadata && !loading && $fetchedTransactions.length > 0) {
+            loading = true
             metadataAnimation = true
             metadataAnimText = ""
-            await classifyArray (new web3.PublicKey($keyInput))
-         
+            $fullArray = []
+            for await (const key_item of $keyList) {
+                
+                await classifyArray (key_item.key)
+            }
+            
+            sliceDisplayArray()
+            loading = false
             metadataAnimation = false
-        }
+        }   
         
     }
+
     async function classifyArray (keyIn) {
-        loading = true
+        
         let response = await fetch("https://token-list-api.solana.cloud/v1/list");
         let utl_api = await response.json()
         $workingArray = []
@@ -325,11 +334,13 @@
         $showMetadata? startTime = $time.getSeconds() : null
         let owner = await $cnx.getAccountInfoAndContext(new web3.PublicKey(keyIn))
         let txn = 0
-        for await (const item of $fetchedTransactions) {
+
+        let findArray = fetchedTransDicts.filter(k => k.key == keyIn).flatMap(t => t.txns)
+        for await (const item of findArray) {
             txn += 1
            
 
-            let account_index = item.transaction.message?.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn.toBase58())
+            let account_index = item.transaction.message?.accountKeys.flatMap(s => s.pubkey.toBase58()).indexOf(keyIn)
             let programIDs: string[] = []
             item.transaction.message.instructions.forEach(function (program) {
                 
@@ -342,7 +353,7 @@
                 //MAGIC EDEN TRANSACTIONS >>
                 if (item != null || item != undefined) {
                     try {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
+                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, new web3.PublicKey(keyIn), owner, utl_api.content)
                     }
                     catch (e)
                     {
@@ -352,7 +363,7 @@
                 }
                 
             }
-            metadataAnimText = "" + Math.min(99,Math.round(txn/$fetchedTransactions.length*100))+"%"
+            metadataAnimText = "" + Math.min(99,Math.round(txn/findArray.length*100))+"%"
             
         }  
         //console.log("printing cleaned array")
@@ -363,16 +374,18 @@
         showInfoTip = false
         $workingArray = $workingArray
         sortArray($workingArray)
-        $displayArray = $workingArray
+        $fullArray.push($workingArray)
         //$currentPage = 1
         //totalPages = Math.ceil($displayArray.length/pageIncrement)
-        sliceDisplayArray()
-        loading = false
+       
+        
     }
     export async function fetchForAllAddresses () {
         console.log("TEST")
         let iterator = 0
         fetchingMulti = true
+        fetchedTransDicts = []
+        $fullArray = []
         $displayArray = []
         for await (const key_item of $keyList) {
             iterator ++
@@ -558,7 +571,11 @@
                     
                 }
             }
-
+            var new_txns = {
+                "key" : keyIn,
+                "txns": $fetchedTransactions
+            }
+            fetchedTransDicts.push(new_txns)
             //console.log("printing cleaned array")
             //console.log($cleanedArray)
             //console.log("printing working array")
@@ -852,14 +869,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                         
                     {#if $keyList.length > 0 }
                     <span class="indicator-item indicator-top badge badge-sm badge-primary">{$keyList.length}</span> 
-                        {#if metadataAnimation}
-                        <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
-                            <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
-                                <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg><span class = "pl-2">{metadataAnimText} </span>
-                        </button>
-                        {:else}
+                        
                         <div class="dropdown dropdown-end">
                             <label tabindex="0" class="btn btn-xs btn-ghost normal-case "> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-current fill-transparent">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
@@ -875,9 +885,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
                                                 {#if fetchingMulti && loading}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" >>></button></th>
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                      </svg></button></th>
                                                 {:else}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 normal-case" on:click={fetchForAllAddresses}>>></button></th>
+                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 normal-case" on:click={fetchForAllAddresses}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                      </svg></button></th>
                                                 {/if}  
                                                 
                                             </tr>
@@ -934,7 +948,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             </div>
                         </div>
 
-                        {/if}
+                     
                     {/if}
                     
                 </div>    
@@ -1001,9 +1015,15 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
             
             {#if $keyInput != "" }
-            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={() => checkKey(false)}>></button>
+            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={() => checkKey(false)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              </button>
             {:else}
-            <button disabled class="btn btn-sm btn-square">></button>
+            <button disabled class="btn btn-sm btn-square"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              </button>
             {/if}
             
         </div>
