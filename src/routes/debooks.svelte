@@ -30,6 +30,7 @@
     let enableSui = false
     let fetchingMulti = false
     let fetchedTransDicts = []
+    let dropDownOpen = false
 
     //let start = dayjs(new Date(2021,1,1))
     let start = dayjs().subtract(7, 'days').format("YYYY-MM-DD")
@@ -878,12 +879,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     {#if $keyList.length > 0 }
                     <span class="indicator-item indicator-top badge badge-sm badge-primary">{$keyList.length}</span> 
                         
-                        <div class="dropdown dropdown-end">
-                            <label tabindex="0" class="btn btn-xs btn-ghost normal-case "> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-current fill-transparent">
+                        <div class="dropdown dropdown-end" on:focusin={() => dropDownOpen = true} on:focusout={() => dropDownOpen = false} >
+                            <label tabindex="0" class="btn btn-xs btn-ghost normal-case "  > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-current fill-transparent">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                             </svg></label>
-                            <div tabindex="0" class="dropdown-content">
-                                <div class="card card-compact z-55 ">
+
+                            <div tabindex="0" class="dropdown-content" >
+                                <div class=" shadow-md card card-compact z-55 " >
                                     {#if $keyList.length > 0 }
                                     <table class="table table-compact normal-case">
                                         <thead >
@@ -892,16 +894,8 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                 <th class="min-w-[8rem] text-left text-sm normal-case">Address</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
-                                                {#if fetchingMulti && loading}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 disabled" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                                                      </svg></button></th>
-                                                {:else}
-                                                    <th class="text-right text-sm normal-case "><button class="btn btn-primary btn-sm p-1 normal-case" on:click={fetchForAllAddresses}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                                                      </svg></button></th>
-                                                {/if}  
-                                                
+                                               
+                                                <th class="text-center text-sm normal-case"></th>
                                             </tr>
                                         </thead>
                                         
@@ -943,7 +937,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                 <th class="min-w-[8rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
-                                                <th class="text-left text-sm normal-case"></th>
+                                              
                                                 {/if}
                                                 
                                                 
@@ -1013,36 +1007,26 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         
         
         {#if loading == false && rpcConnection == true}
-        
-        <div class="input-group justify-center">
-            {#if $keyInput != ""}
+        <div class=" flex flex-row justify-center">
+            <div class="input-group justify-center">
+                
+                <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+                
+                {#if $keyInput != ""}
+            
+                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Add address to list" on:click={() => checkKey(true)}>+</button>
+                
+                {/if}
+                
+            </div>
            
-            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Add address to list" on:click={() => checkKey(true)}>+</button>
-            
-            {/if}
-            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" on:keydown={onKeyDown} bind:value={$keyInput} class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
-            
-            {#if $keyInput != "" }
-            <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={() => checkKey(false)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              </button>
-            {:else}
-            <button disabled class="btn btn-sm btn-square"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              </button>
-            {/if}
-            
         </div>
-            
         {:else if loading == true || rpcConnection == false}
         <div class="justify-center">
             <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
         </div>
         {/if}
         
-  
         <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif justify-center">
@@ -1063,6 +1047,20 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             {:else}
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
+            <div class = "pl-4 ">
+
+                {#if $keyInput != "" }
+                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={fetchForAllAddresses}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                </button>
+                {:else }
+                <button disabled class="btn btn-sm btn-square"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                </button>
+                {/if}
+            </div>
             
         </div>
         
