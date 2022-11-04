@@ -482,10 +482,6 @@
 							"uri": "",
 							"type": txn_type,
 							"account_keys": item.transaction.message.accountKeys,
-							"pre_balances": item.meta? item.meta.preBalances : null,
-							"post_balances": item.meta? item.meta.postBalances : null,
-							"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-							"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 							"description": customDescripton + txn_context + direction + " SOL" +  " (" + subacccontext+ "sub-account " + accountSuffix.substring(0,4) + ")"
 						}
 						workingArray.push(new_line)
@@ -516,10 +512,6 @@
 						"uri": tokenName.uri,
 						"type": txn_type,
 						"account_keys": item.transaction.message.accountKeys,
-						"pre_balances": item.meta? item.meta.preBalances : null,
-						"post_balances": item.meta? item.meta.postBalances : null,
-						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 						"description": customDescripton + txn_context + direction + tokenName.name
 					}
 					workingArray.push(new_line)
@@ -557,10 +549,6 @@
 						"uri": "",
 						"type": txn_type,
 						"account_keys": item.transaction.message.accountKeys,
-						"pre_balances": item.meta? item.meta.preBalances : null,
-						"post_balances": item.meta? item.meta.postBalances : null,
-						"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-						"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 						"description": customDescripton + txn_context + direction + " SOL"
 					}
 					workingArray.push(new_line)
@@ -592,10 +580,6 @@
 					"uri": "",
 					"type": "Fees",
 					"account_keys": item.transaction.message.accountKeys,
-					"pre_balances": item.meta? item.meta.preBalances : null,
-					"post_balances": item.meta? item.meta.postBalances : null,
-					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 					"description": "Txn fees: " + customDescripton + fee_context + failed_text
 				}
 				workingArray.push(fee_expense)
@@ -623,10 +607,6 @@
 					"uri": "",
 					"type": "Fees",
 					"account_keys": item.transaction.message.accountKeys,
-					"pre_balances": item.meta? item.meta.preBalances : null,
-					"post_balances": item.meta? item.meta.postBalances : null,
-					"pre_token_balances": item.meta? item.meta.preTokenBalances : null,
-					"post_token_balances": item.meta? item.meta.postTokenBalances : null,
 					"description": "Txn fees: failed"
 				}
 				workingArray.push(fee_expense)
