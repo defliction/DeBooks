@@ -657,7 +657,7 @@
         //console.log("display array length: ", $displayArray.length)
     }
 
-    async function checkKey (multi:boolean) {
+    async function checkKey (multi:boolean, fetch:boolean) {
         try {
             $keyInput = $keyInput.trim()
            
@@ -672,7 +672,7 @@
                     loading = true
                     $displayArray = []
                     !multi? fetchForAddress(new web3.PublicKey($keyInput)) : null
-                 
+                   
                     return true
                 }
                 var key_item = 
@@ -685,6 +685,9 @@
                 console.log($keyList)
                 console.log($keyList.filter(k => k.active).flatMap(k=>k.key))
                 $keyList = $keyList
+                if (fetch) {
+                        fetchForAllAddresses()
+                }
                 return true
             } else {
                 console.log("Key not on curve ")
@@ -692,10 +695,11 @@
                 validKey = false
                 invalidKey = true
                 loading = false
+
                 return false
           
             }
-
+            
         } catch(e) {
             //sns check
             const { pubkey } = await getDomainKey($keyInput.toLowerCase());
@@ -731,6 +735,9 @@
                             console.log($keyList)
                             console.log($keyList.filter(k => k.active).flatMap(k=>k.key))
                             $keyList = $keyList
+                            if (fetch) {
+                                fetchForAllAddresses()
+                            }
                             return true
                         } else {
                             console.log("SNS Key not on curve " )
@@ -758,14 +765,16 @@
             invalidKey = true
             return false
         }
+       
         return false
     }
 
     function onKeyDown(e) {
 		 switch(e.keyCode) {
 			 case 13:
-				 checkKey(false)
-				 break;
+				checkKey(true, true)
+                //fetchForAllAddresses()
+				break;
 			 
 		 }
 	}
@@ -885,13 +894,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                             </svg></label>
 
                             <div tabindex="0" class="dropdown-content" >
-                                <div class=" shadow-md card card-compact z-55 " >
+                                <div class="border shadow-md card card-compact z-55 " >
                                     {#if $keyList.length > 0 }
                                     <table class="table table-compact normal-case">
                                         <thead >
                                             <tr class=" ">
                                                 <th class="min-w-[2rem] text-left text-sm normal-case">#</th>
-                                                <th class="min-w-[8rem] text-left text-sm normal-case">Address</th>
+                                                <th class="min-w-[4rem] text-left text-sm normal-case">Address</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
                                                
@@ -903,7 +912,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                             {#each $keyList as item, i}
                                             <tr class="">
                                                 <td class="min-w-[2rem] text-left text-xs normal-case">{i+1}</td>
-                                                <td class=" min-w-[8rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
+                                                <td class=" min-w-[4rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
                                                 <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" on:click={sliceDisplayArray} bind:checked={item.active} on:change={sliceDisplayArray} class="checkbox checkbox-sm" /></td>
                                                 {#if item.loading}
                                                     <td class=" min-w-[4rem] justify-center text-xs">
@@ -927,18 +936,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                         <tfoot>
                                             <tr class="e">
                                                 <th class=" text-left text-sm normal-case"></th>
-                                                {#if loading}
-                                                    <th class="min-w-[8rem] text-left text-sm normal-case">{multiText}{loadingText}{currentPercentage}</th>
-                                                    <th class="  text-left text-sm normal-case"></th>
-                                                <th class=" text-left text-sm normal-case"></th>
-                                                <th class="text-left text-sm normal-case"></th>
-                                                {:else}
+                                
                                                 <th class=" text-left text-sm normal-case"></th>
                                                 <th class="min-w-[8rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
                                                 <th class="min-w-[4rem] text-left text-sm normal-case"></th>
                                               
-                                                {/if}
+                                                
                                                 
                                                 
                                             </tr>
@@ -1050,7 +1054,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <div class = "pl-4">
 
                 {#if $keyInput != "" }
-                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={fetchForAllAddresses}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5 pl-1">
+                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={()=> $keyList.length<1? (checkKey(true, true) ) : fetchForAllAddresses()}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5 pl-1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 </button>
