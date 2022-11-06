@@ -2,7 +2,7 @@
     
 
     import { onMount, afterUpdate } from "svelte";
-    import { fetchedTransactions, workingArray, displayArray, keyInput, showfees, currentPage, textFilter, reportingCurrency, showMetadata, smallScreenCondition} from '../stores.js';
+    import { fullArray, workingArray, displayArray, keyInput, showfees, currentPage, textFilter, reportingCurrency, showMetadata, smallScreenCondition} from '../stores.js';
     import * as web3 from '@solana/web3.js';
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -169,7 +169,7 @@
 </script>
 
 <div class=" ">
-    {#if $fetchedTransactions.length > 0 }
+    {#if $fullArray.length > 0 }
         <div class="grid grid-flow-col place-items-center md:pt-8 pt-4 pb-1 ">
              
                     <div class="col-start-auto">
