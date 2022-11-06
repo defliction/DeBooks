@@ -772,7 +772,7 @@
     function onKeyDown(e) {
 		 switch(e.keyCode) {
 			 case 13:
-				checkKey(true, true)
+				checkKey(true, false)
                 //fetchForAllAddresses()
 				break;
 			 
@@ -807,10 +807,10 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
     <div class="pt-2 text-center ">
         <div class="grid grid-cols-8 gap-0 pt-1">
             <div class="col-start-1 col-span-1">  
-                <div class="md:tooltip md:tooltip-bottom z-50" data-tip="Multi wallet list">
+                
                     <div class="indicator ">                                
                     {#if $keyList.length > 0 }
-                    <span class="indicator-item indicator-top badge badge-sm badge-primary">{$keyList.length}</span> 
+                    <span class="indicator-item indicator-top indicator-end badge badge-sm badge-primary">{$keyList.length}</span> 
                         
                         <div class="dropdown dropdown-start" on:focusin={() => dropDownOpen = true} on:focusout={() => dropDownOpen = false} >
                             <label tabindex="0" class="btn btn-xs btn-ghost normal-case "  > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-current fill-transparent">
@@ -827,7 +827,6 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                                 <th class="min-w-[4rem] text-left text-sm normal-case">Address</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Show</th>
                                                 <th class="min-w-[4rem] text-center text-sm normal-case">Status</th>
-                                               
                                                 <th class="text-center text-sm normal-case"></th>
                                             </tr>
                                         </thead>
@@ -881,115 +880,36 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                      
                     {/if}
                     </div>    
-                </div>
-            </div>
-            <div class ="col-start-2 col-span-3">
-                <div class="btn-group p-0 ">
-                    <div class="md:tooltip md:tooltip-bottom z-50" data-tip={activeChain.toString()}>
-                    {#if activeChain == "Solana"}
-                        <button class="btn btn-ghost btn-xs" on:click={() => activeChain = "Solana"}>
-                        
-                            <svg width="101" height="88" viewBox="0 0 101 88" xmlns="http://www.w3.org/2000/svg" class='w-4 h-4'>
-                            <path fill="#9945FF" d="M100.48 69.3817L83.8068 86.8015C83.4444 87.1799 83.0058 87.4816 82.5185 87.6878C82.0312 87.894 81.5055 88.0003 80.9743 88H1.93563C1.55849 88 1.18957 87.8926 0.874202 87.6912C0.558829 87.4897 0.31074 87.2029 0.160416 86.8659C0.0100923 86.529 -0.0359181 86.1566 0.0280382 85.7945C0.0919944 85.4324 0.263131 85.0964 0.520422 84.8278L17.2061 67.408C17.5676 67.0306 18.0047 66.7295 18.4904 66.5234C18.9762 66.3172 19.5002 66.2104 20.0301 66.2095H99.0644C99.4415 66.2095 99.8104 66.3169 100.126 66.5183C100.441 66.7198 100.689 67.0067 100.84 67.3436C100.99 67.6806 101.036 68.0529 100.972 68.415C100.908 68.7771 100.737 69.1131 100.48 69.3817ZM83.8068 34.3032C83.4444 33.9248 83.0058 33.6231 82.5185 33.4169C82.0312 33.2108 81.5055 33.1045 80.9743 33.1048H1.93563C1.55849 33.1048 1.18957 33.2121 0.874202 33.4136C0.558829 33.6151 0.31074 33.9019 0.160416 34.2388C0.0100923 34.5758 -0.0359181 34.9482 0.0280382 35.3103C0.0919944 35.6723 0.263131 36.0083 0.520422 36.277L17.2061 53.6968C17.5676 54.0742 18.0047 54.3752 18.4904 54.5814C18.9762 54.7875 19.5002 54.8944 20.0301 54.8952H99.0644C99.4415 54.8952 99.8104 54.7879 100.126 54.5864C100.441 54.3849 100.689 54.0981 100.84 53.7612C100.99 53.4242 101.036 53.0518 100.972 52.6897C100.908 52.3277 100.737 51.9917 100.48 51.723L83.8068 34.3032ZM1.93563 21.7905H80.9743C81.5055 21.7907 82.0312 21.6845 82.5185 21.4783C83.0058 21.2721 83.4444 20.9704 83.8068 20.592L100.48 3.17219C100.737 2.90357 100.908 2.56758 100.972 2.2055C101.036 1.84342 100.99 1.47103 100.84 1.13408C100.689 0.79713 100.441 0.510296 100.126 0.308823C99.8104 0.107349 99.4415 1.24074e-05 99.0644 0L20.0301 0C19.5002 0.000878397 18.9762 0.107699 18.4904 0.313848C18.0047 0.519998 17.5676 0.821087 17.2061 1.19848L0.524723 18.6183C0.267681 18.8866 0.0966198 19.2223 0.0325185 19.5839C-0.0315829 19.9456 0.0140624 20.3177 0.163856 20.6545C0.31365 20.9913 0.561081 21.2781 0.875804 21.4799C1.19053 21.6817 1.55886 21.7896 1.93563 21.7905Z" />
-                            
-                            </svg>
-                        </button>
-                    {:else}
-                    <button class="btn btn-ghost bg-base-300 btn-xs hover:bg-stone-300" on:click={() => activeChain = "Solana"}>
-                        
-                        <svg width="101" height="88" viewBox="0 0 101 88" fill="none" xmlns="http://www.w3.org/2000/svg" class='w-4 h-4 fill-base-content '>
-                        <path d="M100.48 69.3817L83.8068 86.8015C83.4444 87.1799 83.0058 87.4816 82.5185 87.6878C82.0312 87.894 81.5055 88.0003 80.9743 88H1.93563C1.55849 88 1.18957 87.8926 0.874202 87.6912C0.558829 87.4897 0.31074 87.2029 0.160416 86.8659C0.0100923 86.529 -0.0359181 86.1566 0.0280382 85.7945C0.0919944 85.4324 0.263131 85.0964 0.520422 84.8278L17.2061 67.408C17.5676 67.0306 18.0047 66.7295 18.4904 66.5234C18.9762 66.3172 19.5002 66.2104 20.0301 66.2095H99.0644C99.4415 66.2095 99.8104 66.3169 100.126 66.5183C100.441 66.7198 100.689 67.0067 100.84 67.3436C100.99 67.6806 101.036 68.0529 100.972 68.415C100.908 68.7771 100.737 69.1131 100.48 69.3817ZM83.8068 34.3032C83.4444 33.9248 83.0058 33.6231 82.5185 33.4169C82.0312 33.2108 81.5055 33.1045 80.9743 33.1048H1.93563C1.55849 33.1048 1.18957 33.2121 0.874202 33.4136C0.558829 33.6151 0.31074 33.9019 0.160416 34.2388C0.0100923 34.5758 -0.0359181 34.9482 0.0280382 35.3103C0.0919944 35.6723 0.263131 36.0083 0.520422 36.277L17.2061 53.6968C17.5676 54.0742 18.0047 54.3752 18.4904 54.5814C18.9762 54.7875 19.5002 54.8944 20.0301 54.8952H99.0644C99.4415 54.8952 99.8104 54.7879 100.126 54.5864C100.441 54.3849 100.689 54.0981 100.84 53.7612C100.99 53.4242 101.036 53.0518 100.972 52.6897C100.908 52.3277 100.737 51.9917 100.48 51.723L83.8068 34.3032ZM1.93563 21.7905H80.9743C81.5055 21.7907 82.0312 21.6845 82.5185 21.4783C83.0058 21.2721 83.4444 20.9704 83.8068 20.592L100.48 3.17219C100.737 2.90357 100.908 2.56758 100.972 2.2055C101.036 1.84342 100.99 1.47103 100.84 1.13408C100.689 0.79713 100.441 0.510296 100.126 0.308823C99.8104 0.107349 99.4415 1.24074e-05 99.0644 0L20.0301 0C19.5002 0.000878397 18.9762 0.107699 18.4904 0.313848C18.0047 0.519998 17.5676 0.821087 17.2061 1.19848L0.524723 18.6183C0.267681 18.8866 0.0966198 19.2223 0.0325185 19.5839C-0.0315829 19.9456 0.0140624 20.3177 0.163856 20.6545C0.31365 20.9913 0.561081 21.2781 0.875804 21.4799C1.19053 21.6817 1.55886 21.7896 1.93563 21.7905Z" />
-                        <linearGradient id="paint0_linear_174_4403" x1="8.52558" y1="90.0973" x2="88.9933" y2="-3.01622" gradientUnits="userSpaceOnUse">
-                            <stop offset="0.08" stop-color="#9945FF"/>
-                            <stop offset="0.3" stop-color="#8752F3"/>
-                            <stop offset="0.5" stop-color="#5497D5"/>
-                            <stop offset="0.6" stop-color="#43B4CA"/>
-                            <stop offset="0.72" stop-color="#28E0B9"/>
-                            <stop offset="0.97" stop-color="#19FB9B"/>
-                            </linearGradient>
-                        </svg>
-                    </button>
-                    {/if}
-                    </div>
-                    {#if activeChain == "Aptos" && enableAptos}
-                        <button class="btn btn-disabled bg-base-primary btn-xs " on:click={() => activeChain = "Aptos"}>
-                        
-                            <svg width="100%" height="100%" version="1.2" baseProfile="tiny" class="w-4 h-4 fill-base-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" overflow="visible" xml:space="preserve">
-                                <path d="M86.6 37.4h-9.9c-1.1 0-2.2-.5-3-1.3l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.4 3.9c-1.1 1.3-2.8 2-4.5 2H2.9C1.4 41.9.4 46.6 0 51.3h51.2c.9 0 1.8-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4H112c-.4-4.7-1.4-9.4-2.9-13.8H86.6zM53.8 65l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.5 3.9c-1.1 1.3-2.7 2-4.4 2H.8c.9 4.8 2.5 9.5 4.6 14h25.5c.9 0 1.7-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4h56.6c2.1-4.4 3.7-9.1 4.6-14H56.8c-1.2 0-2.3-.5-3-1.4zm19.6-43.6 4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1l4 4.5c.8.9 1.9 1.3 3 1.3h10.8c-18.8-24.8-54.1-29.7-79-11-4.1 3.1-7.8 6.8-11 11H71c1 .2 1.8-.2 2.4-.8zM34.7 94.2c-1.2 0-2.3-.5-3-1.3l-4-4.5c-1.2-1.3-3.2-1.4-4.5-.2l-.2.2-3.5 3.9c-1.1 1.3-2.7 2-4.4 2h-.2C36 116.9 71.7 118 94.4 96.7c.9-.8 1.7-1.7 2.6-2.6H34.7z"></path>
-                            </svg>
-                        </button>
-                    {:else if enableAptos}
-                    <button class="btn btn-disabled btn-ghost bg-base-300 btn-xs hover:bg-stone-300 " on:click={() => activeChain = "Aptos"}>
-                        
-                        <svg width="100%" height="100%" version="1.2" baseProfile="tiny" class="w-4 h-4 fill-base-content " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" overflow="visible" xml:space="preserve">
-                            <path d="M86.6 37.4h-9.9c-1.1 0-2.2-.5-3-1.3l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.4 3.9c-1.1 1.3-2.8 2-4.5 2H2.9C1.4 41.9.4 46.6 0 51.3h51.2c.9 0 1.8-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4H112c-.4-4.7-1.4-9.4-2.9-13.8H86.6zM53.8 65l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.5 3.9c-1.1 1.3-2.7 2-4.4 2H.8c.9 4.8 2.5 9.5 4.6 14h25.5c.9 0 1.7-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4h56.6c2.1-4.4 3.7-9.1 4.6-14H56.8c-1.2 0-2.3-.5-3-1.4zm19.6-43.6 4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1l4 4.5c.8.9 1.9 1.3 3 1.3h10.8c-18.8-24.8-54.1-29.7-79-11-4.1 3.1-7.8 6.8-11 11H71c1 .2 1.8-.2 2.4-.8zM34.7 94.2c-1.2 0-2.3-.5-3-1.3l-4-4.5c-1.2-1.3-3.2-1.4-4.5-.2l-.2.2-3.5 3.9c-1.1 1.3-2.7 2-4.4 2h-.2C36 116.9 71.7 118 94.4 96.7c.9-.8 1.7-1.7 2.6-2.6H34.7z"></path>
-                        </svg>
-                    </button>
-                    {/if}
-                    {#if activeChain == "Sui" && enableSui}
-                        <button class="btn btn-disabled bg-base-primary btn-xs " on:click={() => activeChain = "Sui"}>
-                            <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40" class="w-4 h-4 fill-base-100">
-                            
-                                <path d="M1.8611,33.0541a13.6477,13.6477,0,0,0,23.7778,0,13.89,13.89,0,0,0,0-13.8909L15.1824.8368a1.6444,1.6444,0,0,0-2.8648,0L1.8611,19.1632A13.89,13.89,0,0,0,1.8611,33.0541ZM10.8044,9.5555,13.0338,5.648a.8222.8222,0,0,1,1.4324,0L23.043,20.68a10.8426,10.8426,0,0,1,.8873,8.8828,9.4254,9.4254,0,0,0-.4388-1.4586c-1.1847-3.0254-3.8634-5.36-7.9633-6.9393-2.8187-1.0819-4.618-2.6731-5.3491-4.73C9.2375,13.7848,10.221,10.8942,10.8044,9.5555ZM7.0028,16.2184,4.457,20.68a10.8569,10.8569,0,0,0,0,10.8582,10.6776,10.6776,0,0,0,16.1566,2.935,7.5061,7.5061,0,0,0,.0667-5.2913c-.87-2.1858-2.9646-3.9308-6.2252-5.1876-3.6857-1.4147-6.08-3.6233-7.1157-6.5625A9.297,9.297,0,0,1,7.0028,16.2184Z" style="fill-rule:evenodd" />
-                            </svg>
-                        </button>
-                    {:else if enableSui}
-                    <button class="btn btn-disabled btn-ghost bg-base-300 btn-xs  hover:bg-stone-300 " on:click={() => activeChain = "Sui"}>
-                        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40" class="w-4 h-4 fill-base-content ">
-                            
-                            <path d="M1.8611,33.0541a13.6477,13.6477,0,0,0,23.7778,0,13.89,13.89,0,0,0,0-13.8909L15.1824.8368a1.6444,1.6444,0,0,0-2.8648,0L1.8611,19.1632A13.89,13.89,0,0,0,1.8611,33.0541ZM10.8044,9.5555,13.0338,5.648a.8222.8222,0,0,1,1.4324,0L23.043,20.68a10.8426,10.8426,0,0,1,.8873,8.8828,9.4254,9.4254,0,0,0-.4388-1.4586c-1.1847-3.0254-3.8634-5.36-7.9633-6.9393-2.8187-1.0819-4.618-2.6731-5.3491-4.73C9.2375,13.7848,10.221,10.8942,10.8044,9.5555ZM7.0028,16.2184,4.457,20.68a10.8569,10.8569,0,0,0,0,10.8582,10.6776,10.6776,0,0,0,16.1566,2.935,7.5061,7.5061,0,0,0,.0667-5.2913c-.87-2.1858-2.9646-3.9308-6.2252-5.1876-3.6857-1.4147-6.08-3.6233-7.1157-6.5625A9.297,9.297,0,0,1,7.0028,16.2184Z" style="fill-rule:evenodd" />
-                        </svg>
-                    </button>
-                    {/if}
-                </div>
-            </div>
-            <div class="col-end-8 col-span-1">  
                 
             </div>
             <div class="col-end-9 col-span-1">
                 <div class="dropdown dropdown-bottom dropdown-end">
+                    
                     <label tabindex="0" class="btn btn-xs btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       </label>
                     <ul tabindex="0" class="dropdown-content menu shadow-md border bg-base-100 rounded-box ">
-                      <li class=""><div class="md:tooltip md:tooltip-left z-50" data-tip="Toggle Dark Mode">  
-                        <button data-toggle-theme="light,black" on:click={()=> darkMode = !darkMode} class="btn btn-xs btn-ghost normal-case " >
-                        {#if darkMode}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                        </svg>
-                        {:else if !darkMode}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                        </svg>                                  
-                        {/if}
-                        </button> 
-                    </div></li>
-                      <li><div class="md:tooltip md:tooltip-left z-50" data-tip="{metadataText}">                    
-                        {#if loading}
-                        <button on:click={metadataHandler} disabled class="btn btn-xs btn-ghost normal-case ">
-                            {#if $showMetadata}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            {:else}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-                            </svg>
-                            {/if}
-                            
-                        </button>
-                        {:else if metadataAnimation}
-                        <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
-                            <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
-                                <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg><span class = "pl-2">{metadataAnimText} </span>
-                        </button>
-                        {:else}
-                            <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
+                        <li class="">
+                            <div class="md:tooltip md:tooltip-left z-50" data-tip="Toggle Dark Mode">  
+                                <button data-toggle-theme="light,black" on:click={()=> darkMode = !darkMode} class="btn btn-xs btn-ghost normal-case " >
+                                {#if darkMode}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                                </svg>
+                                {:else if !darkMode}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                                </svg>                                  
+                                {/if}
+                                </button> 
+                            </div>
+                        </li>
+                        <li>
+                            <div class="md:tooltip md:tooltip-left z-50" data-tip="{metadataText}">                    
+                            {#if loading}
+                            <button on:click={metadataHandler} disabled class="btn btn-xs btn-ghost normal-case ">
                                 {#if $showMetadata}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -1001,13 +921,96 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                 {/if}
                                 
                             </button>
-                        {/if}
+                            {:else if metadataAnimation}
+                            <button class="btn btn-xs btn-ghost normal-case font-serif cursor-default">
+                                <svg class="animate-spin h-5 w-5 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25 stroke-primary" cx="12" cy="12" r="10" stroke-width="4"></circle>
+                                    <path class="opacity-75 fill-primary" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg><span class = "pl-2">{metadataAnimText} </span>
+                            </button>
+                            {:else}
+                                <button on:click={metadataHandler} class="btn btn-xs btn-ghost normal-case ">
+                                    {#if $showMetadata}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current fill-transparent" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    {:else}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-transparent fill-primary" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                    </svg>
+                                    {/if}
+                                    
+                                </button>
+                            {/if}
                         
                         
-                    </div></li>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="md:tooltip md:tooltip-left z-50" data-tip={activeChain.toString()}>
+                                <div class="btn-group btn-group-vertical">
+                                
+                                {#if activeChain == "Solana"}
+                                    <button class="btn btn-ghost btn-xs" on:click={() => activeChain = "Solana"}>
+                                    
+                                        <svg width="101" height="88" viewBox="0 0 101 88" xmlns="http://www.w3.org/2000/svg" class='w-4 h-4'>
+                                        <path fill="#9945FF" d="M100.48 69.3817L83.8068 86.8015C83.4444 87.1799 83.0058 87.4816 82.5185 87.6878C82.0312 87.894 81.5055 88.0003 80.9743 88H1.93563C1.55849 88 1.18957 87.8926 0.874202 87.6912C0.558829 87.4897 0.31074 87.2029 0.160416 86.8659C0.0100923 86.529 -0.0359181 86.1566 0.0280382 85.7945C0.0919944 85.4324 0.263131 85.0964 0.520422 84.8278L17.2061 67.408C17.5676 67.0306 18.0047 66.7295 18.4904 66.5234C18.9762 66.3172 19.5002 66.2104 20.0301 66.2095H99.0644C99.4415 66.2095 99.8104 66.3169 100.126 66.5183C100.441 66.7198 100.689 67.0067 100.84 67.3436C100.99 67.6806 101.036 68.0529 100.972 68.415C100.908 68.7771 100.737 69.1131 100.48 69.3817ZM83.8068 34.3032C83.4444 33.9248 83.0058 33.6231 82.5185 33.4169C82.0312 33.2108 81.5055 33.1045 80.9743 33.1048H1.93563C1.55849 33.1048 1.18957 33.2121 0.874202 33.4136C0.558829 33.6151 0.31074 33.9019 0.160416 34.2388C0.0100923 34.5758 -0.0359181 34.9482 0.0280382 35.3103C0.0919944 35.6723 0.263131 36.0083 0.520422 36.277L17.2061 53.6968C17.5676 54.0742 18.0047 54.3752 18.4904 54.5814C18.9762 54.7875 19.5002 54.8944 20.0301 54.8952H99.0644C99.4415 54.8952 99.8104 54.7879 100.126 54.5864C100.441 54.3849 100.689 54.0981 100.84 53.7612C100.99 53.4242 101.036 53.0518 100.972 52.6897C100.908 52.3277 100.737 51.9917 100.48 51.723L83.8068 34.3032ZM1.93563 21.7905H80.9743C81.5055 21.7907 82.0312 21.6845 82.5185 21.4783C83.0058 21.2721 83.4444 20.9704 83.8068 20.592L100.48 3.17219C100.737 2.90357 100.908 2.56758 100.972 2.2055C101.036 1.84342 100.99 1.47103 100.84 1.13408C100.689 0.79713 100.441 0.510296 100.126 0.308823C99.8104 0.107349 99.4415 1.24074e-05 99.0644 0L20.0301 0C19.5002 0.000878397 18.9762 0.107699 18.4904 0.313848C18.0047 0.519998 17.5676 0.821087 17.2061 1.19848L0.524723 18.6183C0.267681 18.8866 0.0966198 19.2223 0.0325185 19.5839C-0.0315829 19.9456 0.0140624 20.3177 0.163856 20.6545C0.31365 20.9913 0.561081 21.2781 0.875804 21.4799C1.19053 21.6817 1.55886 21.7896 1.93563 21.7905Z" />
+                                        
+                                        </svg>
+                                    </button>
+                                {:else}
+                                <button class="btn btn-ghost bg-base-300 btn-xs hover:bg-stone-300" on:click={() => activeChain = "Solana"}>
+                                    
+                                    <svg width="101" height="88" viewBox="0 0 101 88" fill="none" xmlns="http://www.w3.org/2000/svg" class='w-4 h-4 fill-base-content '>
+                                    <path d="M100.48 69.3817L83.8068 86.8015C83.4444 87.1799 83.0058 87.4816 82.5185 87.6878C82.0312 87.894 81.5055 88.0003 80.9743 88H1.93563C1.55849 88 1.18957 87.8926 0.874202 87.6912C0.558829 87.4897 0.31074 87.2029 0.160416 86.8659C0.0100923 86.529 -0.0359181 86.1566 0.0280382 85.7945C0.0919944 85.4324 0.263131 85.0964 0.520422 84.8278L17.2061 67.408C17.5676 67.0306 18.0047 66.7295 18.4904 66.5234C18.9762 66.3172 19.5002 66.2104 20.0301 66.2095H99.0644C99.4415 66.2095 99.8104 66.3169 100.126 66.5183C100.441 66.7198 100.689 67.0067 100.84 67.3436C100.99 67.6806 101.036 68.0529 100.972 68.415C100.908 68.7771 100.737 69.1131 100.48 69.3817ZM83.8068 34.3032C83.4444 33.9248 83.0058 33.6231 82.5185 33.4169C82.0312 33.2108 81.5055 33.1045 80.9743 33.1048H1.93563C1.55849 33.1048 1.18957 33.2121 0.874202 33.4136C0.558829 33.6151 0.31074 33.9019 0.160416 34.2388C0.0100923 34.5758 -0.0359181 34.9482 0.0280382 35.3103C0.0919944 35.6723 0.263131 36.0083 0.520422 36.277L17.2061 53.6968C17.5676 54.0742 18.0047 54.3752 18.4904 54.5814C18.9762 54.7875 19.5002 54.8944 20.0301 54.8952H99.0644C99.4415 54.8952 99.8104 54.7879 100.126 54.5864C100.441 54.3849 100.689 54.0981 100.84 53.7612C100.99 53.4242 101.036 53.0518 100.972 52.6897C100.908 52.3277 100.737 51.9917 100.48 51.723L83.8068 34.3032ZM1.93563 21.7905H80.9743C81.5055 21.7907 82.0312 21.6845 82.5185 21.4783C83.0058 21.2721 83.4444 20.9704 83.8068 20.592L100.48 3.17219C100.737 2.90357 100.908 2.56758 100.972 2.2055C101.036 1.84342 100.99 1.47103 100.84 1.13408C100.689 0.79713 100.441 0.510296 100.126 0.308823C99.8104 0.107349 99.4415 1.24074e-05 99.0644 0L20.0301 0C19.5002 0.000878397 18.9762 0.107699 18.4904 0.313848C18.0047 0.519998 17.5676 0.821087 17.2061 1.19848L0.524723 18.6183C0.267681 18.8866 0.0966198 19.2223 0.0325185 19.5839C-0.0315829 19.9456 0.0140624 20.3177 0.163856 20.6545C0.31365 20.9913 0.561081 21.2781 0.875804 21.4799C1.19053 21.6817 1.55886 21.7896 1.93563 21.7905Z" />
+                                    <linearGradient id="paint0_linear_174_4403" x1="8.52558" y1="90.0973" x2="88.9933" y2="-3.01622" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0.08" stop-color="#9945FF"/>
+                                        <stop offset="0.3" stop-color="#8752F3"/>
+                                        <stop offset="0.5" stop-color="#5497D5"/>
+                                        <stop offset="0.6" stop-color="#43B4CA"/>
+                                        <stop offset="0.72" stop-color="#28E0B9"/>
+                                        <stop offset="0.97" stop-color="#19FB9B"/>
+                                        </linearGradient>
+                                    </svg>
+                                </button>
+                                {/if}
+                                </div>
+                                {#if activeChain == "Aptos" && enableAptos}
+                                    <button class="btn btn-disabled bg-base-primary btn-xs " on:click={() => activeChain = "Aptos"}>
+                                    
+                                        <svg width="100%" height="100%" version="1.2" baseProfile="tiny" class="w-4 h-4 fill-base-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" overflow="visible" xml:space="preserve">
+                                            <path d="M86.6 37.4h-9.9c-1.1 0-2.2-.5-3-1.3l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.4 3.9c-1.1 1.3-2.8 2-4.5 2H2.9C1.4 41.9.4 46.6 0 51.3h51.2c.9 0 1.8-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4H112c-.4-4.7-1.4-9.4-2.9-13.8H86.6zM53.8 65l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.5 3.9c-1.1 1.3-2.7 2-4.4 2H.8c.9 4.8 2.5 9.5 4.6 14h25.5c.9 0 1.7-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4h56.6c2.1-4.4 3.7-9.1 4.6-14H56.8c-1.2 0-2.3-.5-3-1.4zm19.6-43.6 4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1l4 4.5c.8.9 1.9 1.3 3 1.3h10.8c-18.8-24.8-54.1-29.7-79-11-4.1 3.1-7.8 6.8-11 11H71c1 .2 1.8-.2 2.4-.8zM34.7 94.2c-1.2 0-2.3-.5-3-1.3l-4-4.5c-1.2-1.3-3.2-1.4-4.5-.2l-.2.2-3.5 3.9c-1.1 1.3-2.7 2-4.4 2h-.2C36 116.9 71.7 118 94.4 96.7c.9-.8 1.7-1.7 2.6-2.6H34.7z"></path>
+                                        </svg>
+                                    </button>
+                                {:else if enableAptos}
+                                <button class="btn btn-disabled btn-ghost bg-base-300 btn-xs hover:bg-stone-300 " on:click={() => activeChain = "Aptos"}>
+                                    
+                                    <svg width="100%" height="100%" version="1.2" baseProfile="tiny" class="w-4 h-4 fill-base-content " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" overflow="visible" xml:space="preserve">
+                                        <path d="M86.6 37.4h-9.9c-1.1 0-2.2-.5-3-1.3l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.4 3.9c-1.1 1.3-2.8 2-4.5 2H2.9C1.4 41.9.4 46.6 0 51.3h51.2c.9 0 1.8-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4H112c-.4-4.7-1.4-9.4-2.9-13.8H86.6zM53.8 65l-4-4.5c-1.2-1.3-3.1-1.4-4.5-.3l-.3.3-3.5 3.9c-1.1 1.3-2.7 2-4.4 2H.8c.9 4.8 2.5 9.5 4.6 14h25.5c.9 0 1.7-.4 2.4-1l4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1.1l4 4.5c.8.9 1.9 1.4 3 1.4h56.6c2.1-4.4 3.7-9.1 4.6-14H56.8c-1.2 0-2.3-.5-3-1.4zm19.6-43.6 4.8-5c.6-.6 1.4-1 2.3-1h.2c.9 0 1.8.4 2.4 1l4 4.5c.8.9 1.9 1.3 3 1.3h10.8c-18.8-24.8-54.1-29.7-79-11-4.1 3.1-7.8 6.8-11 11H71c1 .2 1.8-.2 2.4-.8zM34.7 94.2c-1.2 0-2.3-.5-3-1.3l-4-4.5c-1.2-1.3-3.2-1.4-4.5-.2l-.2.2-3.5 3.9c-1.1 1.3-2.7 2-4.4 2h-.2C36 116.9 71.7 118 94.4 96.7c.9-.8 1.7-1.7 2.6-2.6H34.7z"></path>
+                                    </svg>
+                                </button>
+                                {/if}
+                                {#if activeChain == "Sui" && enableSui}
+                                    <button class="btn btn-disabled bg-base-primary btn-xs " on:click={() => activeChain = "Sui"}>
+                                        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40" class="w-4 h-4 fill-base-100">
+                                        
+                                            <path d="M1.8611,33.0541a13.6477,13.6477,0,0,0,23.7778,0,13.89,13.89,0,0,0,0-13.8909L15.1824.8368a1.6444,1.6444,0,0,0-2.8648,0L1.8611,19.1632A13.89,13.89,0,0,0,1.8611,33.0541ZM10.8044,9.5555,13.0338,5.648a.8222.8222,0,0,1,1.4324,0L23.043,20.68a10.8426,10.8426,0,0,1,.8873,8.8828,9.4254,9.4254,0,0,0-.4388-1.4586c-1.1847-3.0254-3.8634-5.36-7.9633-6.9393-2.8187-1.0819-4.618-2.6731-5.3491-4.73C9.2375,13.7848,10.221,10.8942,10.8044,9.5555ZM7.0028,16.2184,4.457,20.68a10.8569,10.8569,0,0,0,0,10.8582,10.6776,10.6776,0,0,0,16.1566,2.935,7.5061,7.5061,0,0,0,.0667-5.2913c-.87-2.1858-2.9646-3.9308-6.2252-5.1876-3.6857-1.4147-6.08-3.6233-7.1157-6.5625A9.297,9.297,0,0,1,7.0028,16.2184Z" style="fill-rule:evenodd" />
+                                        </svg>
+                                    </button>
+                                {:else if enableSui}
+                                <button class="btn btn-disabled btn-ghost bg-base-300 btn-xs  hover:bg-stone-300 " on:click={() => activeChain = "Sui"}>
+                                    <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40" class="w-4 h-4 fill-base-content ">
+                                        
+                                        <path d="M1.8611,33.0541a13.6477,13.6477,0,0,0,23.7778,0,13.89,13.89,0,0,0,0-13.8909L15.1824.8368a1.6444,1.6444,0,0,0-2.8648,0L1.8611,19.1632A13.89,13.89,0,0,0,1.8611,33.0541ZM10.8044,9.5555,13.0338,5.648a.8222.8222,0,0,1,1.4324,0L23.043,20.68a10.8426,10.8426,0,0,1,.8873,8.8828,9.4254,9.4254,0,0,0-.4388-1.4586c-1.1847-3.0254-3.8634-5.36-7.9633-6.9393-2.8187-1.0819-4.618-2.6731-5.3491-4.73C9.2375,13.7848,10.221,10.8942,10.8044,9.5555ZM7.0028,16.2184,4.457,20.68a10.8569,10.8569,0,0,0,0,10.8582,10.6776,10.6776,0,0,0,16.1566,2.935,7.5061,7.5061,0,0,0,.0667-5.2913c-.87-2.1858-2.9646-3.9308-6.2252-5.1876-3.6857-1.4147-6.08-3.6233-7.1157-6.5625A9.297,9.297,0,0,1,7.0028,16.2184Z" style="fill-rule:evenodd" />
+                                    </svg>
+                                </button>
+                                {/if}
+                            </div>
+                        </li>
                     </ul>
-                  </div>
+                </div>
                 
+            
             </div>
             
 
@@ -1028,7 +1031,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 
                 {#if $keyInput != ""}
             
-                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Add address to list" on:click={() => checkKey(true)}>+</button>
+                <button class="btn btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Add address to list" on:click={() => checkKey(true)}>+</button>
                 
                 {/if}
                 
@@ -1062,14 +1065,14 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 <input type="date" disabled={true} bind:value={end} min={start} max={new Date().toJSON().slice(0,10)} class="text-center bg-base-100"/>
             {/if}
             <div class = "pl-4">
-
-                {#if $keyInput != "" }
-                <button class="btn btn-primary btn-sm btn-square md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={()=> $keyList.length<1? (checkKey(true, true) ) : fetchForAllAddresses()}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5 pl-1">
+                
+                {#if $keyInput != "" && !loading}
+                <button class="btn btn-primary btn-sm md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={()=> checkKey(true, true)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 </button>
                 {:else }
-                <button disabled class="btn btn-sm btn-square"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pl-1">
+                <button disabled class="btn btn-sm "><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 </button>
@@ -1187,13 +1190,14 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         <h4>Feature priority roadmap:</h4>
         <ul class="list-disc leading-4">
             <li class="line-through">Classification engine V2</li>
-            <li>(Ongoing) Additional protocol integrations</li> 
+            <li class="line-through">Support for multiple addresses</li>
             <li>Solana Mobile Stack / Saga native app</li>
-            <li>Support for multiple addresses</li>
+            <li>Refactored transaction fetching</li>
             <li>xNFT integration</li> 
             <li>Insights & Reporting</li>
             <li>Automated audit reporting</li>
             <li>Multi chain</li>
+            <li>(Ongoing) Additional protocol integrations</li> 
             <li>(Ongoing) UI & UX improvements</li>
         </ul>
         <blockquote><p>It always seems impossible until it’s done.</p>Nelson Mandela </blockquote>
