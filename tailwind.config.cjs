@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       fontFamily: {
         'bely': ['BelyDisplayW00-Regular', 'sans-serif'], 
+        'articulatb': ['ArticulatCF-Bold', 'sans-serif'], 
         'dmserif': ['DMSerifDisplay-Regular', 'sans-serif'], 
         'ros1': ['Roslindale-DisplayNarrowRegular-Testing', 'sans-serif'] ,
 

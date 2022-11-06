@@ -170,7 +170,7 @@
 
 <div class=" ">
     {#if $fullArray.length > 0 }
-        <div class="grid grid-flow-col place-items-center md:pt-8 pt-4 pb-1 ">
+        <div class="grid grid-flow-col place-items-center md:pt-4 pt-2 pb-1 ">
              
                     <div class="col-start-auto">
                         

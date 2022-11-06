@@ -809,7 +809,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 
 <div class="flex justify-center">
     <div class="pt-2 text-center ">
-        <div class="grid grid-cols-8 gap-0 pt-1">
+        <div class="grid grid-cols-auto gap-0 pt-1 pb-3">
             <div class="col-start-1 col-span-1">  
                 
                     <div class="indicator ">                                
@@ -885,6 +885,13 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                     {/if}
                     </div>    
                 
+            </div>
+            <div class="col-start-3 col-span-5">
+                <div class="indicator z-5">
+            
+                    <label class="indicator-item indicator-top indicator-end badge badge-ghost font-serif  modal-button normal-case hover:cursor-pointer hover:btn-primary" for="my-modal-6">beta</label>
+                    <h1 class="font-articulatb text-3xl text-center">debooks</h1>
+                </div>
             </div>
             <div class="col-end-9 col-span-1">
                 <div class="dropdown dropdown-bottom dropdown-end">
@@ -1019,12 +1026,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             
 
         </div>
-        
-        <div class="indicator z-5">
-            
-            <label class="indicator-item indicator-top indicator-end badge badge-ghost font-ros1 modal-button normal-case hover:cursor-pointer hover:btn-primary" for="my-modal-6">beta</label>
-            <h1 class="sm:pt-1 pb-2 font-rosu1 text-5xl text-center">DeBooks</h1>
-        </div>
+
         
         
         {#if loading == false && rpcConnection == true}
@@ -1048,7 +1050,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         </div>
         {/if}
         
-        <p class="pt-2 text-lg font-serif font-bold text-center">Transaction Statement</p>
+        <p class="pt-3 text-lg font-serif font-bold text-center">Transaction Statement</p>
         
         <div class="flex flex-row text-sm font-serif justify-center">
             <span class="flex items-center pr-2">
@@ -1071,7 +1073,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <div class = "pl-4">
                 
                 {#if $keyInput != "" && !loading}
-                <button class="btn btn-primary btn-sm md:tooltip md:tooltip-bottom normal-case" data-tip="Fetch transaction history" on:click={()=> checkKey(true, true)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5">
+                <button class="btn btn-primary btn-sm md:tooltip md:tooltip-bottom normal-case shadow-lg shadow-indigo-500/50" data-tip="Fetch transaction history" on:click={()=> checkKey(true, true)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 </button>
@@ -1189,7 +1191,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 {/if}
 
 {#if !loading}
-<div class="flex justify-center flex-row pt-8">
+<div class="flex justify-center flex-row pt-4">
     <footer class="footer footer-center p-2 text-base-content rounded-md">
         
         <div class="items-center grid-flow-col">
