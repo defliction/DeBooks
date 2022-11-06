@@ -16,6 +16,7 @@
 
     import { themeChange } from 'theme-change'
 	import Statement from "./statement.svelte";
+
  
 
     dayjs.extend(localizedFormat)
@@ -404,6 +405,7 @@
             console.log("Fetching key ", key_item.key)
             await fetchForAddress(new web3.PublicKey(key_item.key))
             key_item.loading = false
+            key_item.fetched = true
             $keyList = $keyList
             
         }
@@ -680,6 +682,7 @@
                     "key": $keyInput,
 				    "active": "true", 
                     "loading": false,
+                    "fetched": false,
                 }
                 multi && !$keyList.flatMap(item => item.key).includes(key_item.key) ? $keyList.push(key_item) : null
                 console.log($keyList)
@@ -730,6 +733,7 @@
                                 "key": $keyInput,
                                 "active": "true", 
                                 "loading": false,
+                                "fetched": false,
                             }
                             multi && !$keyList.flatMap(item => item.key).includes(key_item.key)? $keyList.push(key_item) : null
                             console.log($keyList)
@@ -1119,13 +1123,31 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             </div>
         </div>
     {/if}
-    {#if !loading && $fetchedTransactions.length == 0}
+    {#if !loading && $keyList.flatMap(s => s.fetched).includes(true)}
         <div class="flex justify-center flex-row">
             <div class="pt-10">
                 <div class="alert shadow-lg font-serif">
                     <div>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span>No records for this period.</span>
+                    </div>
+                </div>
+            
+            </div>
+
+        </div>
+    
+    {:else if !loading && $keyList.flatMap(s => s.fetched).includes(false)}
+        <div class="flex justify-center flex-row">
+            <div class="pt-10">
+                <div class="alert shadow-lg font-serif">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {#if $keyList.length == 1}    
+                        <span>1 address added to list. Click search to fetch records.</span>   
+                    {:else}
+                        <span>{$keyList.length} addresses added to list. Click search to fetch all records.</span>
+                    {/if}
                     </div>
                 </div>
             
