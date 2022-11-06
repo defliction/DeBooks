@@ -1123,7 +1123,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             </div>
         </div>
     {/if}
-    {#if !loading && $keyList.flatMap(s => s.fetched).includes(true)}
+    {#if !loading && $keyList.flatMap(s => s.fetched).includes(true) && fetchedTransDicts.flat().length == 0}
         <div class="flex justify-center flex-row">
             <div class="pt-10">
                 <div class="alert shadow-lg font-serif">
