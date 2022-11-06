@@ -481,7 +481,7 @@
 							"token_name": "SOL",
 							"uri": "",
 							"type": txn_type,
-							"account_keys": item.transaction.message.accountKeys,
+							"account_keys": item.transaction.message.accountKeys.flatMap(k => k.pubkey.toBase58()),
 							"description": customDescripton + txn_context + direction + " SOL" +  " (" + subacccontext+ "sub-account " + accountSuffix.substring(0,4) + ")"
 						}
 						workingArray.push(new_line)
@@ -511,7 +511,7 @@
 						"token_name": tokenName.name,
 						"uri": tokenName.uri,
 						"type": txn_type,
-						"account_keys": item.transaction.message.accountKeys,
+						"account_keys": item.transaction.message.accountKeys.flatMap(k => k.pubkey.toBase58()),
 						"description": customDescripton + txn_context + direction + tokenName.name
 					}
 					workingArray.push(new_line)
@@ -548,7 +548,7 @@
 						"token_name": "SOL",
 						"uri": "",
 						"type": txn_type,
-						"account_keys": item.transaction.message.accountKeys,
+						"account_keys": item.transaction.message.accountKeys.flatMap(k => k.pubkey.toBase58()),
 						"description": customDescripton + txn_context + direction + " SOL"
 					}
 					workingArray.push(new_line)
@@ -579,7 +579,7 @@
 					"token_name": "SOL",
 					"uri": "",
 					"type": "Fees",
-					"account_keys": item.transaction.message.accountKeys,
+					"account_keys": item.transaction.message.accountKeys.flatMap(k => k.pubkey.toBase58()),
 					"description": "Txn fees: " + customDescripton + fee_context + failed_text
 				}
 				workingArray.push(fee_expense)
@@ -606,7 +606,7 @@
 					"token_name": "SOL",
 					"uri": "",
 					"type": "Fees",
-					"account_keys": item.transaction.message.accountKeys,
+					"account_keys": item.transaction.message.accountKeys.flatMap(k => k.pubkey.toBase58()),
 					"description": "Txn fees: failed"
 				}
 				workingArray.push(fee_expense)
