@@ -840,7 +840,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                                             <tr class="">
                                                 <td class="min-w-[2rem] text-left text-xs normal-case">{i+1}</td>
                                                 <td class=" min-w-[4rem] text-left text-xs">{item.key.substring(0,4)}...{item.key.substring(item.key.length-4,item.key.length)}</td>
-                                                <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" on:click={sliceDisplayArray} bind:checked={item.active} on:change={sliceDisplayArray} class="checkbox checkbox-sm" /></td>
+                                                <td class=" min-w-[4rem] text-center text-xs"><input type="checkbox" bind:checked={item.active} on:change={()=> (sliceDisplayArray(), $currentPage = 1)} class="checkbox checkbox-sm" /></td>
                                                 {#if item.loading}
                                                     <td class=" min-w-[4rem] justify-center text-xs">
                                                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-bg-neutral-content" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1137,7 +1137,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
 
         </div>
     
-    {:else if !loading && $keyList.flatMap(s => s.fetched).includes(false)}
+    {:else if !loading && $keyList.flatMap(s => s.fetched).includes(false) && fetchedTransDicts.flat().length == 0}
         <div class="flex justify-center flex-row">
             <div class="pt-10">
                 <div class="alert shadow-lg font-serif">
