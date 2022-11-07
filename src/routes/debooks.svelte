@@ -1216,6 +1216,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
             <li class="line-through">Classification engine V2</li>
             <li class="line-through">Support for multiple addresses</li>
             <li>Solana Mobile Stack / Saga native app</li>
+            <li>[Redacted]</li>
             <li>Refactored transaction fetching</li>
             <li>xNFT integration</li> 
             <li>Insights & Reporting</li>
