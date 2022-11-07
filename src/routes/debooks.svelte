@@ -890,7 +890,7 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
                 <div class="indicator z-5">
             
                     <label class="indicator-item indicator-top indicator-end badge badge-ghost font-serif  modal-button normal-case hover:cursor-pointer hover:btn-primary" for="my-modal-6">beta</label>
-                    <h1 class="font-articulatb text-3xl text-center">debooks</h1>
+                    <h1 class="font-rosu1 text-4xl text-center">DeBooks</h1>
                 </div>
             </div>
             <div class="col-end-9 col-span-1">
