@@ -43,16 +43,10 @@
 					fee_context = " Listed "
 				}
 				else if (item.meta.logMessages[12]?.includes(" ExecuteSale") || item.meta.logMessages[14]?.includes(" ExecuteSale") ) {
-					if (account_index > 5) {
-						txn_context = " Royalty Income "
-						fee_context = " Royalty Income "
-					}
-					else {
-						txn_context = " Sale "
-						fee_context = " Sale "
-					}
 					
-					
+					txn_context = " Sale "
+					fee_context = " Sale "
+
 				}
 				else if (item.meta?.logMessages[1].includes(" CancelSell")) {
 					txn_context = " Delisted "
