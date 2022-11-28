@@ -6,7 +6,7 @@
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
-    import { config } from 'dotenv';
+    
     import { Buffer } from 'buffer';
   
     import * as classif from "../utils/solana_classifier";
