@@ -6,7 +6,7 @@
     import dayjs from 'dayjs'
     import localizedFormat from 'dayjs/plugin/localizedFormat'
     import relativeTime from 'dayjs/plugin/relativeTime'
-
+    import { config } from 'dotenv';
     import { Buffer } from 'buffer';
   
     import * as classif from "../utils/solana_classifier";
@@ -16,7 +16,6 @@
 
     import { themeChange } from 'theme-change'
 	import Statement from "./statement.svelte";
-
  
 
     dayjs.extend(localizedFormat)
@@ -62,12 +61,13 @@
     let showInfoTip = false
     let invalidKey = false;
 
+    let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
     //let blockcnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
-    let blockcnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    let blockcnx = new web3.Connection(sol_rpc);
     //https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC
     //const connection = new web3.Connection("https://ssc-dao.genesysgo.net");
     //$cnx = new web3.Connection("https://solana-mainnet.g.alchemy.com/v2/AtE9_yJOMYOrEYcu5EpkPPvEv-jVKafC");
-    $cnx = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+    $cnx = new web3.Connection(sol_rpc);
     //const metap = new Metaplex($connection)
     //const mx = Metaplex.make($cnx);
     //let mx

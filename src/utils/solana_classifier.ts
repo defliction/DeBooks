@@ -2,7 +2,9 @@
 	import * as mtda from './Metadata'
 	import * as spl_token from '@solana/spl-token';
 	
-	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+	let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
+	
+	let connection = new web3.Connection(sol_rpc);
 	let fetchedList = []
 
 	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, utl) {
