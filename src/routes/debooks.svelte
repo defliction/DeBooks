@@ -363,7 +363,7 @@
                 //MAGIC EDEN TRANSACTIONS >>
                 if (item != null || item != undefined) {
                     try {
-                        await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, new web3.PublicKey(keyIn), owner, utl_api.content)
+                        await classif.classifyTransaction ($cnx, item, $workingArray, $showMetadata, programIDs, account_index, new web3.PublicKey(keyIn), owner, utl_api.content)
                     }
                     catch (e)
                     {
@@ -571,7 +571,7 @@
                     //MAGIC EDEN TRANSACTIONS >>
                     if (item != null || item != undefined) {
                         try {
-                            await classif.classifyTransaction (item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
+                            await classif.classifyTransaction ($cnx, item, $workingArray, $showMetadata, programIDs, account_index, keyIn, owner, utl_api.content)
                         }
                         catch (e)
                         {

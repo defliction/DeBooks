@@ -1,14 +1,15 @@
 	import * as web3 from '@solana/web3.js';
 	import * as mtda from './Metadata'
 	import * as spl_token from '@solana/spl-token';
-	
-	let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
-	
-	let connection = new web3.Connection(sol_rpc);
+
+	//let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
+	let connection
+	//let connection = new web3.Connection(sol_rpc);
 	let fetchedList = []
 
-	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, utl) {
+	export async function classifyTransaction (cnx, item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, utl) {
 		//new fee item
+		connection = cnx
 		let feePayer = item.transaction.message.accountKeys[0].pubkey.toBase58()
 		let fee_context = ""
 		let txn_context = " Transaction "
