@@ -30,8 +30,8 @@ export async function getTokenMetadata(token_address:PublicKey) {
 				}
 			]
 		}
-        
-		const metadata_res = await fetch("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/", {
+        let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
+		const metadata_res = await fetch(sol_rpc, {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json'
@@ -80,8 +80,8 @@ export async function getTokensMetadata(token_addresses:PublicKey[]) {
                     }
                 ]
             }
-            
-            const metadata_res = await fetch("https://solitary-young-butterfly.solana-mainnet.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/", {
+			let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
+            const metadata_res = await fetch(sol_rpc, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'

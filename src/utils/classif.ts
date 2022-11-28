@@ -2,11 +2,14 @@
 	import * as mtda from '../utils/Metadata'
 	import * as spl_token from '@solana/spl-token';
 	
-	let connection = new web3.Connection("https://solitary-young-butterfly.solana-mainnet.discover.quiknode.pro/73898ef123ae4439f244d362030abcda8b8aa1e9/");
+	
+	let connection
+	
 	let fetchedList = []
 
-	export async function classifyTransaction (item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, feePayer, utl, account_list) {
+	export async function classifyTransaction (cnx, item, workingArray, showMetadata, programIDs:string [], account_index, keyIn, ownerIn, feePayer, utl, account_list) {
 		//MAGIC EDEN TRANSACTIONS >>
+		connection = cnx
 		if (programIDs?.includes("M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K")) {
 			let me_escrow = "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
 			let amount = 0
