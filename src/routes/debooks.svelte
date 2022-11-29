@@ -534,12 +534,16 @@
             let y = 0
             let yIncrement = 250
             while (y < reformattedArray.length) {
-
-                loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
-                let array = await $cnx.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
-                $fetchedTransactions.push(array)
-                console.log("incrementally fetching parsed ", y, reformattedArray.length)
-                y += yIncrement
+                try {
+                    loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
+                    let array = await $cnx.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
+                    $fetchedTransactions.push(array)
+                    console.log("incrementally fetching parsed ", y, reformattedArray.length)
+                    y += yIncrement
+                }
+                catch (e) {
+                    console.log(e)
+                }
                 
 
             }
