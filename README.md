@@ -1,38 +1,23 @@
-# create-svelte
+# DeBooks.xyz - Dynamic Transaction Statements
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Dynamic wallet statements for Solana addresses. The intention is to create human readable and reconcilable transaction statements that you can use to accuractely account for transaction history over any period.
 
-## Creating a project
+A few architecture changes are on the to-do list to make contributions to the codebase easier. 
 
-If you're seeing this, you've probably already done this step. Congrats!
+# DeBooks Roadmap SS23
 
-```bash
-# create a new project in the current directory
-npm init svelte
+### Feature priority roadmap:
+  * ~~Classification engine V2~~
+  * ~~Support for multiple addresses~~
+  * Solana Mobile Stack / Saga native app
+  * [Redacted]
+  * Refactored transaction fetching
+  * xNFT integration
+  * Insights & Reporting
+  * Automated audit reporting
+  * Multi chain
+  * (Ongoing) Additional protocol integrations
+  * (Ongoing) UI & UX improvements
 
-# create a new project in my-app
-npm init svelte my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+# Contact
+Contact @defliction on Twitter or mail hello@defliction.com to submit feature requests or just say hello
