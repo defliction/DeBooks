@@ -4,6 +4,8 @@ Dynamic wallet statements for Solana addresses. The intention is to create human
 
 A few architecture changes are on the to-do list to make contributions to the codebase easier. 
 
+Read more here: https://docs.debooks.xyz
+
 # DeBooks Roadmap SS23
 
 ### Feature priority roadmap:
