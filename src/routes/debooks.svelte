@@ -112,35 +112,7 @@
             
         }
         //console.log("first date", firstDate)
-        //first blocktimed block - 38669748
-        let trans1 = await $cnx.getParsedTransaction("5GkGQBbWgfgFwZD8mhYaVMrNGEkX39Vqvc2w1CnpvA1gy7V6TzP1fpUVf88Cku8CJe9JXrxsBHGKSYXWoPniw9wJ")
-        
-        
-        console.log (trans1)
-        //let block = 38669748
-        //let startB = await $cnx.getBlockTime(block)
-        //console.log("b1 ",startB, dayjs.unix(startB).format("DD-MM-YYYY"), startday.format("DD-MM-YYYY"), (dayjs.unix(startB).diff(startday, 'hours')), block)
-        //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
-        //let giraffe = await $cnx.getAccountInfoAndContext(new web3.PublicKey("2moSEa33qxnGDZuydUYPeAkwdAjmEfCe87VcLJfhrBWp"))
-        //console.log(giraffe)
-        //let trans = await $cnx.getParsedTransaction("2WCGGJd52r9wpVqFsUKH4dsfgewQcEGzPUQtkH8WQMRxVyBaHGm69KdnjCGKKNgCncMaX66MLfBRTCsypCr9PTGn")
-        //console.log(trans)
-        //console.log(trans.transaction.message.accountKeys.flatMap(s => s.pubkey.toBase58()))
-        //console.log(metadata_parsed)
-        //const metadata_buf = Buffer.from(metadata_parsed.value.data, 'base64');
-        //const metadata = decodeMetadata(metadata_buf)
-        //console.log(metadata)
-        //console.log("connection ", rpcConnection)
-        //let metad = await mtda.getTokenMetadata(new web3.PublicKey("2ba9LpNiJQkyCwQahDiEZNFKJHUYnJ67DbyCnDdK88fP"))
-        //console.log("Metadata", metad)
-        //let teawk = await fetch("https://bafybeic6ljkikzvqjliilfqnz7sezi6ffvxkfliszntpozp3pdxko6mxlu.ipfs.nftstorage.link/2391.json")
-        //let tewak = await teawk.json()
-        //console.log(tewak)
-        //console.log("latest date ", storedCoinGeckoData[0])
-        //fetch historics manually
-        
-        //console.log(rpcConnection)
-        //await interpolateBlockSignatures()
+     
         console.log("END - starting logs")
     });
     
