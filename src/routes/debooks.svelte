@@ -1019,8 +1019,17 @@ $: $showMetadata? metadataText = "Token Metadata is On (loading can be slower)" 
         </div>
 
         {#if rpcConnection == false}
-        
+        <div class="justify-center">
+            <input type="text" placeholder="enter account address e.g. DeDao..uw2r" bind:value={$keyInput} disabled class=" text-center font-serif input input-sm input-bordered input-primary sm:w-96 w-64 " />
+        </div>
         {:else if loading == false && rpcConnection == true && showAddressBox}
+        <div class="flex flex-row justify-center pb-2">
+            <div class="btn-group">
+                <button class="btn btn-xs btn-active normal-case">Transactions</button>
+                <button class="btn btn-xs btn-ghost normal-case">Cash Flow</button>
+                
+            </div>
+        </div>
         <div class=" flex flex-row justify-center">
             <div class="input-group justify-center">
                 
