@@ -508,7 +508,7 @@
             while (y < reformattedArray.length) {
                 try {
                     loadingText =  y>0? "fetching data... " +  Math.round(y/reformattedArray.length*100) +"%" : "fetching data..."
-                    let array = await $cnx.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)))
+                    let array = await $cnx.getParsedTransactions(reformattedArray.slice(y,Math.min(y+yIncrement, reformattedArray.length)),  { maxSupportedTransactionVersion: 1 })
                     $fetchedTransactions.push(array)
                     console.log("incrementally fetching parsed ", y, reformattedArray.length)
                     y += yIncrement

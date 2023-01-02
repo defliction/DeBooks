@@ -16,6 +16,7 @@ const get_metadataPda = async (address:PublicKey) => {
 
 export async function getTokenMetadata(token_address:PublicKey) {
 	try {
+		
 		const token_publickey = token_address
 		const metadata_pda = await get_metadataPda(token_publickey);
 
@@ -31,6 +32,7 @@ export async function getTokenMetadata(token_address:PublicKey) {
 			]
 		}
         let sol_rpc = process.env.SOLANA_RPC? process.env.SOLANA_RPC : "";
+		
 		const metadata_res = await fetch(sol_rpc, {
 			method: "POST",
 			headers: {
@@ -40,6 +42,7 @@ export async function getTokenMetadata(token_address:PublicKey) {
 		}); 
 		const metadata_parsed = await metadata_res.json();
 		//console.log("parsed ", token_address.toBase58(), metadata_pda.toBase58(), metadata_parsed)
+		
 		if (metadata_parsed.result.value) {
 			const metadata_buf = Buffer.from(metadata_parsed.result.value.data[0], 'base64');
 			const metadata = decodeMetadata(metadata_buf)
