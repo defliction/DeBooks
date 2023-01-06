@@ -6,9 +6,9 @@ A few architecture changes are on the to-do list to make contributions to the co
 
 Read more here: https://docs.debooks.xyz
 
-# Stake with Riparian!
+# Stake your Solana with Riparian!
 
-If you like what we're doing and building please consider staking with us! We're bringing open-source software and new user friendly education paired with  high quality infrastructure to validate the network. The goal is to contribute growth to the utility of SOL and make sure you earn optimized taking rewards. Search "**Riparian**" in your favourite wallet app - visit our website to see our other apps and regularly updated with more information.
+If you like what we're about please consider staking with us! We're creating open-source software and user friendly short-form education content for the network and community. Our validator runs on high-performance infrastructure to ensure you earn optimized rewards. To stake, search "**Riparian**" in your favourite wallet app - visit our website to see our other apps and follow us on twitter https://twitter.com/defliction.
 
 Visit us here: https://riparian.one
 
