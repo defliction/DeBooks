@@ -6,20 +6,11 @@ A few architecture changes are on the to-do list to make contributions to the co
 
 Read more here: https://docs.debooks.xyz
 
-# DeBooks Roadmap SS23
+# Stake with Riparian!
 
-### Feature priority roadmap:
-  * ~~Classification engine V2~~
-  * ~~Support for multiple addresses~~
-  * Solana Mobile Stack / Saga native app
-  * [Redacted]
-  * Refactored transaction fetching
-  * xNFT integration
-  * Insights & Reporting
-  * Automated audit reporting
-  * Multi chain
-  * (Ongoing) Additional protocol integrations
-  * (Ongoing) UI & UX improvements
+If you like what we're doing and building please consider staking with us! We're bringing open-source software and new user friendly education paired with  high quality infrastructure to validate the network. The goal is to contribute growth to the utility of SOL and make sure you earn optimized taking rewards. Search "**Riparian**" in your favourite wallet app - visit our website to see our other apps and regularly updated with more information.
+
+Visit us here: https://riparian.one
 
 # Contact
-Contact @defliction on Twitter or mail hello@defliction.com to submit feature requests or just say hello
+Contact @defliction on Twitter or mail hello@riparian.one to submit feature requests or just say hello
