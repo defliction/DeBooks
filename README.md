@@ -6,11 +6,7 @@ A few architecture changes are on the to-do list to make contributions to the co
 
 Read more here: https://docs.debooks.xyz
 
-# Stake your Solana with Riparian!
+# Stake your Solana with Lamportians!
 
-If you like what we're about please consider staking with us! We're creating open-source software and user friendly short-form education content for the network and community. Our validator runs on high-performance infrastructure to ensure you earn optimized rewards. To stake, search "**Riparian**" in your favourite wallet app - visit our website to see our other apps and follow us on twitter https://twitter.com/defliction.
+If you like what we're about please consider staking with us! We're creating open-source software and user friendly short-form education content for the network and community. Our validator runs on high-performance infrastructure to ensure you earn optimized rewards. To stake, search "**Lamportians**" in your favourite wallet app - visit our website to see our other apps and follow us on twitter https://twitter.com/defliction.
 
-Visit us here: https://riparian.one
-
-# Contact
-Contact @defliction on Twitter or mail hello@riparian.one to submit feature requests or just say hello
