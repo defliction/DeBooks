@@ -6,7 +6,9 @@ A few architecture changes are on the to-do list to make contributions to the co
 
 Read more here: https://docs.debooks.xyz
 
-# Stake your Solana with Lamportians!
+# Stake your Solana with Defliction!
 
-If you like what we're about please consider staking with us! We're creating open-source software and user friendly short-form education content for the network and community. Our validator runs on high-performance infrastructure to ensure you earn optimized rewards. To stake, search "**Lamportians**" in your favourite wallet app - visit our website to see our other apps and follow us on twitter https://twitter.com/defliction.
+We run a Solana Validator and would appreciate your support. We use high-performance infrastructure for you to earn optimized rewards and share 95% of MEV (maximum extractable value). If you enjoy our content and contributions, consider staking with us!
+
+Simply search for ‘Defliction’ using your favourite wallet app.
 
